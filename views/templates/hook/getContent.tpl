@@ -23,18 +23,14 @@
 *  International Registered Trademark & Property of mpSOFT
 *}
 
-{foreach $css as $css_link}
-    <style type="text/css">
-        @import url("{$css_link}"); 
-    </style>
-{/foreach}
-{foreach $js as $js_link}
-    <script src="{$js_link}"></script>
-{/foreach}
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.4.0/riot+compiler.min.js"></script>
+<script type="text/javascript" src="{$base_uri}modules/mpadvpayment/views/js/chosen/chosen.jquery.js"></script>
+
 <form class='defaultForm form-horizontal' method='post' id="form_manage_products">
     <div class='panel' id='panel-config'>
         <div class='panel-heading'>
-            <img src='../modules/mpadvpayment/views/img/config.png' alt='Config'>
+            <i class="icon-cogs"></i>
             {l s='Configuration section' mod='mpadvpayment'}
         </div>  
         <div class="form-wrapper">
@@ -46,59 +42,28 @@
                 </ul>
                 <div id="tabs-1">
                     <!-- ******************************
-                         ** GET PRODUCTS BY CATEGORY **
+                         ** CASH CONFIGURATION **
                          ****************************** -->
                     <div class="form-wrapper">
                         <div class="form-group" id="div_tree_categories">
                             <p class='panel-heading' style="margin-top: 20px;">
-                                <img src='../modules/mpadvpayment/views/img/category.png' alt='Config'>
-                                {l s='Product Categories' mod='mpadvpayment'}
+                                <img src='../modules/mpadvpayment/views/img/cash.png' alt='Config' style="width: 28px;">
+                                {l s='Cash configuration' mod='mpadvpayment'}
                             </p>  
-                            {$category_tree}
-                            <br>
-                            <div>
-                                <div style="display: table;">
-                                    <div style="display: table-cell; vertical-align: middle;">
-                                        <label class="control-label label-br" >{l s='Category' mod='mpadvpayment'}</label>
-                                        <input type="text" id="input_category" value="" class="width-xl" style="display: inline-block">
-                                    </div>
-
-                                    <div style="display: table-cell; vertical-align: middle; padding-left: 10px;">
-                                        <input type="checkbox" id="input_check_category_by_id" value="0" style="display: inline-block">
-                                        <label class="control-label label-br" style="display: inline-block">{l s='Search by id' mod='mpadvpayment'}</label>
-                                        <br>
-                                        <input type="checkbox" id="input_check_category_clear" value="0" style="display: inline-block">
-                                        <label class="control-label label-br" style="display: inline-block">{l s='New research' mod='mpadvpayment'}</label>
-                                    </div>
-
-                                    <div style="display: table-cell; vertical-align: middle; padding-left: 10px;">
-                                        <button type="button" value="1" id="submit_find_category" id="find_product" name="find_product" class="btn btn-default">
-                                            <i class="icon-search"></i> 
-                                            {l s='Find' mod='mpadvpayment'}
-                                        </button> 
-                                    </div>
-                                </div>
-                            </div>    
+                            {$form_cash}
                             <br style="clear: both;">
-                            <label class="control-label label-br">{l s='Product associated' mod='mpadvpayment'}</label>
-                            <br>
-                            <div style="float: left; margin-right: 10px;">
-                                <select size="10" style='width: 300px;' id="input_list_products">
-
-                                </select>
-                            </div>
                         </div>
                     </div>
                 </div>
                 <div id="tabs-2">
-                    <!-- ***********************
-                         ** PRODUCT DISCOUNTS **
-                         *********************** -->
+                    <!-- ****************************
+                         ** BANKWIRE CONFIGURATION **
+                         **************************** -->
                     <div class="form-wrapper">
                         <div class="form-group">
                             <p class='panel-heading' style="margin-top: 20px;">
-                                <img src='../modules/mpadvpayment/views/img/discount.png' alt='Config'>
-                                {l s='Product discounts' mod='mpadvpayment'}
+                                <img src='../modules/mpadvpayment/views/img/bankwire.png' alt='Config' style="width: 28px;">
+                                {l s='Bankwire configuration' mod='mpadvpayment'}
                             </p>
                             <div id="tabs-discounts">
                                 <ul>
@@ -182,9 +147,9 @@
                                     </div>
                                 </div>
                                 <div id="tabs-discounts-2">
-                                    <!-- ************************
-                                         *** ADD DISCOUNT TAB ***
-                                         ************************
+                                    <!-- ****************************
+                                         *** PAYPAL CONFIGURATION ***
+                                         ****************************
                                     -->
                                     <div>
                                         <label class="control-label label-br">{l s='Price' mod='mpadvpayment'}</label>
@@ -257,11 +222,15 @@
                     </div>
                 </div>
                 <div id="tabs-3">
-                    <!-- *********************************
-                         ** ATTRIBUTE COMBINATION ITEMS **
-                         ********************************* -->
+                    <!-- **************************
+                         ** PAYPAL CONFIGURATION **
+                         ************************** -->
                     <div class="form-wrapper">
                         <div class="form-group">
+                            <p class='panel-heading' style="margin-top: 20px;">
+                                <img src='../modules/mpadvpayment/views/img/paypal.png' alt='Config' style="width: 28px;">
+                                {l s='Cash configuration' mod='mpadvpayment'}
+                            </p>  
                             <div id="tabs-combinations">
                                 <ul>
                                     <li><a href="#tabs-combinations-1"><i class='icon-table'></i> {l s='Manage Combinations' mod='mpadvpayment'}</a></li>

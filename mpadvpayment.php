@@ -64,34 +64,28 @@ class MpAdvPayment extends PaymentModuleCore
     
     public function getContent()
     {
+        $this->_lang = Context::getContext()->language->id;
+        $this->smarty = Context::getContext()->smarty;
         $this->setMedia();
-        return $this->display(__FILE__, 'getContent.tpl');
+        
+        $this->smarty->assign('base_uri', __PS_BASE_URI__);
+        $this->smarty->assign('tax_list', $this->getTaxList());
+        $this->smarty->assign('carrier_list', $this->getCarrierList());
+        $this->smarty->assign('categories_list', $this->getCategoriesList());
+        $this->smarty->assign('manufacturers_list', $this->getManufacturersList());
+        $this->smarty->assign('suppliers_list', $this->getSuppliersList());
+        $this->smarty->assign('products_list', $this->getProductsList());
+        $this->smarty->assign('ps_version', Tools::substr(_PS_VERSION_, 0, 3));
+        $this->smarty->assign('form_cash', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_cash.tpl'));
+        $template  = $this->display(__FILE__, 'getContent.tpl');
+        $psui_tags = $this->display(__FILE__, 'views/templates/admin/prestui/ps-tags.tpl');
+        return $template . $psui_tags;
     }
     
     public function setMedia()
     {
-        $this->addJqueryUI('ui.tabs');
-        
-        $css = [];
-        $js  = [];
-        
-        foreach($this->headers as $header)
-        {
-            $this->css = $header['css'];
-            $this->js  = $header['js'];
-            
-            foreach($this->css as $key => $value)
-            {
-                $css[] = $key;
-            }
-            
-            foreach($this->js as $script)
-            {
-                $js[] = $script;
-            }
-        }
-        
-        Context::getContext()->smarty->assign(['css'=>$css, 'js' => $js]);
+        $this->context->controller->addJqueryUI('ui.tabs');
+        $this->context->controller->addJS("https://cdnjs.cloudflare.com/ajax/libs/riot/3.4.0/riot+compiler.min.js");
     }
     
     private function installSQL()
@@ -150,5 +144,75 @@ class MpAdvPayment extends PaymentModuleCore
             //print "</pre>";
             $this->headers[] = $ui_path;
         }
+    }
+    
+    public function getTaxList()
+    {
+        $taxes = TaxCore::getTaxes($this->_lang);
+        $options = [];
+        $options[] = "<option value='0'>" . $this->l('Please select') . "</option>";
+        foreach($taxes as $tax)
+        {
+            $options[] = "<option value='" . $tax['rate'] . "'>" . $tax['name'] . "</option>";
+        }
+        return implode("\n", $options);
+    }
+    
+    public function getCarrierList()
+    {
+        $carriers = CarrierCore::getCarriers($this->_lang);
+        $options = [];
+        foreach($carriers as $carrier)
+        {
+            $options[] = "<option value='" . $carrier['id_carrier'] . "'>" . Tools::strtoupper($carrier['name']) . "</option>";
+        }
+        return implode("\n", $options);
+    }
+    
+    public function getCategoriesList()
+    {
+        $categories = CategoryCore::getCategories($this->_lang);
+        $options = [];
+        foreach($categories as $category)
+        {
+            foreach($category as $cat)
+            {
+                $options[] = "<option value='" . $cat['infos']['id_category'] . "'>" . Tools::strtoupper($cat['infos']['name']) . "</option>";
+            }
+        }
+        return implode("\n", $options);
+    }
+    
+    public function getManufacturersList()
+    {
+        $items = ManufacturerCore::getManufacturers();
+        $options = [];
+        foreach($items as $item)
+        {
+            $options[] = "<option value='" . $item['id_manufacturer'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
+        }
+        return implode("\n", $options);
+    }
+    
+    public function getSuppliersList()
+    {
+        $items = SupplierCore::getSuppliers();
+        $options = [];
+        foreach($items as $item)
+        {
+            $options[] = "<option value='" . $item['id_supplier'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
+        }
+        return implode("\n", $options);
+    }
+    
+    public function getProductsList()
+    {
+        $items = ProductCore::getSimpleProducts($this->_lang);
+        $options = [];
+        foreach($items as $item)
+        {
+            $options[] = "<option value='" . $item['id_product'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
+        }
+        return implode("\n", $options);
     }
 }
