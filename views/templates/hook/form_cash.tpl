@@ -30,6 +30,7 @@
     active="true"
     onSwitch='hideCashPanel'>
 </ps-switch>
+<input type="hidden" id="input_switch_hidden_activate_cash" value="1">
 <div id='cash_panel'>
         <label class="control-label col-lg-3 ">{l s='Fee type' mod='mpadvpayment'}</label>
     <select id="input_select_cash_type" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
@@ -42,45 +43,49 @@
     <br>
     <br>
     <div id='cash_tax_panel'>
-        <label class="control-label col-lg-3 ">{l s='Fee amount' mod='mpadvpayment'}</label>
-        <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_fee_amount" class="input fixed-width-lg">
-            <span class="input-group-addon">€</span>
+        <div id="div_fee_amount">
+            <label class="control-label col-lg-3 ">{l s='Fee amount' mod='mpadvpayment'}</label>
+            <div class="input-group input fixed-width-lg">
+                <input type="text" id="input_fee_amount" class="input fixed-width-lg number_align">
+                <span class="input-group-addon">€</span>
+            </div>
+            <br>
         </div>
-        <br>
-        <label class="control-label col-lg-3 ">{l s='Fee percent' mod='mpadvpayment'}</label>
-        <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_fee_percent" class="input fixed-width-lg">
-            <span class="input-group-addon">%</span>
+        <div id="div_fee_percent">
+            <label class="control-label col-lg-3 ">{l s='Fee percent' mod='mpadvpayment'}</label>
+            <div class="input-group input fixed-width-lg">
+                <input type="text" id="input_fee_percent" class="input fixed-width-lg number_align">
+                <span class="input-group-addon">%</span>
+            </div>
+            <br>    
         </div>
-        <br>
         <label class="control-label col-lg-3 ">{l s='Fee min' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_fee_min" class="input fixed-width-lg">
+            <input type="text" id="input_fee_min" class="input fixed-width-lg number_align">
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Fee max' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_fee_max" class="input fixed-width-lg">
+            <input type="text" id="input_fee_max" class="input fixed-width-lg number_align">
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order min' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_min" class="input fixed-width-lg">
+            <input type="text" id="input_order_min" class="input fixed-width-lg number_align">
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order max' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_max" class="input fixed-width-lg">
+            <input type="text" id="input_order_max" class="input fixed-width-lg number_align">
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order free' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_free" class="input fixed-width-lg">
+            <input type="text" id="input_order_free" class="input fixed-width-lg number_align">
             <span class="input-group-addon">€</span>
         </div>
         <br>
@@ -152,9 +157,6 @@
         });
         $("#input_button_add_category").on('click', function(){
             log($("input[name='input_select_cash_exclude_categories']").val());
-            //var sel  = "";
-            //var item = "<li value='0'><input type='checkbox' value='0' checked="true"> <label>jashdaskdahl</label></li>";
-            //$("#input_list_cash_excluded_categories").append(item);
         });
         
         $('#input_select_cash_type')
@@ -166,6 +168,20 @@
                 $("#cash_tax_panel").fadeOut();
             } else {
                 $("#cash_tax_panel").fadeIn();
+            }
+            
+            if ($("#input_select_cash_type").val()==1) {
+                $("#cash_tax_panel").fadeIn();
+                $("#div_fee_amount").fadeIn();
+                $("#div_fee_percent").fadeOut();
+            } else if ($("#input_select_cash_type").val()==2) {
+                $("#cash_tax_panel").fadeIn();
+                $("#div_fee_amount").fadeOut();
+                $("#div_fee_percent").fadeIn();
+            } else if ($("#input_select_cash_type").val()==3) {
+                $("#cash_tax_panel").fadeIn();
+                $("#div_fee_amount").fadeIn();
+                $("#div_fee_percent").fadeIn();
             }
         }); 
         
@@ -217,6 +233,9 @@
         if($("#input_select_cash_type").val()==0) {
             $("#cash_tax_panel").hide();
         }
+        
+        setValues();
+        
     });
     
     function log(logger)
@@ -242,6 +261,37 @@
         } else {
             $("#cash_panel").fadeIn();
         }
+        $("#input_switch_hidden_activate_cash").val(value);
+    }
+    
+    function setValues()
+    {
+        console.log("setValues");
+        
+        if({$cash_values->input_switch_on}) {
+            $("#input_switch_cash_on").click();
+        } else {
+            $("#input_switch_cash_off").click();
+        }
+        $('#input_select_cash_type').val({$cash_values->fee_type}).trigger('chosen:updated').change();
+        $("#input_fee_amount").val(Number({$cash_values->fee_amount}).toFixed(2));
+        $("#input_fee_percent").val(Number({$cash_values->fee_percent}).toFixed(2));
+        $("#input_fee_min").val(Number({$cash_values->fee_min}).toFixed(2));
+        $("#input_fee_max").val(Number({$cash_values->fee_max}).toFixed(2));
+        $("#input_order_min").val(Number({$cash_values->order_min}).toFixed(2));
+        $("#input_order_max").val(Number({$cash_values->order_max}).toFixed(2));
+        $("#input_order_free").val(Number({$cash_values->order_free}).toFixed(2));
+        if({$cash_values->tax_included}) {
+            $("#input_switch_cash_included_tax_on").click();
+        } else {
+            $("#input_switch_cash_included_tax_off").click();
+        }
+        $("#input_select_cash_tax").val("{$cash_values->tax_rate}").trigger('chosen:updated').change();
+        $("#input_select_cash_carriers").val([{$cash_values->carriers|implode:','}]).trigger('chosen:updated').change();
+        $("#input_select_cash_categories").val([{$cash_values->categories|implode:','}]).trigger('chosen:updated').change();
+        $("#input_select_cash_manufacturers").val([{$cash_values->manufacturers|implode:','}]).trigger('chosen:updated').change();
+        $("#input_select_cash_suppliers").val([{$cash_values->suppliers|implode:','}]).trigger('chosen:updated').change();
+        $("#input_select_cash_products").val([{$cash_values->products|implode:','}]).trigger('chosen:updated').change();
     }
 </script>
 

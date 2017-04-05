@@ -1,9 +1,27 @@
 <?php
-
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * 2017 mpSOFT
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    mpSOFT <info@mpsoft.it>
+ *  @copyright 2017 mpSOFT Massimiliano Palermo
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of mpSOFT
  */
 
 if (!defined('_PS_VERSION_')) {
@@ -43,7 +61,8 @@ class MpAdvPayment extends PaymentModuleCore
         if (!parent::install() ||
           !$this->registerHook('displayPayment') ||
           !$this->registerHook('displayPaymentReturn') ||
-          !$this->installSql()) {
+          !$this->installSql() ||
+          !$this->setVariables()) {
           return false;
         }
         return true;
@@ -51,7 +70,7 @@ class MpAdvPayment extends PaymentModuleCore
     
     public function uninstall()
     {
-        if (!parent::uninstall() || !$this->uninstallSql()) {
+        if (!parent::uninstall() || !$this->uninstallSql() || !$this->setVariables(true)) {
           return false;
         }
         return true;
@@ -75,6 +94,7 @@ class MpAdvPayment extends PaymentModuleCore
         $this->smarty->assign('manufacturers_list', $this->getManufacturersList());
         $this->smarty->assign('suppliers_list', $this->getSuppliersList());
         $this->smarty->assign('products_list', $this->getProductsList());
+        $this->smarty->assign('cash_values', $this->getCashValues());
         $this->smarty->assign('ps_version', Tools::substr(_PS_VERSION_, 0, 3));
         $this->smarty->assign('form_cash', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_cash.tpl'));
         $template  = $this->display(__FILE__, 'getContent.tpl');
@@ -122,6 +142,21 @@ class MpAdvPayment extends PaymentModuleCore
             }
         }
         return TRUE;
+    }
+    
+    public function setVariables($delete=false)
+    {
+        if (!$delete) {
+            ConfigurationCore::set("MP_ADV_PAYMENT_CASH", true);
+            ConfigurationCore::set("MP_ADV_PAYMENT_BANKWIRE", true);
+            ConfigurationCore::set("MP_ADV_PAYMENT_PAYPAL", true);
+        } else {
+            ConfigurationCore::deleteByName("MP_ADV_PAYMENT_CASH");
+            ConfigurationCore::deleteByName("MP_ADV_PAYMENT_BANKWIRE");
+            ConfigurationCore::deleteByName("MP_ADV_PAYMENT_PAYPAL");
+        }
+        
+        return true;
     }
     
     /**
@@ -214,5 +249,29 @@ class MpAdvPayment extends PaymentModuleCore
             $options[] = "<option value='" . $item['id_product'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
         }
         return implode("\n", $options);
+    }
+    
+    public function getCashValues()
+    {
+        $cash = new stdClass();
+        
+        $cash->input_switch_on=true;
+        $cash->fee_type=2;
+        $cash->fee_amount=5;
+        $cash->fee_percent=10.5;
+        $cash->fee_min=10;
+        $cash->fee_max=399;
+        $cash->order_min=50;
+        $cash->order_max=999;
+        $cash->order_free=2500;
+        $cash->tax_included=true;
+        $cash->tax_rate="22.000";
+        $cash->carriers=[191,192];
+        $cash->categories=[623,1955,1900];
+        $cash->manufacturers=[14,36,3];
+        $cash->suppliers=[8,3,27];
+        $cash->products=[431,429];
+        
+        return $cash;
     }
 }
