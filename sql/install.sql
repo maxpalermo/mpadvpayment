@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS `{_DB_PREFIX_}mp_advpayment_configuration` (
     `manufacturers` TEXT NOT NULL,
     `suppliers` TEXT NOT NULL,
     `products` TEXT NOT NULL,
-    `payment_type` VARCHAR(30),
+    `payment_type` VARCHAR(30) NOT NULL,
+    `is_active` BOOLEAN NOT NULL,
     PRIMARY KEY (`id_configuration`)
 ) ENGINE = InnoDB;
 

@@ -52,6 +52,7 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
             'total_amount' => $this->_cart->getOrderTotal(true),
             'path' => $this->module->getPathUri(),
             'summary' => $this->_cart->getSummaryDetails(),
+            'params' => "'payment_method' => 'cash', 'payment_display' => 'cash'",
         ]);
         
         $this->setTemplate('cash.tpl');

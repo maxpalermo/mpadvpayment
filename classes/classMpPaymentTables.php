@@ -26,7 +26,7 @@
 
 abstract class CRUD {
     public abstract function create();
-    public abstract function read();
+    public abstract function read($payment_type);
     public abstract function update();
     public abstract function delete();
     public abstract function save();
@@ -55,6 +55,7 @@ class classPaymentConfiguration extends CRUD{
     public $suppliers;
     public $products;
     public $payment_type;
+    public $is_active;
     
     private $tablename;
     
@@ -82,7 +83,8 @@ class classPaymentConfiguration extends CRUD{
                         'manufacturers' => $this->manufacturers,
                         'suppliers' => $this->suppliers,
                         'products' => $this->products,
-                        'payment_type' => $this->payment_type
+                        'payment_type' => $this->payment_type,
+                        'is_active' => $this->is_active
                     ]
                     );
         } catch (Exception $exc) {
@@ -102,7 +104,7 @@ class classPaymentConfiguration extends CRUD{
         
         $sql    ->select("*")
                 ->from($this->tablename)
-                ->where("payment_type = " . $payment_type);
+                ->where("payment_type = '" . $payment_type . "'");
         
         $result = $db->getRow($sql);
         $this->fee_type = $result['fee_type'];
@@ -121,6 +123,7 @@ class classPaymentConfiguration extends CRUD{
         $this->suppliers = $result['suppliers'];
         $this->products = $result['products'];
         $this->payment_type = $result['payment_type'];
+        $this->is_active = $result['is_active'];
     }
 
     public function update() {
@@ -143,7 +146,8 @@ class classPaymentConfiguration extends CRUD{
                         'manufacturers' => $this->manufacturers,
                         'suppliers' => $this->suppliers,
                         'products' => $this->products,
-                        'payment_type' => $this->payment_type
+                        'payment_type' => $this->payment_type,
+                        'is_active' => $this->is_active
                     ],
                     'id_configuration = ' . $this->id_configuration
                     );
@@ -159,12 +163,13 @@ class classPaymentConfiguration extends CRUD{
         
         $sql    ->select('id_configuration')
                 ->from($this->tablename)
-                ->where('payment_type = ' . $this->payment_type);
+                ->where("payment_type = '" . $this->payment_type . "'");
         
         $result = $db->getValue($sql);
         if (empty($result)) {
             $this->create();
         } else {
+            $this->id_configuration = $result;
             $this->update();
         }
     }

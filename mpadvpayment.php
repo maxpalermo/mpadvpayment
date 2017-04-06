@@ -27,12 +27,15 @@
 if (!defined('_PS_VERSION_')) {
     exit;
     }
- 
+
+require_once (dirname(__FILE__) . '/classes/classMpPayment.php');
+    
 class MpAdvPayment extends PaymentModuleCore
 {
     private $css;
     private $js;
     private $headers;
+    private $payment;
     
     public function __construct()
     {
@@ -49,6 +52,8 @@ class MpAdvPayment extends PaymentModuleCore
       $this->displayName = $this->l('MP Advanced payment module');
       $this->description = $this->l('This module include three payments method with advanced custom parameters');
       $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
+      
+      $this->payment = new classMpPayment();
     }
   
     public function install()
@@ -61,8 +66,7 @@ class MpAdvPayment extends PaymentModuleCore
         if (!parent::install() ||
           !$this->registerHook('displayPayment') ||
           !$this->registerHook('displayPaymentReturn') ||
-          !$this->installSql() ||
-          !$this->setVariables()) {
+          !$this->installSql()) {
           return false;
         }
         return true;
@@ -70,7 +74,7 @@ class MpAdvPayment extends PaymentModuleCore
     
     public function uninstall()
     {
-        if (!parent::uninstall() || !$this->uninstallSql() || !$this->setVariables(true)) {
+        if (!parent::uninstall() || !$this->uninstallSql()) {
           return false;
         }
         return true;
@@ -78,7 +82,22 @@ class MpAdvPayment extends PaymentModuleCore
     
     public function hookDisplayPayment($params)
     {
-        return $this->display(__FILE__, 'displayPayment.tpl');
+        /** @var CartCore $cart */
+        $cart = new CartCore();
+        $cart = Context::getContext()->cart;
+        
+        $cart_total = $cart->getTotalCart($cart->id, false, CartCore::BOTH);
+        $fee        = $this->payment->calculateFee(classMpPayment::CASH, $cart);
+        $total      = $cart_total + $fee;
+        
+        $this->smarty->assign(
+                "cash_summary", 
+                $this->l("Cart:") . ' ' . $cart_total . ', ' .
+                $this->l("Fee:") . ' ' . Tools::displayPrice( $fee) . ', ' .
+                $this->l("Total:") . ' ' . Tools::displayPrice($total));
+                
+        $controller = $this->getHookController('displayPayment');
+        return $controller->run($params);
     }
     
     public function getContent()
@@ -87,6 +106,7 @@ class MpAdvPayment extends PaymentModuleCore
         $this->smarty = Context::getContext()->smarty;
         $this->setMedia();
         
+        $this->smarty->assign('path', __PS_BASE_URI__ . 'modules/mpadvpayment');
         $this->smarty->assign('base_uri', __PS_BASE_URI__);
         $this->smarty->assign('tax_list', $this->getTaxList());
         $this->smarty->assign('carrier_list', $this->getCarrierList());
@@ -144,19 +164,19 @@ class MpAdvPayment extends PaymentModuleCore
         return TRUE;
     }
     
-    public function setVariables($delete=false)
+    public function getHookController($hook_name)
     {
-        if (!$delete) {
-            ConfigurationCore::set("MP_ADV_PAYMENT_CASH", true);
-            ConfigurationCore::set("MP_ADV_PAYMENT_BANKWIRE", true);
-            ConfigurationCore::set("MP_ADV_PAYMENT_PAYPAL", true);
-        } else {
-            ConfigurationCore::deleteByName("MP_ADV_PAYMENT_CASH");
-            ConfigurationCore::deleteByName("MP_ADV_PAYMENT_BANKWIRE");
-            ConfigurationCore::deleteByName("MP_ADV_PAYMENT_PAYPAL");
-        }
-        
-        return true;
+        // Include the controller file
+        require_once(dirname(__FILE__).'/controllers/hook/'. $hook_name.'.php');
+
+        // Build dynamically the controller name
+        $controller_name = $this->name.$hook_name.'Controller';
+
+        // Instantiate controller
+        $controller = new $controller_name($this, __FILE__, $this->_path);
+
+        // Return the controller
+        return $controller;
     }
     
     /**

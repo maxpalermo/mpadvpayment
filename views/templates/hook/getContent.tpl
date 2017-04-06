@@ -26,7 +26,56 @@
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.4.0/riot+compiler.min.js"></script>
 <script type="text/javascript" src="{$base_uri}modules/mpadvpayment/views/js/chosen/chosen.jquery.js"></script>
-
+<script type="text/javascript">
+    /*
+     * CONFIG OBJECT
+     */
+    var Payment = function(){
+        this.active = true;
+        this.fee_type = 0;
+        this.fee_amount = 0;
+        this.fee_percent = 0;
+        this.fee_min = 0;
+        this.fee_max = 0;
+        this.order_min = 0;
+        this.order_max = 0;
+        this.order_free = 0;
+        this.tax_included = 0;
+        this.tax_rate = 0;
+        this.carriers = new Array();
+        this.categories = new Array();
+        this.manufacturers = new Array();
+        this.suppliers = new Array();
+        this.products = new Array();
+        this.payment_type = '';
+        this.load = function(){
+            $.ajax({
+                url: '{$path}/ajax/getPayment.php',
+                type: 'POST',
+                data:   { 'type' : this.payment_type },
+                success: function(response)
+                        {
+                            var result = JSON.parse(response);
+                            console.log(result);
+                        }
+            });
+        },
+        this.save = function(){
+            $.ajax({
+                url: '{$path}/ajax/setPayment.php',
+                type: 'POST',
+                data:   { 
+                            'class' : JSON.stringify(this)
+                        },
+                success: function(response)
+                        {
+                            console.log(response);
+                        }
+            });
+        }
+    };
+    
+</script>
 <style type="text/css">
     .number_align
     {

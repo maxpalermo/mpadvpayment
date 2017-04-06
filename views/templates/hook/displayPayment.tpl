@@ -22,57 +22,26 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of mpSOFT
 *}
-<style>
-    p.payment_module a.mpadvpayment:after {
-        color: #777777;
-        content: "";
-        display: block;
-        font-family: "FontAwesome";
-        font-size: 25px;
-        height: 22px;
-        margin-top: -11px;
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        width: 14px;
-    }
-    
-    p.payment_module a.mpadvpayment:hover
-    {
-        background-color: #D0D1D5;
-    }
-    
-    p.payment_module a.mpadvpayment_cash {
-        background: url("modules/mpadvpayment/views/img/cash.png") no-repeat scroll 15px 15px #fbfbfb;
-    }
-    
-    p.payment_module a.mpadvpayment_bankwire
-    {
-        background: url("modules/mpadvpayment/views/img/bankwire.png") no-repeat scroll 15px 15px #fbfbfb;
-    }
-    p.payment_module a.mpadvpayment_paypal
-    {
-        background: url("modules/mpadvpayment/views/img/paypal.png") no-repeat scroll 15px 15px #fbfbfb;
-    }
-</style>
+
 <div class="row">
     <div class="col-xs-12">
         <p class="payment_module">
             <a href="{$link->getModuleLink('mpadvpayment','cash')|escape:'html'}" class="mpadvpayment mpadvpayment_cash">
                 {l s='Cash' mod='mpadvpayment'}
+                {$cash_summary}
             </a>
         </p>
     </div>
     <div class="col-xs-12">
         <p class="payment_module">
-            <a href="#" class="mpadvpayment mpadvpayment_bankwire">
+            <a href="{$link->getModuleLink('mpadvpayment','bankwire')|escape:'html'}" class="mpadvpayment mpadvpayment_bankwire">
                 {l s='Bankwire' mod='mpadvpayment'}
             </a>
         </p>
     </div>
     <div class="col-xs-12">
         <p class="payment_module">
-            <a href="#" class="mpadvpayment mpadvpayment_paypal">
+            <a href="{$link->getModuleLink('mpadvpayment','paypal')|escape:'html'}" class="mpadvpayment mpadvpayment_paypal">
                 {l s='Paypal' mod='mpadvpayment'}
             </a>
         </p>

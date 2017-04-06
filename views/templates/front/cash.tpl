@@ -27,7 +27,7 @@
     {l s='Cash payment' mod='mpadvpayment'}
 {/capture}
 
-<form action='{$link->getModuleLink('mpadvpayment', 'validation', [], true)|escape:'html'}' method='POST'>
+<form action='{$link->getModuleLink('mpadvpayment', 'validation', [{$params}], true)|escape:'html'}' method='POST'>
     <input type='hidden' name='currency_payment'>
     <table class='table-bordered'>
         <tbody>
@@ -35,7 +35,19 @@
             <tr><td>currencies : {$currencies|print_r}</td></tr>
             <tr><td>total_amount: {$total_amount}</td></tr>
             <tr><td>path: {$path|escape:'html'}</td></tr>
-            <tr><td><pre>SUMMARY<br>{$summary|print_r}</pre></td></tr>
         </tbody>
     </table>
+    <br>
+    <p class="cart_navigation clearfix" id="cart_navigation">
+        <a
+            class="button-exclusive btn btn-default"
+            href="{$link->getPageLink('order', true, NULL, "step=3")|escape:'html':'UTF-8'}">
+            <i class="icon-chevron-left"></i>{l s='Other payment methods' mod='mymodpayment'}
+        </a>
+        <button
+            class="button btn btn-default button-medium"
+            type="submit">
+            <span>{l s='I confirm my order' mod='mymodpayment'}<i class="icon-chevron-right right"></i></span>
+        </button>
+	</p>
 </form>

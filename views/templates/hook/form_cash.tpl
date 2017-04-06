@@ -46,7 +46,7 @@
         <div id="div_fee_amount">
             <label class="control-label col-lg-3 ">{l s='Fee amount' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
-                <input type="text" id="input_fee_amount" class="input fixed-width-lg number_align">
+                <input type="text" id="input_fee_amount" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
                 <span class="input-group-addon">€</span>
             </div>
             <br>
@@ -54,38 +54,38 @@
         <div id="div_fee_percent">
             <label class="control-label col-lg-3 ">{l s='Fee percent' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
-                <input type="text" id="input_fee_percent" class="input fixed-width-lg number_align">
+                <input type="text" id="input_fee_percent" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
                 <span class="input-group-addon">%</span>
             </div>
             <br>    
         </div>
         <label class="control-label col-lg-3 ">{l s='Fee min' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_fee_min" class="input fixed-width-lg number_align">
+            <input type="text" id="input_fee_min" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Fee max' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_fee_max" class="input fixed-width-lg number_align">
+            <input type="text" id="input_fee_max" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order min' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_min" class="input fixed-width-lg number_align">
+            <input type="text" id="input_order_min" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order max' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_max" class="input fixed-width-lg number_align">
+            <input type="text" id="input_order_max" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order free' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_free" class="input fixed-width-lg number_align">
+            <input type="text" id="input_order_free" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
@@ -95,9 +95,10 @@
             yes="{l s='YES' mod='mpadvpayment'}" 
             no="{l s='NO' mod='mpadvpayment'}" 
             active="false"
-            onswitch='log'>
+            onswitch='setIncludedTax'>
         </ps-switch>
-
+        <input type="hidden" id="input_hidden_cash_included_tax">
+        
         <label class="control-label col-lg-3 ">{l s='Fee tax' mod='mpadvpayment'}</label>
         <select id="input_select_cash_tax" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
             {$tax_list}
@@ -145,13 +146,13 @@
 </div>
 
 
-<button type="button" value="1" id="submit_check_all_discount" name="submit_check_all_discount" class="btn btn-default pull-right">
+<button type="button" value="1" id="submit_cash_save" name="submit_cash_save" class="btn btn-default pull-right">
     <i class="process-icon-save"></i> 
     {l s='Save' mod='mpadvpayment'}
 </button>
 
 <script type="text/javascript">
-    $(document).ready(function(){
+    $(document).ready(function(){        
         $("input[name='input_select_cash_exclude_categories']").on("change",function(){
             log(this);
         });
@@ -227,6 +228,10 @@
             addHiddenList(this);
         }); 
         
+        $("#submit_cash_save").on("click", function(){
+            saveValues();
+        });
+        
         //howto set values in select
         $('#input_select_cash_products').val(["300","2177","628"]).trigger('chosen:updated');
         
@@ -237,6 +242,19 @@
         setValues();
         
     });
+    
+    function formatCurrency(element)
+    {
+        //console.log("formatCurrency element: " + element.id);
+        $(element).val(Number(element.value).toFixed(2));
+        //console.log("value: " + element.value);
+    }
+    
+    function selectAll(element)
+    {
+        //console.log("selectAll element: " + element.id);
+        $(element).select();
+    }
     
     function log(logger)
     {
@@ -262,6 +280,11 @@
             $("#cash_panel").fadeIn();
         }
         $("#input_switch_hidden_activate_cash").val(value);
+    }
+    
+    function setIncludedTax(value)
+    {
+        $("#input_hidden_cash_included_tax").val(value);
     }
     
     function setValues()
@@ -292,6 +315,33 @@
         $("#input_select_cash_manufacturers").val([{$cash_values->manufacturers|implode:','}]).trigger('chosen:updated').change();
         $("#input_select_cash_suppliers").val([{$cash_values->suppliers|implode:','}]).trigger('chosen:updated').change();
         $("#input_select_cash_products").val([{$cash_values->products|implode:','}]).trigger('chosen:updated').change();
+    }
+    
+    function saveValues()
+    {
+        console.log("saveValues");
+        
+        var cash_payment = new Payment();
+        
+        cash_payment.active = $("#input_switch_hidden_activate_cash").val();
+        cash_payment.fee_type = $("#input_hidden_cash_type").val();
+        cash_payment.fee_amount = $("#input_fee_amount").val();
+        cash_payment.fee_percent = $("#input_fee_percent").val();
+        cash_payment.fee_min = $("#input_fee_min").val();
+        cash_payment.fee_max = $("#input_fee_max").val();
+        cash_payment.order_min = $("#input_order_min").val();
+        cash_payment.order_max = $("#input_order_max").val();
+        cash_payment.order_free = $("#input_order_free").val();
+        cash_payment.tax_included = $("#input_hidden_cash_included_tax").val();
+        cash_payment.tax_rate = $("#input_select_cash_tax").val();
+        cash_payment.carriers = $("#input_select_cash_carriers").val();
+        cash_payment.categories = $("#input_select_cash_categories").val();
+        cash_payment.manufacturers = $("#input_select_cash_manufacturers").val();
+        cash_payment.suppliers = $("#input_select_cash_suppliers").val();
+        cash_payment.products = $("#input_select_cash_products").val();
+        cash_payment.payment_type = 'cash';
+        
+        cash_payment.save();
     }
 </script>
 
