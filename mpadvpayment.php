@@ -85,16 +85,15 @@ class MpAdvPayment extends PaymentModuleCore
         /** @var CartCore $cart */
         $cart = new CartCore();
         $cart = Context::getContext()->cart;
-        
-        $cart_total = $cart->getTotalCart($cart->id, false, CartCore::BOTH);
         $fee        = $this->payment->calculateFee(classMpPayment::CASH, $cart);
-        $total      = $cart_total + $fee;
+        
+        
         
         $this->smarty->assign(
                 "cash_summary", 
-                $this->l("Cart:") . ' ' . $cart_total . ', ' .
-                $this->l("Fee:") . ' ' . Tools::displayPrice( $fee) . ', ' .
-                $this->l("Total:") . ' ' . Tools::displayPrice($total));
+                $this->l("Cart:") . ' ' . Tools::displayPrice($fee['total_cart']) . ', ' .
+                $this->l("Fee:") . ' ' . Tools::displayPrice($fee['total_fee_with_taxes']) . ', ' .
+                $this->l("Total:") . ' ' . Tools::displayPrice($fee['total_cart']+$fee['total_fee_with_taxes']));
                 
         $controller = $this->getHookController('displayPayment');
         return $controller->run($params);
@@ -114,6 +113,7 @@ class MpAdvPayment extends PaymentModuleCore
         $this->smarty->assign('manufacturers_list', $this->getManufacturersList());
         $this->smarty->assign('suppliers_list', $this->getSuppliersList());
         $this->smarty->assign('products_list', $this->getProductsList());
+        $this->smarty->assign('order_state_list', $this->getOrderStateList());
         $this->smarty->assign('cash_values', $this->getCashValues());
         $this->smarty->assign('ps_version', Tools::substr(_PS_VERSION_, 0, 3));
         $this->smarty->assign('form_cash', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_cash.tpl'));
@@ -271,27 +271,54 @@ class MpAdvPayment extends PaymentModuleCore
         return implode("\n", $options);
     }
     
+    public function getOrderStateList()
+    {
+        $items = OrderStateCore::getOrderStates($this->_lang);
+        $options = [];
+        foreach($items as $item)
+        {
+            $options[] = "<option value='" . $item['id_order_state'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
+        }
+        return implode("\n", $options);
+    }
+    
     public function getCashValues()
     {
         $cash = new stdClass();
+        $values = new classMpPayment();
+        $values->read(classMpPayment::CASH);
         
-        $cash->input_switch_on=true;
-        $cash->fee_type=2;
-        $cash->fee_amount=5;
-        $cash->fee_percent=10.5;
-        $cash->fee_min=10;
-        $cash->fee_max=399;
-        $cash->order_min=50;
-        $cash->order_max=999;
-        $cash->order_free=2500;
-        $cash->tax_included=true;
-        $cash->tax_rate="22.000";
-        $cash->carriers=[191,192];
-        $cash->categories=[623,1955,1900];
-        $cash->manufacturers=[14,36,3];
-        $cash->suppliers=[8,3,27];
-        $cash->products=[431,429];
+        $cash->input_switch_on      = $values->is_active;
+        $cash->fee_type             = $values->fee_type;
+        $cash->fee_amount           = $values->fee_amount;
+        $cash->fee_percent          = $values->fee_percent;
+        $cash->fee_min              = $values->fee_min;
+        $cash->fee_max              = $values->fee_max;
+        $cash->order_min            = $values->order_min;
+        $cash->order_max            = $values->order_max;
+        $cash->order_free           = $values->order_free;
+        $cash->tax_included         = $values->tax_included;
+        $cash->tax_rate             = number_format($values->tax_rate,3);
+        $cash->carriers             = $this->toArray($values->carriers);
+        $cash->categories           = $this->toArray($values->categories);
+        $cash->manufacturers        = $this->toArray($values->manufacturers);
+        $cash->suppliers            = $this->toArray($values->suppliers);
+        $cash->products             = $this->toArray($values->products);
+        $cash->id_order_state       = $values->id_order_state;
         
         return $cash;
+    }
+    
+    public function toArray($input_string, $separator = ",")
+    {
+        if (empty($input_string)) {
+            return [];
+        }
+        
+        if (is_array($input_string)) {
+            return $input_string;
+        }
+        
+        return explode($separator,$input_string);
     }
 }

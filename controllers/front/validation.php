@@ -6,17 +6,28 @@
  * and open the template in the editor.
  */
 
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
+        . DIRECTORY_SEPARATOR . ".." 
+        . DIRECTORY_SEPARATOR . "classes"
+        . DIRECTORY_SEPARATOR . "classMpPaymentTables.php";
+
 class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerCore
 {
     private $payment_method;
     private $payment_display;
+    private $paymentConfig;
     
-    
-    public function postProcess($params)
+    public function postProcess()
     {
+        //Set Class payment
+        $this->paymentConfig = new classPaymentConfiguration();
+
         //Set params
-        $this->payment_method = $params['payment_method'];
-        $this->payment_display = $params['payment_display'];
+        $this->payment_method = Tools::getValue('payment_method');
+        $this->payment_display = Tools::getValue('payment_display');
+        
+        //Get configuration data
+        $this->paymentConfig->read($this->payment_method);
         
         //Check if cart exists
         /** @var CartCore $cart */
@@ -57,7 +68,7 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
         //Validate order
         $this->module->validateOrder(
                 $cart->id,
-                ConfigurationCore::get('PS_OS_PREPARATION'),
+                $this->paymentConfig->id_order_state,
                 $total,
                 $this->payment_display,
                 NULL,

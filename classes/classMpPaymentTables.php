@@ -54,6 +54,7 @@ class classPaymentConfiguration extends CRUD{
     public $manufacturers;
     public $suppliers;
     public $products;
+    public $id_order_state;
     public $payment_type;
     public $is_active;
     
@@ -83,6 +84,7 @@ class classPaymentConfiguration extends CRUD{
                         'manufacturers' => $this->manufacturers,
                         'suppliers' => $this->suppliers,
                         'products' => $this->products,
+                        'id_order_state' => $this->id_order_state,
                         'payment_type' => $this->payment_type,
                         'is_active' => $this->is_active
                     ]
@@ -122,6 +124,7 @@ class classPaymentConfiguration extends CRUD{
         $this->manufacturers = $result['manufacturers'];
         $this->suppliers = $result['suppliers'];
         $this->products = $result['products'];
+        $this->id_order_state = $result['id_order_state'];
         $this->payment_type = $result['payment_type'];
         $this->is_active = $result['is_active'];
     }
@@ -146,6 +149,7 @@ class classPaymentConfiguration extends CRUD{
                         'manufacturers' => $this->manufacturers,
                         'suppliers' => $this->suppliers,
                         'products' => $this->products,
+                        'id_order_state' => $this->id_order_state,
                         'payment_type' => $this->payment_type,
                         'is_active' => $this->is_active
                     ],
@@ -176,7 +180,10 @@ class classPaymentConfiguration extends CRUD{
 
 }
 
-
+/**
+ * CLASS PAYMENT ORDERS
+ * This class manage order additional payment data
+ */
 class classPaymentOrders extends CRUD {
     public $id_cart;
     public $id_order;

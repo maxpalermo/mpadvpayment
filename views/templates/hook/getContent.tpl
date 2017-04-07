@@ -48,6 +48,7 @@
         this.suppliers = new Array();
         this.products = new Array();
         this.payment_type = '';
+        this.id_order_state = 0;
         this.load = function(){
             $.ajax({
                 url: '{$path}/ajax/getPayment.php',

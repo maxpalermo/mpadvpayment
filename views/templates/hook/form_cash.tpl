@@ -46,7 +46,7 @@
         <div id="div_fee_amount">
             <label class="control-label col-lg-3 ">{l s='Fee amount' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
-                <input type="text" id="input_fee_amount" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
+                <input type="text" id="input_fee_amount" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
                 <span class="input-group-addon">€</span>
             </div>
             <br>
@@ -54,38 +54,38 @@
         <div id="div_fee_percent">
             <label class="control-label col-lg-3 ">{l s='Fee percent' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
-                <input type="text" id="input_fee_percent" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
+                <input type="text" id="input_fee_percent" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
                 <span class="input-group-addon">%</span>
             </div>
             <br>    
         </div>
         <label class="control-label col-lg-3 ">{l s='Fee min' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_fee_min" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
+            <input type="text" id="input_fee_min" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Fee max' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_fee_max" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
+            <input type="text" id="input_fee_max" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order min' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_min" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
+            <input type="text" id="input_order_min" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order max' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_max" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
+            <input type="text" id="input_order_max" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order free' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_order_free" class="input fixed-width-lg number_align" onfocus='selectAll(this)' onblur='formatCurrency(this)'>
+            <input type="text" id="input_order_free" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
@@ -143,8 +143,14 @@
     <input type='hidden' id='input_hidden_cash_products' value=''>
     <br>
     <br>
+    <label class="control-label col-lg-3 ">{l s='Order state' mod='mpadvpayment'}</label>
+    <select id="input_select_cash_order_state" data-placeholder="{l s='Choose an order state' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
+        {$order_state_list}
+    </select>
+    <input type='hidden' id='input_hidden_cash_order_state' value=''>
+    <br>
+    <br>
 </div>
-
 
 <button type="button" value="1" id="submit_cash_save" name="submit_cash_save" class="btn btn-default pull-right">
     <i class="process-icon-save"></i> 
@@ -226,7 +232,14 @@
                 .on("change",function()
         {
             addHiddenList(this);
-        }); 
+        });
+        
+        $('#input_select_cash_order_state')
+                .chosen({ no_results_text: "{l s='No match state:' mod='mpadvpayment'}" })
+                .on("change",function()
+        {
+            addHiddenList(this);
+        });
         
         $("#submit_cash_save").on("click", function(){
             saveValues();
@@ -315,6 +328,7 @@
         $("#input_select_cash_manufacturers").val([{$cash_values->manufacturers|implode:','}]).trigger('chosen:updated').change();
         $("#input_select_cash_suppliers").val([{$cash_values->suppliers|implode:','}]).trigger('chosen:updated').change();
         $("#input_select_cash_products").val([{$cash_values->products|implode:','}]).trigger('chosen:updated').change();
+        $("#input_select_cash_order_state").val([{$cash_values->id_order_state}]).trigger('chosen:updated').change();
     }
     
     function saveValues()
@@ -339,6 +353,7 @@
         cash_payment.manufacturers = $("#input_select_cash_manufacturers").val();
         cash_payment.suppliers = $("#input_select_cash_suppliers").val();
         cash_payment.products = $("#input_select_cash_products").val();
+        cash_payment.id_order_state = $("#input_select_cash_order_state").val();
         cash_payment.payment_type = 'cash';
         
         cash_payment.save();

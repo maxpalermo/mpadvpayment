@@ -27,8 +27,7 @@
     <div class="col-xs-12">
         <p class="payment_module">
             <a href="{$link->getModuleLink('mpadvpayment','cash')|escape:'html'}" class="mpadvpayment mpadvpayment_cash">
-                {l s='Cash' mod='mpadvpayment'}
-                {$cash_summary}
+                {l s='Cash' mod='mpadvpayment'} <i class='icon-arrow-circle-right'></i> {$cash_summary}
             </a>
         </p>
     </div>

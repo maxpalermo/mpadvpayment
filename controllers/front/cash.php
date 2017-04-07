@@ -24,14 +24,24 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
+        . DIRECTORY_SEPARATOR . '..'
+        . DIRECTORY_SEPARATOR . 'classes' 
+        . DIRECTORY_SEPARATOR . 'classMpPaymentCalc.php';
+
 class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;
     private $_cart;
+    private $mpPayment;
     
     public function initContent() 
     {
-        $this->_cart = new CartCore(Context::getContext()->cart->id);
+        $this->_lang = Context::getContext()->language->id;
+        $this->mpPayment = new classMpPayment();
+        
+        $id_cart = Context::getContext()->cart->id;
+        $this->_cart = new CartCore($id_cart);
         //Cast into Cart to avoid exception
         $this->_cart = $this->cast($this->_cart, "Cart");
         
@@ -43,6 +53,35 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
         $this->display_column_right = false;
         parent::initContent();
         
+        //Check product list
+        $cart_product_list = classPaymentCalc::getCartProductList($id_cart);
+        //add thumb image to product list
+        foreach($cart_product_list as &$cart_product)
+        {
+            $id_product = $cart_product['id_product'];
+            $product_attribute = isset($cart_product['id_product_attribute'])?'_'.$cart_product['id_product_attribute']:'';
+            $product = new ProductCore($id_product);
+            $images = $product->getImages($this->_lang);
+            if (is_array($images)) {
+               $image_id = $images[0]['id_image'];
+               $name = 'product_mini_'
+                       .(int)$id_product 
+                       .$product_attribute
+                       .'.jpg';
+               $thumb = new ImageCore($image_id);
+               $thumb_path = $thumb->getExistingImgPath();
+               $path = _PS_PROD_IMG_DIR_ . $thumb_path . '.jpg';
+               $thumb_src = ImageManager::thumbnail($path, $name, 45, 'jpg', false, true);
+               
+            } else {
+                $thumb_src = '';
+            }
+            
+            $cart_product['image_tag'] = $thumb_src;
+        }
+        
+        //$this->_cart->getCarrierCost($this->_cart->id_carrier);
+        
         //Assign to Smarty
         $this->context->smarty->assign([
             'nb_products'=> $this->_cart->nbProducts(),
@@ -52,7 +91,10 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
             'total_amount' => $this->_cart->getOrderTotal(true),
             'path' => $this->module->getPathUri(),
             'summary' => $this->_cart->getSummaryDetails(),
-            'params' => "'payment_method' => 'cash', 'payment_display' => 'cash'",
+            'params' => ['payment_method' => 'cash', 'payment_display' => $this->module->l('Cash payment')],
+            'excluded_products' => classPaymentCalc::getListProductsExclusion('cash'),
+            'cart_product_list' => $cart_product_list,
+            'fee' => $this->mpPayment->calculateFee(classMpPayment::CASH, $this->_cart),
         ]);
         
         $this->setTemplate('cash.tpl');
