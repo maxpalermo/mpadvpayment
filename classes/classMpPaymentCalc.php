@@ -11,7 +11,7 @@
  *
  * @author imprendo
  */
-class classPaymentCalc {
+class classMpPaymentCalc {
     /**
      * 
      * @param string $payment_method

@@ -15,7 +15,7 @@ if(empty($class)) {
     exit();
 }
 $pay_in   = Tools::jsonDecode($class);
-$pay_out  = new classPaymentConfiguration();
+$pay_out  = new classMpPaymentConfiguration();
 
 $pay_out->is_active         = $pay_in->active;
 $pay_out->fee_type          = $pay_in->fee_type;

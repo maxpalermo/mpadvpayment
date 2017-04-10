@@ -1,16 +1,34 @@
 <?php
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of MpAdvPaymentDisplayPaymentController
+ * 2017 mpSOFT
  *
- * @author imprendo
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    mpSOFT <info@mpsoft.it>
+ *  @copyright 2017 mpSOFT Massimiliano Palermo
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of mpSOFT
  */
+
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
+        . DIRECTORY_SEPARATOR . ".."
+        . DIRECTORY_SEPARATOR . "classes"
+        . DIRECTORY_SEPARATOR . "classMpPayment.php";
+
 class MpAdvPaymentDisplayPaymentController {
     public $context;
     public $module;
@@ -33,6 +51,52 @@ class MpAdvPaymentDisplayPaymentController {
     public function run($params)
     {
         $this->context->controller->addCSS($this->_path.'views/css/displayPayment.css', 'all');
+        Context::getContext()->smarty->assign('activeModules', $this->getActiveModules());
         return $this->module->display($this->file, 'displayPayment.tpl');
+    }
+    
+    /**
+     * Get the list of activated modules
+     * @return array associative array of activated payment modules [payment_type=>is_active]
+     */
+    public function getActiveModules()
+    {
+        $db = Db::getInstance();
+        $sql = new DbQueryCore();
+        
+        $sql    ->select("is_active")
+                ->select("payment_type")
+                ->from("mp_advpayment_configuration")
+                ->orderBy("payment_type");
+        $result = $db->executeS($sql);
+        $output = [];
+        foreach ($result as $record)
+        {
+            $output[$record['payment_type']] = $record['is_active'];
+        }
+        
+        //Check module restrictions
+        $Payment = new classMpPaymentCalc;
+        $cashExclusions = $Payment->getListProductsExclusion(classMpPayment::CASH);
+        $bankExclusions = $Payment->getListProductsExclusion(classMpPayment::BANKWIRE);
+        $paypalExclusions = $Payment->getListProductsExclusion(classMpPayment::PAYPAL);
+        $cartProducts = Context::getContext()->cart->getProducts();
+        
+        //print_r($cartProducts);
+        
+        foreach($cartProducts as $product)
+        {
+            if (in_array($product['id_product'], $cashExclusions)) {
+                $output['cash']=false;
+            }
+            if (in_array($product['id_product'], $bankExclusions)) {
+                $output['bankwire']=false;
+            }
+            if (in_array($product['id_product'], $paypalExclusions)) {
+                $output['paypal']=false;
+            }
+        }
+        
+        return $output;
     }
 }

@@ -54,7 +54,7 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
         parent::initContent();
         
         //Check product list
-        $cart_product_list = classPaymentCalc::getCartProductList($id_cart);
+        $cart_product_list = classMpPaymentCalc::getCartProductList($id_cart);
         //add thumb image to product list
         foreach($cart_product_list as &$cart_product)
         {
@@ -92,7 +92,7 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
             'path' => $this->module->getPathUri(),
             'summary' => $this->_cart->getSummaryDetails(),
             'params' => ['payment_method' => 'cash', 'payment_display' => $this->module->l('Cash payment')],
-            'excluded_products' => classPaymentCalc::getListProductsExclusion('cash'),
+            'excluded_products' => classMpPaymentCalc::getListProductsExclusion('cash'),
             'cart_product_list' => $cart_product_list,
             'fee' => $this->mpPayment->calculateFee(classMpPayment::CASH, $this->_cart),
         ]);
@@ -128,4 +128,3 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
         }
     }
 }
-

@@ -24,6 +24,7 @@
 *}
 
 <div class="row">
+    {if isset($activeModules['cash']) && $activeModules['cash']}
     <div class="col-xs-12">
         <p class="payment_module">
             <a href="{$link->getModuleLink('mpadvpayment','cash')|escape:'html'}" class="mpadvpayment mpadvpayment_cash">
@@ -31,6 +32,8 @@
             </a>
         </p>
     </div>
+    {/if}
+    {if isset($activeModules['bankwire']) && $activeModules['bankwire']}
     <div class="col-xs-12">
         <p class="payment_module">
             <a href="{$link->getModuleLink('mpadvpayment','bankwire')|escape:'html'}" class="mpadvpayment mpadvpayment_bankwire">
@@ -38,6 +41,8 @@
             </a>
         </p>
     </div>
+    {/if}
+    {if isset($activeModules['paypal']) && $activeModules['paypal']}
     <div class="col-xs-12">
         <p class="payment_module">
             <a href="{$link->getModuleLink('mpadvpayment','paypal')|escape:'html'}" class="mpadvpayment mpadvpayment_paypal">
@@ -45,5 +50,6 @@
             </a>
         </p>
     </div>
+    {/if}
 </div>
 

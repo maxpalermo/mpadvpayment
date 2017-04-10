@@ -37,7 +37,7 @@ abstract class CRUD {
  *
  * @author Massimiliano Palermo <maxx.palermo@gmail.com>
  */
-class classPaymentConfiguration extends CRUD{
+class classMpPaymentConfiguration extends CRUD{
     public $id_configuration;
     public $fee_type;
     public $fee_amount;
@@ -184,7 +184,7 @@ class classPaymentConfiguration extends CRUD{
  * CLASS PAYMENT ORDERS
  * This class manage order additional payment data
  */
-class classPaymentOrders extends CRUD {
+class classMpPaymentOrders extends CRUD {
     public $id_cart;
     public $id_order;
     public $total_amount;

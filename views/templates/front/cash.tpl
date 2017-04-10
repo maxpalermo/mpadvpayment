@@ -80,7 +80,6 @@
     fee no   tax   : {$fee['total_fee_without_taxes']}
     fee      tax   : {$fee['total_fee_taxes']}
 </pre>
-
 <form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $params, true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
