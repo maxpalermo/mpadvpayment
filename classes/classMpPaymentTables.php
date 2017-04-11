@@ -40,6 +40,7 @@ abstract class CRUD {
 class classMpPaymentConfiguration extends CRUD{
     public $id_configuration;
     public $fee_type;
+    public $discount;
     public $fee_amount;
     public $fee_percent;
     public $fee_min;
@@ -70,6 +71,7 @@ class classMpPaymentConfiguration extends CRUD{
             $id = $db->insert($this->tablename,
                     [
                         'fee_type' => $this->fee_type,
+                        'discount' => $this->discount,
                         'fee_amount' => $this->fee_amount,
                         'fee_percent' => $this->fee_percent,
                         'fee_min' => $this->fee_min,
@@ -110,6 +112,7 @@ class classMpPaymentConfiguration extends CRUD{
         
         $result = $db->getRow($sql);
         $this->fee_type = $result['fee_type'];
+        $this->discount = $result['discount'];
         $this->fee_amount = $result['fee_amount'];
         $this->fee_percent = $result['fee_percent'];
         $this->fee_min = $result['fee_min'];
@@ -135,6 +138,7 @@ class classMpPaymentConfiguration extends CRUD{
             $id = $db->update($this->tablename,
                     [
                         'fee_type' => $this->fee_type,
+                        'discount' => $this->discount,
                         'fee_amount' => $this->fee_amount,
                         'fee_percent' => $this->fee_percent,
                         'fee_min' => $this->fee_min,

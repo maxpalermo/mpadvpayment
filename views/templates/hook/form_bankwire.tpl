@@ -23,149 +23,160 @@
 *  International Registered Trademark & Property of mpSOFT
 *}
 <ps-switch 
-    name="input_cash_switch" 
+    name="input_bankwire_switch" 
     label="{l s='Activate Cash payments' mod='mpadvpayment'}" 
     yes="{l s='YES' mod='mpadvpayment'}" 
     no="{l s='NO' mod='mpadvpayment'}" 
     active="true"
-    onSwitch="hideCashPanel">
+    onSwitch="hideBankwirePanel">
 </ps-switch>
-<input type="hidden" id="input_cash_switch_hidden" value="1">
-<div id='div_cash_panel'>
+<input type="hidden" id="input_bankwire_switch_hidden" value="1">
+<div id='div_bankwire_panel'>
         <label class="control-label col-lg-3 ">{l s='Fee type' mod='mpadvpayment'}</label>
-    <select id="input_cash_select_type" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
+    <select id="input_bankwire_select_type" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
         <option value='0'>{l s='None' mod='mpadvpayment'}</option>
         <option value='1'>{l s='Amount' mod='mpadvpayment'}</option>
         <option value='2'>{l s='Percent' mod='mpadvpayment'}</option>
         <option value='3'>{l s='Amount + Percent' mod='mpadvpayment'}</option>
+        <option value='4'>{l s='Discount' mod='mpadvpayment'}</option>
     </select>
-    <input type='hidden' id='input_cash_select_type_hidden' value=''>
+    <input type='hidden' id='input_bankwire_select_type_hidden' value=''>
     <br>
     <br>
-    <div id='div_cash_tax_panel'>
-        <div id="div_cash_fee_amount">
-            <label class="control-label col-lg-3 ">{l s='Fee amount' mod='mpadvpayment'}</label>
+    <div id='div_bankwire_tax_panel'>
+        <div id="div_bankwire_discount">
+            <label class="control-label col-lg-3 ">{l s='Disocunt' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
-                <input type="text" id="input_cash_fee_amount" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
+                <input type="text" id="input_bankwire_discount" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
                 <span class="input-group-addon">€</span>
             </div>
             <br>
         </div>
-        <div id="div_cash_fee_percent">
+        <div id="div_bankwire_fee_amount">
+            <label class="control-label col-lg-3 ">{l s='Fee amount' mod='mpadvpayment'}</label>
+            <div class="input-group input fixed-width-lg">
+                <input type="text" id="input_bankwire_fee_amount" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
+                <span class="input-group-addon">€</span>
+            </div>
+            <br>
+        </div>
+        <div id="div_bankwire_fee_percent">
             <label class="control-label col-lg-3 ">{l s='Fee percent' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
-                <input type="text" id="input_cash_fee_percent" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
+                <input type="text" id="input_bankwire_fee_percent" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
                 <span class="input-group-addon">%</span>
             </div>
             <br>    
         </div>
-        <div id="div_cash_fee_min">
+        <div id="div_bankwire_fee_min">
             <label class="control-label col-lg-3 ">{l s='Fee min' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
-                <input type="text" id="input_cash_fee_min" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
+                <input type="text" id="input_bankwire_fee_min" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
                 <span class="input-group-addon">€</span>
             </div>
             <br>
         </div>
-        <div id="div_cash_fee_max">
+        <div id="div_bankwire_fee_max">
             <label class="control-label col-lg-3 ">{l s='Fee max' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
-                <input type="text" id="input_cash_fee_max" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
+                <input type="text" id="input_bankwire_fee_max" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
                 <span class="input-group-addon">€</span>
             </div>
             <br>
         </div>
         <label class="control-label col-lg-3 ">{l s='Order min' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_cash_order_min" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
+            <input type="text" id="input_bankwire_order_min" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order max' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_cash_order_max" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
+            <input type="text" id="input_bankwire_order_max" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <label class="control-label col-lg-3 ">{l s='Order free' mod='mpadvpayment'}</label>
         <div class="input-group input fixed-width-lg">
-            <input type="text" id="input_cash_order_free" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
+            <input type="text" id="input_bankwire_order_free" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
             <span class="input-group-addon">€</span>
         </div>
         <br>
         <ps-switch 
-            name="input_cash_switch_included_tax" 
+            name="input_bankwire_switch_included_tax" 
             label="{l s='Tax included' mod='mpadvpayment'}" 
             yes="{l s='YES' mod='mpadvpayment'}" 
             no="{l s='NO' mod='mpadvpayment'}" 
             active="false"
-            onswitch="setCashIncludedTax">
+            onswitch="setIncludedTax('cash')">
         </ps-switch>
-        <input type="hidden" id="input_cash_switch_included_tax_hidden">
+        <input type="hidden" id="input_bankwire_switch_included_tax_hidden">
         
         <label class="control-label col-lg-3 ">{l s='Fee tax' mod='mpadvpayment'}</label>
-        <select id="input_cash_select_tax" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
+        <select id="input_bankwire_select_tax" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
             {$tax_list}
         </select>
-        <input type='hidden' id='input_cash_select_tax_hidden' value=''>
+        <input type='hidden' id='input_bankwire_select_tax_hidden' value=''>
         <br>
         <br>
     </div>
         
     <label class="control-label col-lg-3 ">{l s='Select carriers' mod='mpadvpayment'}</label>
-    <select id="input_cash_select_carriers" data-placeholder="{l s='Choose a carrier' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
+    <select id="input_bankwire_select_carriers" data-placeholder="{l s='Choose a carrier' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
         {$carrier_list}
     </select>
-    <input type='hidden' id='input_cash_select_carriers_hidden' value=''>
+    <input type='hidden' id='input_bankwire_select_carriers_hidden' value=''>
     <br>
     <br>
     <label class="control-label col-lg-3 ">{l s='Exclude categories' mod='mpadvpayment'}</label>
-    <select id="input_cash_select_categories" data-placeholder="{l s='Choose a category' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
+    <select id="input_bankwire_select_categories" data-placeholder="{l s='Choose a category' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
         {$categories_list}
     </select>
-    <input type='hidden' id='input_cash_select_categories_hidden' value=''>
+    <input type='hidden' id='input_bankwire_select_categories_hidden' value=''>
     <br>
     <br>
     <label class="control-label col-lg-3 ">{l s='Exclude manufacturers' mod='mpadvpayment'}</label>
-    <select id="input_cash_select_manufacturers" data-placeholder="{l s='Choose a manufacturer' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
+    <select id="input_bankwire_select_manufacturers" data-placeholder="{l s='Choose a manufacturer' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
         {$manufacturers_list}
     </select>
-    <input type='hidden' id='input_cash_select_manufacturers_hidden' value=''>
+    <input type='hidden' id='input_bankwire_select_manufacturers_hidden' value=''>
     <br>
     <br>
     <label class="control-label col-lg-3 ">{l s='Exclude suppliers' mod='mpadvpayment'}</label>
-    <select id="input_cash_select_suppliers" data-placeholder="{l s='Choose a supplier' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
+    <select id="input_bankwire_select_suppliers" data-placeholder="{l s='Choose a supplier' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
         {$suppliers_list}
     </select>
-    <input type='hidden' id='input_cash_select_suppliers_hidden' value=''>
+    <input type='hidden' id='input_bankwire_select_suppliers_hidden' value=''>
     <br>
     <br>
     <label class="control-label col-lg-3 ">{l s='Exclude products' mod='mpadvpayment'}</label>
-    <select id="input_cash_select_products" data-placeholder="{l s='Choose a product' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
+    <select id="input_bankwire_select_products" data-placeholder="{l s='Choose a product' mod='mpadvpayment'}" style="width:350px;" multiple class="chosen-select">
         {$products_list}
     </select>
-    <input type='hidden' id='input_cash_select_products_hidden' value=''>
+    <input type='hidden' id='input_bankwire_select_products_hidden' value=''>
     <br>
     <br>
     <label class="control-label col-lg-3 ">{l s='Order state' mod='mpadvpayment'}</label>
-    <select id="input_cash_select_order_states" data-placeholder="{l s='Choose an order state' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
+    <select id="input_bankwire_select_order_states" data-placeholder="{l s='Choose an order state' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
         {$order_state_list}
     </select>
-    <input type='hidden' id='input_cash_select_order_states_hidden' value=''>
+    <input type='hidden' id='input_bankwire_select_order_state_hidden' value=''>
     <br>
     <br>
 </div>
 
-<button type="button" value="1" id="submit_cash_save" name="submit_cash_save" class="btn btn-default pull-right">
+<button type="button" value="1" id="submit_bankwire_save" name="submit_bankwire_save" class="btn btn-default pull-right">
     <i class="process-icon-save"></i> 
     {l s='Save' mod='mpadvpayment'}
 </button>
 
 <script type="text/javascript">
     $(document).ready(function(){        
-        $("#submit_cash_save").on("click", function(){
-            saveCashValues();
-            $("#mp-dialog-box").html("{l s='Cash configuration saved.' mod='mpadvpayment'}").fadeIn().delay(5000).fadeOut();
+        
+        
+        $("#submit_bankwire_save").on("click", function(){
+            $("#mp-dialog-box").html("{l s='Bankwire configuration saved.' mod='mpadvpayment'}").fadeIn().delay(5000).fadeOut();
+            saveBankwireValues();
         });
     });
 </script>

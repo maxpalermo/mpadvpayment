@@ -68,19 +68,12 @@
 
 
 {capture name=path}
-    {l s='Cash payment' mod='mpadvpayment'}
+    {l s='Bankwire payment' mod='mpadvpayment'}
 {/capture}
 
 <pre>
     FEE
-    total cart     : {$fee['total_cart']}
-    total products : {$fee['total_products']}
-    total discounts: {$fee['total_discounts']}
-    total_shipping : {$fee['total_shipping']}
-    shipping no tax: {$fee['total_shipping_no_tax']}
-    fee with tax   : {$fee['total_fee_with_taxes']}
-    fee no   tax   : {$fee['total_fee_without_taxes']}
-    fee      tax   : {$fee['total_fee_taxes']}
+    {$fee|print_r}
 </pre>
 <form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $params, true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">

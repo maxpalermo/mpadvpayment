@@ -66,7 +66,8 @@ class MpAdvPayment extends PaymentModuleCore
         if (!parent::install() ||
           !$this->registerHook('displayPayment') ||
           !$this->registerHook('displayPaymentReturn') ||
-          !$this->installSql()) {
+          !$this->installSql() ||
+          !$this->installPdf()) {
           return false;
         }
         return true;
@@ -74,7 +75,7 @@ class MpAdvPayment extends PaymentModuleCore
     
     public function uninstall()
     {
-        if (!parent::uninstall() || !$this->uninstallSql()) {
+        if (!parent::uninstall() || !$this->uninstallSql() || $this->uninstallPdf()) {
           return false;
         }
         return true;
@@ -82,18 +83,26 @@ class MpAdvPayment extends PaymentModuleCore
     
     public function hookDisplayPayment($params)
     {
+        $this->context->controller->addCSS($this->_path . 'views/css/displayPayment.css');
         /** @var CartCore $cart */
-        $cart = new CartCore();
+        //$cart = new CartCore();
         $cart = Context::getContext()->cart;
-        $fee        = $this->payment->calculateFee(classMpPayment::CASH, $cart);
+        $cash_fee       = $this->payment->calculateFee(classMpPayment::CASH, $cart);
+        $bankwire_fee   = $this->payment->calculateFee(classMpPayment::BANKWIRE, $cart);
         
         
         
         $this->smarty->assign(
                 "cash_summary", 
-                $this->l("Cart:") . ' ' . Tools::displayPrice($fee['total_cart']) . ', ' .
-                $this->l("Fee:") . ' ' . Tools::displayPrice($fee['total_fee_with_taxes']) . ', ' .
-                $this->l("Total:") . ' ' . Tools::displayPrice($fee['total_cart']+$fee['total_fee_with_taxes']));
+                $this->l("Cart:") . ' ' . Tools::displayPrice($cash_fee['total_cart']) . ' + ' .
+                $this->l("Fee:") . ' ' . Tools::displayPrice($cash_fee['total_fee_with_taxes']) . ' = ' .
+                $this->l("Total:") . ' ' . Tools::displayPrice($cash_fee['total_cart']+$cash_fee['total_fee_with_taxes']));
+        
+        $this->smarty->assign(
+                "bankwire_summary", 
+                $this->l("Cart:") . ' ' . Tools::displayPrice($bankwire_fee['total_cart']) . ' + ' .
+                $this->l("Fee:") . ' ' . Tools::displayPrice($bankwire_fee['total_fee_with_taxes']) . ' = ' .
+                $this->l("Total:") . ' ' . Tools::displayPrice($bankwire_fee['total_cart']+$bankwire_fee['total_fee_with_taxes']));
                 
         $controller = $this->getHookController('displayPayment');
         return $controller->run($params);
@@ -115,8 +124,10 @@ class MpAdvPayment extends PaymentModuleCore
         $this->smarty->assign('products_list', $this->getProductsList());
         $this->smarty->assign('order_state_list', $this->getOrderStateList());
         $this->smarty->assign('cash_values', $this->getCashValues());
+        $this->smarty->assign('bankwire_values', $this->getBankwireValues());
         $this->smarty->assign('ps_version', Tools::substr(_PS_VERSION_, 0, 3));
         $this->smarty->assign('form_cash', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_cash.tpl'));
+        $this->smarty->assign('form_bankwire', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_bankwire.tpl'));
         $template  = $this->display(__FILE__, 'getContent.tpl');
         $psui_tags = $this->display(__FILE__, 'views/templates/admin/prestui/ps-tags.tpl');
         return $template . $psui_tags;
@@ -126,6 +137,8 @@ class MpAdvPayment extends PaymentModuleCore
     {
         $this->context->controller->addJqueryUI('ui.tabs');
         $this->context->controller->addJS("https://cdnjs.cloudflare.com/ajax/libs/riot/3.4.0/riot+compiler.min.js");
+        $this->context->controller->addCSS($this->_path . 'js/chosen/chosen.min.css');
+        $this->context->controller->addJS($this->_path . 'js/chosen/chosen.jquery.min.js');
     }
     
     private function installSQL()
@@ -164,6 +177,39 @@ class MpAdvPayment extends PaymentModuleCore
         return TRUE;
     }
     
+    public function installPdf()
+    {
+        $source = dirname(__FILE__) . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
+        $dest_class   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
+        $dest_pdf   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
+        
+        rename($dest_class . 'HTMLTemplateInvoice.php' , $dest_class . 'HTMLTemplateInvoice.old.php');        
+        copy($source . 'HTMLTemplateInvoice.php' , $dest_class . 'HTMLTemplateInvoice.php');
+        
+        rename($dest_pdf . 'invoice.tax-tab.tpl' , $dest_pdf . 'invoice.tax-tab.old.tpl');
+        rename($dest_pdf . 'invoice.total-tab.tpl' , $dest_pdf . 'invoice.total-tab.old.tpl');
+        copy($source . 'invoice.tax-tab.tpl' , $dest_pdf . 'invoice.tax-tab.tpl');
+        copy($source . 'invoice.total-tab.tpl' , $dest_pdf . 'invoice.total-tab.tpl');
+        
+        return true;
+    }
+    
+    public function uninstallPdf()
+    {
+        $dest_class   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
+        $dest_pdf   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
+        
+        unlink($dest_class . 'HTMLTemplateInvoice.php');
+        rename($dest_class . 'HTMLTemplateInvoice.old.php' , $dest_class . 'HTMLTemplateInvoice.php');        
+        
+        unlink($dest_pdf . 'invoice.tax-tab.tpl');
+        unlink($dest_pdf . 'invoice.total-tab.tpl');
+        rename($dest_pdf . 'invoice.tax-tab.old.tpl' , $dest_pdf . 'invoice.tax-tab.tpl');
+        rename($dest_pdf . 'invoice.total-tab.old.tpl' , $dest_pdf . 'invoice.total-tab.tpl');
+        
+        return true;
+    }
+    
     public function getHookController($hook_name)
     {
         // Include the controller file
@@ -177,28 +223,6 @@ class MpAdvPayment extends PaymentModuleCore
 
         // Return the controller
         return $controller;
-    }
-    
-    /**
-     * Adds jQuery UI component(s) to queued JS file list
-     *
-     * @param string|array $component
-     * @param string $theme
-     * @param bool $check_dependencies
-     */
-    public function addJqueryUI($component, $theme = 'base', $check_dependencies = true)
-    {
-        if (!is_array($component)) {
-            $component = array($component);
-        }
-
-        foreach ($component as $ui) {
-            $ui_path = Media::getJqueryUIPath($ui, $theme, $check_dependencies);
-            //print "<pre>\n\n\n\n\n\n\n\n\n";
-            //print_r($ui_path);
-            //print "</pre>";
-            $this->headers[] = $ui_path;
-        }
     }
     
     public function getTaxList()
@@ -307,6 +331,33 @@ class MpAdvPayment extends PaymentModuleCore
         $cash->id_order_state       = $values->id_order_state;
         
         return $cash;
+    }
+    
+    public function getBankwireValues()
+    {
+        $bankwire = new stdClass();
+        $values = new classMpPayment();
+        $values->read(classMpPayment::BANKWIRE);
+        
+        $bankwire->input_switch_on      = $values->is_active;
+        $bankwire->fee_type             = $values->fee_type;
+        $bankwire->fee_amount           = $values->fee_amount;
+        $bankwire->fee_percent          = $values->fee_percent;
+        $bankwire->fee_min              = $values->fee_min;
+        $bankwire->fee_max              = $values->fee_max;
+        $bankwire->order_min            = $values->order_min;
+        $bankwire->order_max            = $values->order_max;
+        $bankwire->order_free           = $values->order_free;
+        $bankwire->tax_included         = $values->tax_included;
+        $bankwire->tax_rate             = number_format($values->tax_rate,3);
+        $bankwire->carriers             = $this->toArray($values->carriers);
+        $bankwire->categories           = $this->toArray($values->categories);
+        $bankwire->manufacturers        = $this->toArray($values->manufacturers);
+        $bankwire->suppliers            = $this->toArray($values->suppliers);
+        $bankwire->products             = $this->toArray($values->products);
+        $bankwire->id_order_state       = $values->id_order_state;
+        
+        return $bankwire;
     }
     
     public function toArray($input_string, $separator = ",")

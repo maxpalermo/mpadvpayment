@@ -12,6 +12,7 @@ class classMpPayment extends classMpPaymentConfiguration{
     const FEE_TYPE_FIXED    = '1';
     const FEE_TYPE_PERCENT  = '2';
     const FEE_TYPE_MIXED    = '3';
+    const FEE_TYPE_DISCOUNT = '4';
     
     public $total_cart;
     public $total_products;
@@ -82,39 +83,65 @@ class classMpPayment extends classMpPaymentConfiguration{
                 $percent = $this->fee_percent;
                 $fee = $fixed + ($total_cart * $percent / 100);
                 break;
+            case self::FEE_TYPE_DISCOUNT:
+                $percent = $this->discount;
+                $fee = ($total_cart * $percent / 100);
+                break;
             default:
                 $fee = 0;
                 break;
         }
         
         //Check restrictions
-        if ($this->fee_min!=0 && $this->fee_min>$fee) {
-           $fee = $this->fee_min; 
-        }
-        if ($this->fee_max>0 && $this->fee_max<$fee) {
-            $fee = $this->fee_max;
-        }
-        if ($this->order_min!=0 && $this->order_min>$total_cart) {
-            $fee=0;
-        }
-        if ($this->order_max!=0 && $this->order_max<$total_cart) {
-            $fee=0;
-        }
-        if ($this->order_free!=0 && $this->order_free<$total_cart) {
-            $fee=0;
+        if ($this->fee_type!=self::FEE_TYPE_DISCOUNT) {
+            if ($this->fee_min!=0 && $this->fee_min>$fee) {
+               $fee = $this->fee_min; 
+            }
+            if ($this->fee_max>0 && $this->fee_max<$fee) {
+                $fee = $this->fee_max;
+            }
+            if ($this->order_min!=0 && $this->order_min>$total_cart) {
+                $fee=0;
+            }
+            if ($this->order_max!=0 && $this->order_max<$total_cart) {
+                $fee=0;
+            }
+            if ($this->order_free!=0 && $this->order_free<$total_cart) {
+                $fee=0;
+            }
+            
+            $output = [
+                'total_cart' => $total_cart,
+                'total_products' => $total_products,
+                'total_discounts' => $total_discounts,
+                'total_shipping' => $total_shipping,
+                'total_wrapping' => $total_wrapping,
+                'total_shipping_no_tax' => $shipping_no_tax,
+                'total_fee_with_taxes' => $fee,
+                'total_fee_without_taxes' => ($fee / ((100+$this->tax_rate)/100)),
+                'total_fee_taxes' => ($fee - ($fee / ((100+$this->tax_rate)/100))),
+                'fee_type' => $this->fee_type,
+                'fee_label' => 'fee',
+                'fee_tax_rate' => $this->tax_rate,
+            ];
+        } else {
+            $output = [
+                'total_cart' => $total_cart,
+                'total_products' => $total_products,
+                'total_discounts' => $total_discounts,
+                'total_shipping' => $total_shipping,
+                'total_wrapping' => $total_wrapping,
+                'total_shipping_no_tax' => $shipping_no_tax,
+                'total_fee_with_taxes' => -$fee,
+                'total_fee_without_taxes' => -($fee / ((100+$this->tax_rate)/100)),
+                'total_fee_taxes' => -($fee - ($fee / ((100+$this->tax_rate)/100))),
+                'fee_type' => $this->fee_type,
+                'fee_label' => 'discount',
+                'fee_tax_rate' => $this->tax_rate,
+            ];
         }
         
-        $output = [
-            'total_cart' => $total_cart,
-            'total_products' => $total_products,
-            'total_discounts' => $total_discounts,
-            'total_shipping' => $total_shipping,
-            'total_wrapping' => $total_wrapping,
-            'total_shipping_no_tax' => $shipping_no_tax,
-            'total_fee_with_taxes' => $fee,
-            'total_fee_without_taxes' => ($fee / ((100+$this->tax_rate)/100)),
-            'total_fee_taxes' => ($fee - ($fee / ((100+$this->tax_rate)/100))),
-        ];
+            
         
         $this->total_cart = $total_cart;
         $this->total_products=$total_products;
