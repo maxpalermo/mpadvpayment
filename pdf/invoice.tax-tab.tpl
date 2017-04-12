@@ -63,7 +63,11 @@
 							{elseif $label == 'wrapping_tax'}
 								{l s='Wrapping' pdf='true'}
                                                         {elseif $label == 'fee_tax'}
-								{l s='Fee' pdf='true'}
+                                                            {if $line.total_amount<0}
+								{l s='Discounts' pdf='true'}
+                                                            {else}
+                                                                {l s='Fee' pdf='true'}
+                                                            {/if}
 							{/if}
 							{assign var=label_printed value=true}
 						{/if}

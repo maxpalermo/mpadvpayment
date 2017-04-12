@@ -19,6 +19,7 @@ $pay_out  = new classMpPaymentConfiguration();
 
 $pay_out->is_active         = $pay_in->active;
 $pay_out->fee_type          = $pay_in->fee_type;
+$pay_out->discount          = $pay_in->discount;
 $pay_out->fee_amount        = $pay_in->fee_amount;
 $pay_out->fee_percent       = $pay_in->fee_percent;
 $pay_out->fee_min           = $pay_in->fee_min;

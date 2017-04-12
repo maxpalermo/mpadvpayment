@@ -236,19 +236,8 @@
         
         $("select[id*='_select_']").each(function(){
             //console.log('formatting ' + this.id);
-
             var result_text = '';
-            var match_type  = '';
-
-            if(String(this.id).indexOf('cash')) {
-                match_type = '#div_cash_';
-            } else if(String(this.id).indexOf('bankwire')) {
-                match_type = '#div_bankwire_';
-            } else if(String(this.id).indexOf('paypal')) {
-                match_type = '#div_paypal_';
-            }
-
-
+            
             if(String(this.id).indexOf("type")) {
                 result_text = "{l s='No match type:' mod='mpadvpayment'}";
             } else if(String(this.id).indexOf("tax")) {
@@ -269,7 +258,20 @@
 
             if(String(this.id).indexOf("type")) {
                 $(this).chosen({ no_result_text: result_text, width : "350px" }).on("change",function(){
-                    //console.log("change" + this.id);
+            
+                    var match_type  = '';
+
+                    if(String(this.id).indexOf('cash')>-1) {
+                        match_type = '#div_cash_';
+                    } else if(String(this.id).indexOf('bankwire')>-1) {
+                        match_type = '#div_bankwire_';
+                    } else if(String(this.id).indexOf('paypal')>-1) {
+                        match_type = '#div_paypal_';
+                    }
+                    
+                    console.log("change: " + this.id);
+                    console.log("match: " + match_type);
+                    
                     addHiddenList(this);
                     if($(this).val()==0) { //Tax panel
                         $(match_type + "tax_panel").fadeOut();
@@ -378,6 +380,7 @@
             $("#input_bankwire_switch_off").click();
         {/if}
         $('#input_bankwire_select_type').val({(int)$bankwire_values->fee_type}).trigger('chosen:updated').change();
+        $("#input_bankwire_discount").val(Number({(float)$bankwire_values->discount}).toFixed(2));
         $("#input_bankwire_fee_amount").val(Number({(float)$bankwire_values->fee_amount}).toFixed(2));
         $("#input_bankwire_fee_percent").val(Number({(float)$bankwire_values->fee_percent}).toFixed(2));
         $("#input_bankwire_fee_min").val(Number({(float)$bankwire_values->fee_min}).toFixed(2));
@@ -396,9 +399,21 @@
         $("#input_bankwire_select_manufacturers").val([{$bankwire_values->manufacturers|implode:','}]).trigger('chosen:updated').change();
         $("#input_bankwire_select_suppliers").val([{$bankwire_values->suppliers|implode:','}]).trigger('chosen:updated').change();
         $("#input_bankwire_select_products").val([{$bankwire_values->products|implode:','}]).trigger('chosen:updated').change();
-        $("#input_bankwire_select_order_state").val([{$bankwire_values->id_order_state}]).trigger('chosen:updated').change();
+        $("#input_bankwire_select_order_states").val([{$bankwire_values->id_order_state}]).trigger('chosen:updated').change();
         
-        return;
+        $.ajax({
+            url : '../modules/mpadvpayment/ajax/loadBankInfo.php',
+            success: function(response)
+            {
+                var obj = JSON.parse(response);
+                $("#input_bankwire_owner").val(obj.owner);
+                $("#input_bankwire_iban").val(obj.iban);
+                $("#input_bankwire_bank").val(obj.bank);
+                $("#input_bankwire_address").val(obj.addr);
+            }
+        });
+        
+        return true;
     }
     
     function saveBankwireValues()
@@ -408,7 +423,8 @@
         var bankwire_payment = new Payment();
         
         bankwire_payment.active = $("#input_bankwire_switch_hidden").val();
-        bankwire_payment.fee_type = $("#input_bankwire_type_hidden").val();
+        bankwire_payment.fee_type = $("#input_bankwire_select_type_hidden").val();
+        bankwire_payment.discount = $("#input_bankwire_discount").val();
         bankwire_payment.fee_amount = $("#input_bankwire_fee_amount").val();
         bankwire_payment.fee_percent = $("#input_bankwire_fee_percent").val();
         bankwire_payment.fee_min = $("#input_bankwire_fee_min").val();
@@ -428,11 +444,18 @@
         
         bankwire_payment.save();
         
-    }
-    
-    function setBankwireValues()
-    {
-        //todo
+        $.ajax({
+            url : '../modules/mpadvpayment/ajax/saveBankInfo.php',
+            type: 'POST',
+            data: 
+                    {
+                        owner: $("#input_bankwire_owner").val(),
+                        iban : $("#input_bankwire_iban").val(),
+                        bank : $("#input_bankwire_bank").val(),
+                        addr : $("#input_bankwire_address").val()
+                    }
+        });
+        
     }
     
     function setPaypalValues()

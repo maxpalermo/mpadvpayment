@@ -71,15 +71,11 @@
     {l s='Bankwire payment' mod='mpadvpayment'}
 {/capture}
 
-<pre>
-    FEE
-    {$fee|print_r}
-</pre>
 <form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $params, true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
             <i class="icon-dollar"></i>
-            {l s='Payment method:' mod='mpadvpayment'} {l s='cash' mod='mpadvpayment'}
+            {l s='Payment method:' mod='mpadvpayment'} {l s='bankwire' mod='mpadvpayment'}
         </div>  
         <div class='form-wrapper'>
             <table class='table-bordered' id='table_summary' style='width: 100%;'>
@@ -157,15 +153,8 @@
         </div>
     </div>
     <br>
-    <table class='table-bordered'>
-        <tbody>
-            <tr><td>nb_products: {$nb_products}</td></tr>
-            <tr><td>currencies : {$currencies|print_r}</td></tr>
-            <tr><td>total_amount: {$total_amount}</td></tr>
-            <tr><td>path: {$path|escape:'html'}</td></tr>
-        </tbody>
-    </table>
-    <br>
+    
+    
     <p class="cart_navigation clearfix" id="cart_navigation">
         <a
             class="button-exclusive btn btn-default"
@@ -177,7 +166,7 @@
             type="submit">
             <span>{l s='I confirm my order' mod='mpadvpayment'}<i class="icon-chevron-right right"></i></span>
         </button>
-	</p>
+    </p>
 </form>
         
 <pre>

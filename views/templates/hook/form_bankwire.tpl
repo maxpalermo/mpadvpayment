@@ -24,7 +24,7 @@
 *}
 <ps-switch 
     name="input_bankwire_switch" 
-    label="{l s='Activate Cash payments' mod='mpadvpayment'}" 
+    label="{l s='Activate Bankwire payments' mod='mpadvpayment'}" 
     yes="{l s='YES' mod='mpadvpayment'}" 
     no="{l s='NO' mod='mpadvpayment'}" 
     active="true"
@@ -45,7 +45,7 @@
     <br>
     <div id='div_bankwire_tax_panel'>
         <div id="div_bankwire_discount">
-            <label class="control-label col-lg-3 ">{l s='Disocunt' mod='mpadvpayment'}</label>
+            <label class="control-label col-lg-3 ">{l s='Discount' mod='mpadvpayment'}</label>
             <div class="input-group input fixed-width-lg">
                 <input type="text" id="input_bankwire_discount" class="input fixed-width-lg number_align" onfocus='selectAll(this);' onblur='formatCurrency(this);'>
                 <span class="input-group-addon">€</span>
@@ -160,23 +160,52 @@
     <select id="input_bankwire_select_order_states" data-placeholder="{l s='Choose an order state' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
         {$order_state_list}
     </select>
-    <input type='hidden' id='input_bankwire_select_order_state_hidden' value=''>
+    <input type='hidden' id='input_bankwire_select_order_states_hidden' value=''>
     <br>
+    <br>
+    <br>
+    <div class="panel-heading">
+        <i class="icon-file-o"></i>
+        {l s='Bankwire informations' mod='mpadvpayment'}
+    </div>
+    <label class="control-label">{l s='Owner' mod='mpadvpayment'}</label>
+    <div class="input-group input" style="width: 80%;">
+        <input type="text" id="input_bankwire_owner" class="input" onfocus='selectAll(this);'>
+        <span class="input-group-addon"><i class="icon-user"></i></span>
+    </div>
+    <br>
+    <label class="control-label">{l s='IBAN' mod='mpadvpayment'}</label>
+    <div class="input-group input" style="width: 80%;">
+        <input type="text" id="input_bankwire_iban" class="input" onfocus='selectAll(this);'>
+        <span class="input-group-addon"><i class="icon-code"></i></span>
+    </div>
+    <br>
+    <label class="control-label">{l s='Bank' mod='mpadvpayment'}</label>
+    <div class="input-group input" style="width: 80%;">
+        <input type="text" id="input_bankwire_bank" class="input" onfocus='selectAll(this);'>
+        <span class="input-group-addon"><i class="icon-home"></i></span>
+    </div>
+    <br>
+    <label class="control-label ">{l s='Address' mod='mpadvpayment'}</label>
+    <div class="input-group input" style="width: 80%;">
+        <input type="text" id="input_bankwire_address" class="input" onfocus='selectAll(this);'>
+        <span class="input-group-addon"><i class="icon-file-text"></i></span>
+    </div>
     <br>
 </div>
+    <div class="panel-footer" style="margin: 0 auto;">
+        <button type="button" value="1" id="submit_bankwire_save" name="submit_bankwire_save" class="btn btn-default pull-right">
+            <i class="process-icon-save"></i> 
+            {l s='Save' mod='mpadvpayment'}
+        </button>
+    </div>
 
-<button type="button" value="1" id="submit_bankwire_save" name="submit_bankwire_save" class="btn btn-default pull-right">
-    <i class="process-icon-save"></i> 
-    {l s='Save' mod='mpadvpayment'}
-</button>
 
 <script type="text/javascript">
     $(document).ready(function(){        
-        
-        
         $("#submit_bankwire_save").on("click", function(){
-            $("#mp-dialog-box").html("{l s='Bankwire configuration saved.' mod='mpadvpayment'}").fadeIn().delay(5000).fadeOut();
             saveBankwireValues();
+            $("#mp-dialog-box").html("{l s='Bankwire configuration saved.' mod='mpadvpayment'}").fadeIn().delay(5000).fadeOut();
         });
     });
 </script>

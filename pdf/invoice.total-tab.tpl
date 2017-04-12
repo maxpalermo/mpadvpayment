@@ -60,15 +60,24 @@
 	</tr>
 	{/if}
         
-        {if !empty($footer.fee_taxes)}
+        {if !empty($footer.fee_tax_excl)}
 	<tr>
 		<td class="grey" width="70%">
 			{l s='Fee Cost' pdf='true'}
 		</td>
 		<td class="white" width="30%">
-			{if $footer.fee_tax_excl > 0}
-				{displayPrice currency=$order->id_currency price=$footer.fee_tax_excl}
-			{/if}
+			{displayPrice currency=$order->id_currency price=$footer.fee_tax_excl}
+		</td>
+	</tr>
+	{/if}
+        
+        {if !empty($footer.discount_tax_excl)}
+	<tr>
+		<td class="grey" width="70%">
+			{l s='Pay method discount' pdf='true'}
+		</td>
+		<td class="white" width="30%">
+			{displayPrice currency=$order->id_currency price=$footer.discount_tax_excl}
 		</td>
 	</tr>
 	{/if}
@@ -109,3 +118,4 @@
 		</td>
 	</tr>
 </table>
+                

@@ -269,14 +269,21 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
             'wrapping_tax_excl' => $this->order_invoice->total_wrapping_tax_excl,
             'wrapping_taxes' => $wrapping_taxes,
             'wrapping_tax_incl' => $this->order_invoice->total_wrapping_tax_incl,
-            'fee_tax_excl' => $order_fee['fee_tax_excl'],
-            'fee_taxes' => $order_fee['fee_taxes'],
-            'fee_tax_incl' => $order_fee['fee_tax_incl'],
             'ecotax_taxes' => $total_taxes - $product_taxes - $wrapping_taxes - $shipping_taxes,
             'total_taxes' => $total_taxes,
             'total_paid_tax_excl' => $this->order_invoice->total_paid_tax_excl,
             'total_paid_tax_incl' => $this->order_invoice->total_paid_tax_incl
         );
+        
+        if(isset($order_fee['discount_tax_excl'])) {
+           $footer['discount_tax_excl'] = $order_fee['discount_tax_excl'];
+           $footer['discount_taxes']    = $order_fee['discount_taxes'];
+           $footer['discount_tax_incl'] = $order_fee['discount_tax_incl'];
+        } else {
+           $footer['fee_tax_excl'] = $order_fee['fee_tax_excl'];
+           $footer['fee_taxes']    = $order_fee['fee_taxes'];
+           $footer['fee_tax_incl'] = $order_fee['fee_tax_incl'];
+        }
 
         foreach ($footer as $key => $value) {
             $footer[$key] = Tools::ps_round($value, _PS_PRICE_COMPUTE_PRECISION_, $this->order->round_mode);
@@ -468,11 +475,19 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         $result = $db->getRow($sql);
         
         if ($result) {
-            return [
-                'fee_tax_excl' => $result['fees'],
-                'fee_tax_incl' => $result['fees'] * ((100 + $result['tax_rate'])/100),
-                'fee_taxes' => $result['tax_rate'],
-           ];
+            if($result['fees']<0) { //discount
+                return [
+                    'discount_tax_excl' => $result['fees'],
+                    'discount_tax_incl' => $result['fees'] * ((100 + $result['tax_rate'])/100),
+                    'discount_taxes' => $result['tax_rate'],
+                    ];
+            } else { //fee
+                return [
+                    'fee_tax_excl' => $result['fees'],
+                    'fee_tax_incl' => $result['fees'] * ((100 + $result['tax_rate'])/100),
+                    'fee_taxes' => $result['tax_rate'],
+                ];
+            }
         } else {
             return [];
         }

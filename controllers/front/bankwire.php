@@ -95,6 +95,7 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
             'excluded_products' => classMpPaymentCalc::getListProductsExclusion('cash'),
             'cart_product_list' => $cart_product_list,
             'fee' => $this->mpPayment->calculateFee(classMpPayment::BANKWIRE, $this->_cart),
+            'arr_details' => $this->getBankwireDetails(),
         ]);
         
         $this->setTemplate('bankwire.tpl');
@@ -126,5 +127,16 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
         } else {
             return false;
         }
+    }
+    
+    function getBankwireDetails()
+    {
+        $det = new stdClass();
+        $det->owner = ConfigurationCore::get("MP_ADVPAYMENT_OWNER");
+        $det->iban  = ConfigurationCore::get("MP_ADVPAYMENT_IBAN");
+        $det->bank  = ConfigurationCore::get("MP_ADVPAYMENT_BANK");
+        $det->addr  = ConfigurationCore::get("MP_ADVPAYMENT_ADDR");
+        
+        return $det;
     }
 }
