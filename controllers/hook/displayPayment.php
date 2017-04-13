@@ -34,6 +34,7 @@ class MpAdvPaymentDisplayPaymentController {
     public $module;
     public $file;
     public $_path;
+    public $smarty;
     
     /**
      * 
@@ -48,10 +49,15 @@ class MpAdvPaymentDisplayPaymentController {
         $this->context = Context::getContext();
     }
     
+    public function setSmarty($smarty)
+    {
+        $this->smarty = $smarty;
+    }
+    
     public function run($params)
     {
         $this->context->controller->addCSS($this->_path.'views/css/displayPayment.css', 'all');
-        Context::getContext()->smarty->assign('activeModules', $this->getActiveModules());
+        $this->smarty->assign('activeModules', $this->getActiveModules());
         return $this->module->display($this->file, 'displayPayment.tpl');
     }
     

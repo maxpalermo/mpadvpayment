@@ -14,9 +14,9 @@ $iban = Tools::getValue("iban",'');
 $bank = Tools::getValue("bank",'');
 $addr = Tools::getValue("addr",'');
 
-ConfigurationCore::updateValue('MP_ADVPAYMENT_OWNER', $owner);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_IBAN', $iban);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_BANK', $bank);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_ADDR', $addr);
+ConfigurationCore::updateValue('MP_ADVPAYMENT_BANKWIRE_OWNER', $owner);
+ConfigurationCore::updateValue('MP_ADVPAYMENT_BANKWIRE_IBAN', $iban);
+ConfigurationCore::updateValue('MP_ADVPAYMENT_BANKWIRE_BANK', $bank);
+ConfigurationCore::updateValue('MP_ADVPAYMENT_BANKWIRE_ADDR', $addr);
 
 exit();

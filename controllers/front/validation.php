@@ -88,25 +88,25 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
                 if($objLang->iso_code=="it") {
                     $payment_type = "Contanti alla consegna";
                 } else {
-                    $payment_type = $this->module->l('Adv Payment: Cash');
+                    $payment_type = $this->module->l('Adv Payment: Cash','validation');
                 }
             } elseif ($this->payment_method==classMpPayment::BANKWIRE) {
                 if($objLang->iso_code=="it") {
                     $payment_type = "Bonifico bancario anticipato";
                 } else {
-                    $payment_type = $this->module->l('Adv Payment: Bankwire');
+                    $payment_type = $this->module->l('Adv Payment: Bankwire','validation');
                 }
             } elseif ($this->payment_method==classMpPayment::PAYPAL) {
                 if($objLang->iso_code=="it") {
                     $payment_type = "Pagamento tramite Paypal";
                 } else {
-                    $payment_type = $this->module->l('Adv Payment: Paypal');
+                    $payment_type = $this->module->l('Adv Payment: Paypal','validation');
                 }
             } else {
                 if($objLang->iso_code=="it") {
                     $payment_type = "Pagamento sconosciuto";
                 } else {
-                    $payment_type = $this->module->l('Adv Payment: UNKNOWN');
+                    $payment_type = $this->module->l('Adv Payment: UNKNOWN','validation');
                 }
             }
             
@@ -122,7 +122,7 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
             //Update order payment
             $orderPaymentArray = OrderPaymentCore::getByOrderReference($order->reference);
             $orderPayment = new OrderPaymentCore($orderPaymentArray[0]->id);
-            print "<pre>" . print_r($orderPayment,1) . "</pre>";
+            //print "<pre>" . print_r($orderPayment,1) . "</pre>";
             $orderPayment->payment_method = $payment_type;
             $orderPayment->amount = $order->total_paid;
             $orderPayment->update();
@@ -139,12 +139,27 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
             $classExtra->transaction_id = '';
             $classExtra->save();
             
-            //Redirect on order confirmation page
-            Tools::redirect('index.php?controller=order-confirmation'
-                    .'&idcart='.$cart->id
-                    .'&id_module='.$this->module->id
-                    .'&id_order='.$this->module->currentOrder
-                    .'&key='.$customer->secure_key);
+            if($this->payment_method == classMpPayment::CASH) {
+                //Redirect on order confirmation page
+                Tools::redirect('index.php?controller=order-confirmation'
+                        .'&idcart='.$cart->id
+                        .'&id_module='.$this->module->id
+                        .'&id_order='.$this->module->currentOrder
+                        .'&key='.$customer->secure_key);
+            } elseif($this->payment_method == classMpPayment::BANKWIRE) {
+                //Redirect on order confirmation page
+                $link = new LinkCore();
+                $url = $link->getModuleLink('mpadvpayment','bankwireReturn',['id_order' => $this->module->currentOrder]);
+                Tools::redirect($url);
+                /*
+                Tools::redirect('index.php?controller=mpadv'
+                        .'&idcart='.$cart->id
+                        .'&id_module='.$this->module->id
+                        .'&id_order='.$this->module->currentOrder
+                        .'&key='.$customer->secure_key);
+                 * 
+                 */
+            }
         } else {
             print "ERROR during cart convalidation.";
             //ERROR

@@ -37,7 +37,7 @@
             <div class='form-wrapper' style='padding: 20px;'>
                 <h3>{l s='Please, making a wire transfer with these details:' mod='mpadvpayment'}</h3>
                 <span><i class='icon-dollar'></i> {l s='Total amount: ' mod='mpadvpayment'} 
-                    <strong>{displayPrice price=$taxable+$taxes}</strong></span>
+                    <strong>{displayPrice price=$order->total_paid}</strong></span>
                 <br>
                 <span><i class='icon-user'></i> {l s='Owner: ' mod='mpadvpayment'} 
                     <strong>{$arr_details->owner}</strong></span>
@@ -61,13 +61,26 @@
     </div>   
 
     <p>
-    {if !isset($reference)}
-	    {l s='Do not forget to insert your order number #%d in the subject of your bank wire' sprintf=$id_order mod='mpadvpayment'}
+        <strong>
+    {if !isset($order->reference)}
+	    {l s='Do not forget to insert your order number: #%d in the subject of your bank wire' sprintf=$order->id mod='mpadvpayment'}
     {else}
-	    {l s='Do not forget to insert your order reference %s in the subject of your bank wire.' sprintf=$reference mod='mpadvpayment'}
+	    {l s='Do not forget to insert your order reference: %s in the subject of your bank wire.' sprintf=$order->reference mod='mpadvpayment'}
     {/if}
-	</p>
+        </strong>
+    </p>
 
-	<p><strong>{l s='Your order will be sent as soon as we receive payment.' mod='mpadvpayment'}</strong></p><br>
-	<p>{l s='If you have questions, comments or concerns, please contact our' mod='mpadvpayment'} <a href="{$link->getPageLink('contact', true)|escape:'html':'UTF-8'}">{l s='expert customer support team.' mod='mpadvpayment'}</a>.</p>
+    <p><strong>{l s='Your order will be sent as soon as we receive payment.' mod='mpadvpayment'}</strong></p><br>
+    
+    <p>
+        {l s='If you have questions, comments or concerns, please contact our' mod='mpadvpayment'} 
+        {l s='expert customer support team.' mod='mpadvpayment'}
+        <a href="{$link->getPageLink('contact', true)|escape:'html':'UTF-8'}" style='margin-left: 20px;'>
+            <i class='icon-3x icon-comments'></i>
+        </a>
+    </p>
+    <br style='clear: both;'>
 </div>
+<p class="cart_navigation exclusive">
+	<a class="button-exclusive btn btn-default" href="{$link->getPageLink('history')|escape:'html':'UTF-8'}"><i class="icon-chevron-left"></i>{l s='Go to order history page' mod='mpadvpayment'}</a>
+</p>

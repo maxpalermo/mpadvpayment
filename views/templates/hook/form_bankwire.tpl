@@ -108,7 +108,7 @@
             yes="{l s='YES' mod='mpadvpayment'}" 
             no="{l s='NO' mod='mpadvpayment'}" 
             active="false"
-            onswitch="setIncludedTax('cash')">
+            onswitch="setBankwireIncludedTax">
         </ps-switch>
         <input type="hidden" id="input_bankwire_switch_included_tax_hidden">
         
@@ -193,12 +193,12 @@
     </div>
     <br>
 </div>
-    <div class="panel-footer" style="margin: 0 auto;">
-        <button type="button" value="1" id="submit_bankwire_save" name="submit_bankwire_save" class="btn btn-default pull-right">
-            <i class="process-icon-save"></i> 
-            {l s='Save' mod='mpadvpayment'}
-        </button>
-    </div>
+<div class="panel-footer" style="margin: 0 auto;">
+    <button type="button" value="1" id="submit_bankwire_save" name="submit_bankwire_save" class="btn btn-default pull-right">
+        <i class="process-icon-save"></i> 
+        {l s='Save' mod='mpadvpayment'}
+    </button>
+</div>
 
 
 <script type="text/javascript">

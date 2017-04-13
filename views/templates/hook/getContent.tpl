@@ -269,8 +269,8 @@
                         match_type = '#div_paypal_';
                     }
                     
-                    console.log("change: " + this.id);
-                    console.log("match: " + match_type);
+                    //console.log("change: " + this.id);
+                    //console.log("match: " + match_type);
                     
                     addHiddenList(this);
                     if($(this).val()==0) { //Tax panel
@@ -460,7 +460,96 @@
     
     function setPaypalValues()
     {
-        //todo
+        console.log("setPaypalValues");
+        
+        {if isset({$paypal_values->input_switch_on}) && (int)$paypal_values->input_switch_on==1}
+            $("#input_paypal_switch_on").click();
+        {else}
+            $("#input_paypal_switch_off").click();
+        {/if}
+        $('#input_paypal_select_type').val({(int)$paypal_values->fee_type}).trigger('chosen:updated').change();
+        $("#input_paypal_discount").val(Number({(float)$paypal_values->discount}).toFixed(2));
+        $("#input_paypal_fee_amount").val(Number({(float)$paypal_values->fee_amount}).toFixed(2));
+        $("#input_paypal_fee_percent").val(Number({(float)$paypal_values->fee_percent}).toFixed(2));
+        $("#input_paypal_fee_min").val(Number({(float)$paypal_values->fee_min}).toFixed(2));
+        $("#input_paypal_fee_max").val(Number({(float)$paypal_values->fee_max}).toFixed(2));
+        $("#input_paypal_order_min").val(Number({(float)$paypal_values->order_min}).toFixed(2));
+        $("#input_paypal_order_max").val(Number({(float)$paypal_values->order_max}).toFixed(2));
+        $("#input_paypal_order_free").val(Number({(float)$paypal_values->order_free}).toFixed(2));
+        {if isset($paypal_values->tax_included) && $paypal_values->tax_included==1 } 
+            $("#input_paypal_switch_included_tax_on").click();
+        {else}
+            $("#input_paypal_switch_included_tax_off").click();
+        {/if}
+        $("#input_paypal_select_tax").val("{$paypal_values->tax_rate}").trigger('chosen:updated').change();
+        $("#input_paypal_select_carriers").val([{$paypal_values->carriers|implode:','}]).trigger('chosen:updated').change();
+        $("#input_paypal_select_categories").val([{$paypal_values->categories|implode:','}]).trigger('chosen:updated').change();
+        $("#input_paypal_select_manufacturers").val([{$paypal_values->manufacturers|implode:','}]).trigger('chosen:updated').change();
+        $("#input_paypal_select_suppliers").val([{$paypal_values->suppliers|implode:','}]).trigger('chosen:updated').change();
+        $("#input_paypal_select_products").val([{$paypal_values->products|implode:','}]).trigger('chosen:updated').change();
+        $("#input_paypal_select_order_states").val([{$paypal_values->id_order_state}]).trigger('chosen:updated').change();
+        
+        $.ajax({
+            url : '../modules/mpadvpayment/ajax/loadPaypalInfo.php',
+            success: function(response)
+            {
+                //console.log("PAYPAL GET INFO");
+                //console.log(response);
+                var obj = JSON.parse(response);
+                if(obj.test==1) {
+                    $("#input_paypal_switch_test_on").click();
+                } else {
+                    $("#input_paypal_switch_test_off").click();
+                }
+                $("#input_paypal_user_api").val(obj.user);
+                $("#input_paypal_password_api").val(obj.password);
+                $("#input_paypal_signature_api").val(obj.signature);
+            }
+        });
+        
+        return true;
+    }
+    
+    function savePaypalValues()
+    {
+        console.log("saveValues");
+        
+        var paypal_payment = new Payment();
+        
+        paypal_payment.active = $("#input_paypal_switch_hidden").val();
+        paypal_payment.fee_type = $("#input_paypal_select_type_hidden").val();
+        paypal_payment.discount = $("#input_paypal_discount").val();
+        paypal_payment.fee_amount = $("#input_paypal_fee_amount").val();
+        paypal_payment.fee_percent = $("#input_paypal_fee_percent").val();
+        paypal_payment.fee_min = $("#input_paypal_fee_min").val();
+        paypal_payment.fee_max = $("#input_paypal_fee_max").val();
+        paypal_payment.order_min = $("#input_paypal_order_min").val();
+        paypal_payment.order_max = $("#input_paypal_order_max").val();
+        paypal_payment.order_free = $("#input_paypal_order_free").val();
+        paypal_payment.tax_included = $("#input_paypal_switch_included_tax_hidden").val();
+        paypal_payment.tax_rate = $("#input_paypal_select_tax_hidden").val();
+        paypal_payment.carriers = $("#input_paypal_select_carriers_hidden").val();
+        paypal_payment.categories = $("#input_paypal_select_categories_hidden").val();
+        paypal_payment.manufacturers = $("#input_paypal_select_manufacturers_hidden").val();
+        paypal_payment.suppliers = $("#input_paypal_select_suppliers_hidden").val();
+        paypal_payment.products = $("#input_paypal_select_products_hidden").val();
+        paypal_payment.id_order_state = $("#input_paypal_select_order_states_hidden").val();
+        paypal_payment.payment_type = 'paypal';
+        
+        paypal_payment.save();
+        
+        $.ajax({
+            url : '../modules/mpadvpayment/ajax/savePaypalInfo.php',
+            type: 'POST',
+            data: 
+                    {
+                        test      : $("#input_paypal_switch_test_hidden").val(),
+                        user      : $("#input_paypal_user_api").val(),
+                        password  : $("#input_paypal_password_api").val(),
+                        signature : $("#input_paypal_signature_api").val()
+                    }
+        });
+        
     }
     
     function formatCurrency(element)
@@ -494,17 +583,17 @@
     
     function setCashIncludedTax(value)
     {
-        $("#input_hidden_cash_included_tax").val(value);
+        $("#input_cash_switch_included_tax_hidden").val(value);
     }
     
     function setBankwireIncludedTax(value)
     {
-        //todo
+        $("#input_bankwire_switch_included_tax_hidden").val(value);
     }
     
     function setPaypalIncludedTax(value)
     {
-        //todo
+        $("#input_paypal_switch_included_tax_hidden").val(value);
     }
     
     function hideCashPanel(value)
@@ -520,6 +609,12 @@
     function hidePaypalPanel(value)
     {
         hidePanel(value, 'paypal');
+    }
+    
+    function setPaypalSwitchTest(value)
+    {
+        console.log("switch test: " + Number(value));
+        $("#input_paypal_switch_test_hidden").val(Number(value));
     }
     
     function hidePanel(value, panel)

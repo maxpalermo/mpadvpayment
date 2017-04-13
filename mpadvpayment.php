@@ -80,15 +80,40 @@ class MpAdvPayment extends PaymentModuleCore
     
     public function hookDisplayPayment($params)
     {
+        $this->smarty = Context::getContext()->smarty;
         $this->context->controller->addCSS($this->_path . 'views/css/displayPayment.css');
         /** @var CartCore $cart */
         //$cart = new CartCore();
         $cart = Context::getContext()->cart;
         $cash_fee       = $this->payment->calculateFee(classMpPayment::CASH, $cart);
         $bankwire_fee   = $this->payment->calculateFee(classMpPayment::BANKWIRE, $cart);
+        $paypal_fee   = $this->payment->calculateFee(classMpPayment::PAYPAL, $cart);
         
+        $this->smarty->assign([
+            'total_cart' => $cash_fee['total_cart'],
+            'fees' => $cash_fee['total_fee_with_taxes'],
+            'total_pay' => $cash_fee['total_cart']+$cash_fee['total_fee_with_taxes'],
+            'payment_type' => $this->l('Cash'),
+        ]);
+        $this->smarty->assign('cash_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
         
+        $this->smarty->assign([
+            'total_cart' => $bankwire_fee['total_cart'],
+            'fees' => $bankwire_fee['total_fee_with_taxes'],
+            'total_pay' => $bankwire_fee['total_cart']+$bankwire_fee['total_fee_with_taxes'],
+            'payment_type' => $this->l('Bankwire'),
+        ]);
+        $this->smarty->assign('bankwire_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
         
+        $this->smarty->assign([
+            'total_cart' => $paypal_fee['total_cart'],
+            'fees' => $paypal_fee['total_fee_with_taxes'],
+            'total_pay' => $paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes'],
+            'payment_type' => $this->l('Paypal'),
+        ]);
+        $this->smarty->assign('paypal_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
+        
+        /*
         $this->smarty->assign(
                 "cash_summary", 
                 $this->l("Cart:") . ' ' . Tools::displayPrice($cash_fee['total_cart']) . ' + ' .
@@ -100,13 +125,27 @@ class MpAdvPayment extends PaymentModuleCore
                 $this->l("Cart:") . ' ' . Tools::displayPrice($bankwire_fee['total_cart']) . ' + ' .
                 $this->l("Fee:") . ' ' . Tools::displayPrice($bankwire_fee['total_fee_with_taxes']) . ' = ' .
                 $this->l("Total:") . ' ' . Tools::displayPrice($bankwire_fee['total_cart']+$bankwire_fee['total_fee_with_taxes']));
-                
+        
+        $this->smarty->assign(
+                "paypal_summary", 
+                $this->l("Cart:") . ' ' . Tools::displayPrice($paypal_fee['total_cart']) . ' + ' .
+                $this->l("Fee:") . ' ' . Tools::displayPrice($paypal_fee['total_fee_with_taxes']) . ' = ' .
+                $this->l("Total:") . ' ' . Tools::displayPrice($paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes']));
+        */
+        
         $controller = $this->getHookController('displayPayment');
+        $controller->setSmarty($this->smarty);
         return $controller->run($params);
     }
     
     public function hookDisplayPaymentReturn($params)
     {
+        if (!$this->active) {
+            return;
+        }
+        
+        $this->context->smarty->assign(['id_order' => $params['objOrder']->id]);
+        
         $controller = $this->getHookController('displayPaymentReturn');
         return $controller->run($params);
     }
@@ -150,6 +189,8 @@ class MpAdvPayment extends PaymentModuleCore
     
     private function uninstallSQL()
     {
+        return true;
+        
         $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . "sql" . DIRECTORY_SEPARATOR . "uninstall.sql";
         $sql = explode(";",file_get_contents($filename));
         if(empty($sql)){return FALSE;}

@@ -28,7 +28,9 @@
     <div class="col-xs-12">
         <div class="payment_block_module">
             <a href="{$link->getModuleLink('mpadvpayment','cash')|escape:'html'}" class="mpadvpayment mpadvpayment_cash">
-                {l s='Cash' mod='mpadvpayment'} <i class='icon-arrow-circle-right'></i> {$cash_summary}
+                <div style='display: inline-block;'>
+                    {$cash_summary}
+                </div>
             </a>
         </div>
     </div>
@@ -37,8 +39,11 @@
     <div class="col-xs-12">
         <div class="payment_block_module">
             <a href="{$link->getModuleLink('mpadvpayment','bankwire')|escape:'html'}" class="mpadvpayment mpadvpayment_bankwire">
-                {l s='Bankwire' mod='mpadvpayment'} <i class='icon-arrow-circle-right'></i> {$bankwire_summary}
+                <div style='display: inline-block;'>
+                    {$bankwire_summary}
+                </div>
             </a>
+            
         </div>
     </div>
     {/if}
@@ -46,7 +51,9 @@
     <div class="col-xs-12">
         <div class="payment_block_module">
             <a href="{$link->getModuleLink('mpadvpayment','paypal')|escape:'html'}" class="mpadvpayment mpadvpayment_paypal">
-                {l s='Paypal' mod='mpadvpayment'}
+                <div style='display: inline-block;'>
+                    {$paypal_summary}
+                </div>
             </a>
         </div>
     </div>

@@ -54,9 +54,11 @@ class MpAdvPaymentGetContentController
         $this->smarty->assign('order_state_list', $this->getOrderStateList());
         $this->smarty->assign('cash_values', $this->getCashValues());
         $this->smarty->assign('bankwire_values', $this->getBankwireValues());
+        $this->smarty->assign('paypal_values', $this->getPaypalValues());
         $this->smarty->assign('ps_version', Tools::substr(_PS_VERSION_, 0, 3));
         $this->smarty->assign('form_cash', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_cash.tpl'));
         $this->smarty->assign('form_bankwire', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_bankwire.tpl'));
+        $this->smarty->assign('form_paypal', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_paypal.tpl'));
         $template  = $this->class->display($this->file_path, 'getContent.tpl');
         $psui_tags = $this->class->display($this->file_path, 'views/templates/admin/prestui/ps-tags.tpl');
         return $template . $psui_tags;
@@ -204,6 +206,34 @@ class MpAdvPaymentGetContentController
         $bankwire->id_order_state       = $values->id_order_state;
         
         return $bankwire;
+    }
+    
+    public function getPaypalValues()
+    {
+        $paypal = new stdClass();
+        $values = new classMpPayment();
+        $values->read(classMpPayment::PAYPAL);
+        
+        $paypal->input_switch_on      = $values->is_active;
+        $paypal->discount             = $values->discount;
+        $paypal->fee_type             = $values->fee_type;
+        $paypal->fee_amount           = $values->fee_amount;
+        $paypal->fee_percent          = $values->fee_percent;
+        $paypal->fee_min              = $values->fee_min;
+        $paypal->fee_max              = $values->fee_max;
+        $paypal->order_min            = $values->order_min;
+        $paypal->order_max            = $values->order_max;
+        $paypal->order_free           = $values->order_free;
+        $paypal->tax_included         = $values->tax_included;
+        $paypal->tax_rate             = number_format($values->tax_rate,3);
+        $paypal->carriers             = $this->toArray($values->carriers);
+        $paypal->categories           = $this->toArray($values->categories);
+        $paypal->manufacturers        = $this->toArray($values->manufacturers);
+        $paypal->suppliers            = $this->toArray($values->suppliers);
+        $paypal->products             = $this->toArray($values->products);
+        $paypal->id_order_state       = $values->id_order_state;
+        
+        return $paypal;
     }
     
     public function toArray($input_string, $separator = ",")

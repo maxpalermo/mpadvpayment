@@ -9,10 +9,10 @@
 require_once(dirname(__FILE__).'/../../../config/config.inc.php');
 require_once(dirname(__FILE__).'/../../../init.php');
 
-$owner = ConfigurationCore::get('MP_ADVPAYMENT_OWNER');
-$iban  = ConfigurationCore::get('MP_ADVPAYMENT_IBAN');
-$bank  = ConfigurationCore::get('MP_ADVPAYMENT_BANK');
-$addr  = ConfigurationCore::get('MP_ADVPAYMENT_ADDR');
+$owner = ConfigurationCore::get('MP_ADVPAYMENT_BANKWIRE_OWNER');
+$iban  = ConfigurationCore::get('MP_ADVPAYMENT_BANKWIRE_IBAN');
+$bank  = ConfigurationCore::get('MP_ADVPAYMENT_BANKWIRE_BANK');
+$addr  = ConfigurationCore::get('MP_ADVPAYMENT_BANKWIRE_ADDR');
 
 $output = new stdClass();
 $output->owner = $owner;
