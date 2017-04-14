@@ -504,6 +504,7 @@
                 $("#input_paypal_user_api").val(obj.user);
                 $("#input_paypal_password_api").val(obj.password);
                 $("#input_paypal_signature_api").val(obj.signature);
+                $("#input_paypal_test_api").val(obj.test_id);
             }
         });
         
@@ -546,7 +547,8 @@
                         test      : $("#input_paypal_switch_test_hidden").val(),
                         user      : $("#input_paypal_user_api").val(),
                         password  : $("#input_paypal_password_api").val(),
-                        signature : $("#input_paypal_signature_api").val()
+                        signature : $("#input_paypal_signature_api").val(),
+                        test_id   : $("#input_paypal_test_api").val()
                     }
         });
         

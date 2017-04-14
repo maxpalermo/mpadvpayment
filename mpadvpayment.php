@@ -105,11 +105,19 @@ class MpAdvPayment extends PaymentModuleCore
         ]);
         $this->smarty->assign('bankwire_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
         
+        $link = new LinkCore();
+        $returnUrl = $link->getModuleLink('mpadvpayment', 'paypal', ['action' => 'GetExpressCheckoutDetails']);
+        $cancelUrl = $link->getModuleLink('mpadvpayment', 'paypal_error');
+        $controllerUrl = $link->getModuleLink('mpadvpayment', 'paypal');
         $this->smarty->assign([
             'total_cart' => $paypal_fee['total_cart'],
             'fees' => $paypal_fee['total_fee_with_taxes'],
             'total_pay' => $paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes'],
             'payment_type' => $this->l('Paypal'),
+            'action' => 'SetExpressCheckout',
+            'returnURL' => $returnUrl,
+            'cancelURL' => $cancelUrl,
+            'controllerURL' => $controllerUrl,
         ]);
         $this->smarty->assign('paypal_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
         

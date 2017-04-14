@@ -168,6 +168,12 @@
         onswitch="setPaypalSwitchTest">
     </ps-switch>
     <input type="hidden" id="input_paypal_switch_test_hidden">
+    <label class="control-label">{l s='TEST APP ID' mod='mpadvpayment'}</label>
+    <div class="input-group input" style="width: 80%;">
+        <input type="text" id="input_paypal_test_api" class="input" onfocus='selectAll(this);'>
+        <span class="input-group-addon"><i class="icon-bookmark-o"></i></span>
+    </div>
+    <br>
     <label class="control-label">{l s='User API' mod='mpadvpayment'}</label>
     <div class="input-group input" style="width: 80%;">
         <input type="text" id="input_paypal_user_api" class="input" onfocus='selectAll(this);'>

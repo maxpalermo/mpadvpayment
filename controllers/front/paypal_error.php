@@ -45,101 +45,14 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
     private $user;
     private $password;
     private $signature;
-    private $action;
-    private $total_pay;
-    private $returnURL;
-    private $cancelURL;
     
     public function initContent() 
     {
-        $this->test = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST");
-        $this->user = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_USER");
-        $this->password = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PWD");
-        $this->signature = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_SIGN");
-        $this->_lang = Context::getContext()->language->id;
-        $this->action = Tools::getValue('method','');
-        $this->total_pay = (float)Tools::getValue('total_pay',0);
-        $this->cancelURL = Tools::getValue('cancelURL','');
-        $this->returnURL = Tools::getValue('returnURL','');
+        $this->display_column_left = false;
+        $this->display_column_right = false;
+        parent::initContent();
         
-        if (empty($this->action)) {
-            $this->setTemplate('paypal_error.tpl');
-        } else {
-            switch ($this->action) {
-                case 'SetExpressCheckout':
-                    $this->SetExpressCheckout();
-                    break;
-                case 'GetExpressCheckoutDetails':
-                    $this->GetExpressCheckoutDetails();
-                    break;
-                default:
-                    $this->setTemplate('paypal_error.tpl');
-                    break;
-            }
-        }
-    }
-    
-    public function SetExpressCheckout()
-    {
-        
-        $paypal = new classMpPaypal();
-        
-        $params = array(
-            'RETURNURL' => $this->returnURL,
-            'CANCELURL' => $this->cancelURL,
-            'PAYMENTREQUEST_0_AMT' => $this->total_pay, //total of order
-            'PAYMENTREQUEST_0_CURRENCYCODE' => Context::getContext()->currency->iso_code,
-        );
-        
-        $response = $paypal->request('SetExpressCheckout', $params);
-
-
-        if ($response) {
-            $paypal->redirectPaypal($response['TOKEN']);
-        } else {
-            $this->context->smarty->assign(
-                array(
-                    'error_paypal' => $paypal->getErrors()
-            ));
-            $this->setTemplate('paypal_error.tpl');
-        }
-    }
-    
-    public function GetExpressCheckoutDetails()
-    {
-        $token = Tools::getValue('TOKEN', '');
-        $payerID = Tools::getValue('PayerID', '');
-        if (empty($token) || empty($payerID)) {
-            $this->setTemplate('paypal_error.tpl');
-        } else {
-            $params = [ 'TOKEN' => $token,
-                        'PAYERID' => $payerID,
-                        'PAYMENTREQUEST_0_AMT' => $response['PAYMENTREQUEST_0_AMT'],
-                        'PAYMENTREQUEST_0_CURRENCYCODE' => $response['PAYMENTREQUEST_0_CURRENCYCODE'],
-                        'PAYMENTACTION' => 'Sale',             
-            ];
-            
-            $this->DoExpressCheckoutPayment($params);
-        }
-    }
-    
-    public function DoExpressCheckoutPayment($params)
-    {
-        $paypal = new classMpPaypal();
-        $response = $paypal->request('DoExpressCheckoutPayment', $params);
-        
-        if (!$response) {
-            $this->setTemplate('paypal_error.tpl');
-        } else {
-            if ($response['ACK'] == 'Success') {
-                $this->createOrder($response['PAYMENTINFO_0_TRANSACTIONID']);
-            }
-        }
-    }
-    
-    public function createOrder($transactionID)
-    {
-        $this->setTemplate('paypal_success.tpl');
+        $this->setTemplate('paypal_error.tpl');
     }
     
     public function checkCurrency()

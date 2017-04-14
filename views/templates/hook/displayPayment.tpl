@@ -50,12 +50,18 @@
     {if isset($activeModules['paypal']) && $activeModules['paypal']}
     <div class="col-xs-12">
         <div class="payment_block_module">
-            <a href="{$link->getModuleLink('mpadvpayment','paypal')|escape:'html'}" class="mpadvpayment mpadvpayment_paypal">
+            <a href="javascript:$('#mp_advpayment_paypal').submit()" class="mpadvpayment mpadvpayment_paypal" id="paypal_process_payment_">
                 <div style='display: inline-block;'>
                     {$paypal_summary}
                 </div>
             </a>
         </div>
+        <form id="mp_advpayment_paypal" action='{$controllerURL|escape:'htmlall':'UTF-8'}' data-ajax='false' method="post">
+            <input type="hidden" name="cancelURL" value="{$cancelURL|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="returnURL" value="{$returnURL|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="total_pay" value="{$total_pay|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="method"    value="{$action|escape:'htmlall':'UTF-8'}" />
+        </form>
     </div>
     {/if}
 </div>

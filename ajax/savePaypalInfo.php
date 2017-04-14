@@ -13,10 +13,12 @@ $test      = Tools::getValue("test",'');
 $user      = Tools::getValue("user",'');
 $password  = Tools::getValue("password",'');
 $signature = Tools::getValue("signature",'');
+$test_id   = Tools::getValue("test_id",'');
 
 ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_TEST', $test);
 ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_USER_API', $user);
 ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_PWD_API', $password);
 ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_SIGN_API', $signature);
+ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_TEST_API', $test_id);
 
 exit();

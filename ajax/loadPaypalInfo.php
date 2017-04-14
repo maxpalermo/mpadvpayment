@@ -13,12 +13,14 @@ $test      = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_TEST');
 $user      = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_USER_API');
 $password  = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_PWD_API');
 $signature = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_SIGN_API');
+$test_id   = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_TEST_API');
 
 $output = new stdClass();
 $output->test      = $test;
 $output->user      = $user;
 $output->password  = $password;
 $output->signature = $signature;
+$output->test_id   = $test_id;
 
 print Tools::jsonEncode($output);
 
