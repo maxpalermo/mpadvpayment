@@ -71,18 +71,29 @@
     {l s='Paypal payment' mod='mpadvpayment'}
 {/capture}
 
-<form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validationAPI', $params, true)|escape:'html'}' method='POST'>
+<form class='defaultForm form-horizontal' action='' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
             <i class="icon-warning"></i>
-            {l s='Error during cart finalization.' mod='mpadvpayment'}
+            {$paypal_error_message}
         </div>
     </div>
+        <pre>
+            FUNCTION:
+            {$function}
+
+            PARAMS:
+            {$paypal_params|print_r}
+
+            ERROR:
+            {$paypal_error|print_r}
+        </pre>
+        
     <br>
     <p class="cart_navigation clearfix" id="cart_navigation">
         <a
             class="button-exclusive btn btn-default"
-            href="{$link->getPageLink('order', true, NULL, "step=1")|escape:'html':'UTF-8'}">
+            href="{$link->getPageLink('order', true, NULL, "step=3")|escape:'html':'UTF-8'}">
             <i class="icon-chevron-left"></i>{l s='Other payment methods' mod='mpadvpayment'}
         </a>
     </p>

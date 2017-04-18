@@ -71,11 +71,15 @@
     {l s='Paypal payment' mod='mpadvpayment'}
 {/capture}
 
-<form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validationAPI', $params, true)|escape:'html'}' method='POST'>
+<form class='defaultForm form-horizontal' action='' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
             <i class="icon-ok-circle"></i>
-            {l s='Your paypal transaction is successfully saved.' mod='mpadvpayment'}
+            {l s='Your paypal transaction has been successfully saved.' mod='mpadvpayment'}
+        </div>
+        <div class='panel-heading'>
+            <i class="icon-book"></i>
+            {l s='Your paypal transaction id is:' mod='mpadvpayment'} {$transaction_id}
         </div>
     </div>
     <br>

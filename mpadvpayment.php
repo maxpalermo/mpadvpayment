@@ -37,7 +37,7 @@ class MpAdvPayment extends PaymentModuleCore
     public function __construct()
     {
       $this->name = 'mpadvpayment';
-      $this->tab = 'payments_gateway';
+      $this->tab = 'payments_gateways';
       $this->version = '1.0.0';
       $this->author = 'mpsoft';
       $this->need_instance = 0;
@@ -107,8 +107,8 @@ class MpAdvPayment extends PaymentModuleCore
         
         $link = new LinkCore();
         $returnUrl = $link->getModuleLink('mpadvpayment', 'paypal', ['action' => 'GetExpressCheckoutDetails']);
-        $cancelUrl = $link->getModuleLink('mpadvpayment', 'paypal_error');
-        $controllerUrl = $link->getModuleLink('mpadvpayment', 'paypal');
+        $cancelUrl = $link->getModuleLink('mpadvpayment', 'paypalerror');
+        $controllerUrl = $link->getModuleLink('mpadvpayment', 'paypal', ['action'=>'SetExpressCheckout']);
         $this->smarty->assign([
             'total_cart' => $paypal_fee['total_cart'],
             'fees' => $paypal_fee['total_fee_with_taxes'],

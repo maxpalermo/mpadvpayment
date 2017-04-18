@@ -15,6 +15,7 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
 {
     private $payment_method;
     private $payment_display;
+    private $transaction_id;
     private $paymentConfig;
     
     public function postProcess()
@@ -23,8 +24,9 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
         $this->paymentConfig = new classMpPaymentConfiguration();
 
         //Set params
-        $this->payment_method = Tools::getValue('payment_method');
-        $this->payment_display = Tools::getValue('payment_display');
+        $this->payment_method   = Tools::getValue('payment_method');
+        $this->payment_display  = Tools::getValue('payment_display');
+        $this->transaction_id   = Tools::getValue('transaction_id');
         
         //Get configuration data
         $this->paymentConfig->read($this->payment_method);
@@ -120,12 +122,17 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
             $order->update();
             
             //Update order payment
-            $orderPaymentArray = OrderPaymentCore::getByOrderReference($order->reference);
-            $orderPayment = new OrderPaymentCore($orderPaymentArray[0]->id);
-            //print "<pre>" . print_r($orderPayment,1) . "</pre>";
-            $orderPayment->payment_method = $payment_type;
-            $orderPayment->amount = $order->total_paid;
-            $orderPayment->update();
+            if ($this->deleteOrderPayment($order->reference)) {
+                $orderPayment = new OrderPaymentCore();
+                $orderPayment->amount = $order->total_paid;
+                $orderPayment->id_currency = Context::getContext()->currency->id;
+                $orderPayment->order_reference = $order->reference;
+                $orderPayment->payment_method = $payment_type;
+                $orderPayment->transaction_id = $this->transaction_id;
+                $orderPayment->save();
+            } else {
+                // NO PAYMENT
+            }
             
             //Save extra data
             $id_order = OrderCore::getOrderByCartId($cart->id);
@@ -136,7 +143,7 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
             $classExtra->total_amount = number_format($order->total_paid_tax_excl,6);
             $classExtra->tax_rate = number_format($this->paymentConfig->tax_rate,6);
             $classExtra->fees = number_format($classPaymentFee->total_fee_without_taxes,6);
-            $classExtra->transaction_id = '';
+            $classExtra->transaction_id = $this->transaction_id;
             $classExtra->save();
             
             if($this->payment_method == classMpPayment::CASH) {
@@ -159,10 +166,25 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
                         .'&key='.$customer->secure_key);
                  * 
                  */
+            } elseif($this->payment_method == classMpPayment::PAYPAL) {
+                //Redirect on order confirmation page
+                $params = [
+                    'id_order' => $this->module->currentOrder,
+                    'transaction_id' => $this->transaction_id,
+                        ];
+                $link = new LinkCore();
+                $url = $link->getModuleLink('mpadvpayment','paypalReturn',$params);
+                Tools::redirect($url);
             }
         } else {
             print "ERROR during cart convalidation.";
             //ERROR
         }
+    }
+    
+    private function deleteOrderPayment($reference)
+    {
+        $db = Db::getInstance();
+        return $db->delete('order_payment', "order_reference = '" . pSQL($reference) . "'");
     }
 }

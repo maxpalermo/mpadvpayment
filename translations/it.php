@@ -10,6 +10,8 @@ $_MODULE['<{mpadvpayment}prestashop>mpadvpayment_35b4b09d5d0686ec5c2e2cc9f3d9039
 $_MODULE['<{mpadvpayment}prestashop>mpadvpayment_9b88c95a15e018c3f8038a7d0160145c'] = 'Paypal';
 $_MODULE['<{mpadvpayment}prestashop>bankwire_6c153aed3e57a0baf70573b300325aa8'] = 'Pagamento con bonifico bancario';
 $_MODULE['<{mpadvpayment}prestashop>cash_f9d299b21a010a3778a2f0f5367ed4a7'] = 'Pagamento in contrassegno';
+$_MODULE['<{mpadvpayment}prestashop>paypalerror_c7ee65f175ad8a220b178223109da11e'] = 'Transazione cancellata dall\'utente';
+$_MODULE['<{mpadvpayment}prestashop>paypalerror_5aceeffd9bb699e973417a40019d22cf'] = 'Errore sconosciuto durante il reindirizzamento alla pagina';
 $_MODULE['<{mpadvpayment}prestashop>validation_f656f59838bac2f2c9bc5586b5b287c6'] = 'Pagamento avanzato: Contrassegno';
 $_MODULE['<{mpadvpayment}prestashop>validation_1a4599be5316ae560dbb9994be929400'] = 'Pagamento avanzato: Bonifico bancario';
 $_MODULE['<{mpadvpayment}prestashop>validation_bb03207ee2b1a6eb701b499604c892b8'] = 'Pagamento avanzato: Paypal';
@@ -62,6 +64,12 @@ $_MODULE['<{mpadvpayment}prestashop>displaypaymentreturn_b9a1cae09e5754424e33764
 $_MODULE['<{mpadvpayment}prestashop>displaypaymentreturn_ca7e41a658753c87973936d7ce2429a8'] = 'Se hai dubbi o domande, per piacere contatta il nostro';
 $_MODULE['<{mpadvpayment}prestashop>displaypaymentreturn_cd430c2eb4b87fb3b49320bd21af074e'] = 'servizio clienti';
 $_MODULE['<{mpadvpayment}prestashop>displaypaymentreturn_8327f31c6b602821aefdf9c712ce6143'] = 'Vai alla cronologia dei tuoi ordini';
+$_MODULE['<{mpadvpayment}prestashop>paypal_error_4e9a2905dbad52b3397a417b553e323d'] = 'Pagamento tramite Paypal';
+$_MODULE['<{mpadvpayment}prestashop>paypal_error_569fd05bdafa1712c4f6be5b153b8418'] = 'Atri metodi di pagamento';
+$_MODULE['<{mpadvpayment}prestashop>paypal_success_4e9a2905dbad52b3397a417b553e323d'] = 'Pagamento tramite Paypal';
+$_MODULE['<{mpadvpayment}prestashop>paypal_success_63d548d64e575d7c1a782aa6632f64d2'] = 'La tua transazione con Paypal è avvenuta con successo.';
+$_MODULE['<{mpadvpayment}prestashop>paypal_success_ad9fb64d95720b7dde65b7329e21c4cb'] = 'Codice della transazione:';
+$_MODULE['<{mpadvpayment}prestashop>paypal_success_8327f31c6b602821aefdf9c712ce6143'] = 'Vai allo storico degli ordini';
 $_MODULE['<{mpadvpayment}prestashop>paypal_4e9a2905dbad52b3397a417b553e323d'] = 'Pagamento tramite Paypal';
 $_MODULE['<{mpadvpayment}prestashop>paypal_c1f6368d15f7c13c4e5e8f70c68c747f'] = 'Metodo di pagamento: ';
 $_MODULE['<{mpadvpayment}prestashop>paypal_a0a058baaeef16e88f6bd2ee36c03f6f'] = 'Paypal';
@@ -181,6 +189,7 @@ $_MODULE['<{mpadvpayment}prestashop>form_paypal_d02bbc3cb147c272b0445ac5ca7d1a36
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_9fb9d559bd1f78b32aac0b4b146b0722'] = 'Scegli uno stato';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_ba61ac640be4abe462ff5d75a0127b33'] = 'Credenziali PAYPAL';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_64670582e6260902a1e6bda91086a196'] = 'Usare l\'applicazione di prova?';
+$_MODULE['<{mpadvpayment}prestashop>form_paypal_2d8b3be2c8a4d016bdb4f3a69dbadeb7'] = 'Codice Applicazione per TEST';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_12b8e973cfcf2ae4ce353a021d50016f'] = 'API utente';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_ec39fb3c285387be11724d97388deca4'] = 'Password';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_36d8cadd43dd3bb4439106838dda3f8d'] = 'Firma';

@@ -34,6 +34,7 @@ class classMpPaypal {
     private $password;
     private $signature;
     private $test_id;
+    private $response;
     
     private $errors;
     
@@ -74,10 +75,10 @@ class classMpPaypal {
     {
 
         $params_merge = array_merge($params, array(
-            'METHOD' => $method,
-            'VERSION' => '74.0',
-            'USER' => $this->user,
-            'PWD' => $this->password,
+            'METHOD'    => $method,
+            'VERSION'   => '74.0',
+            'USER'      => $this->user,
+            'PWD'       => $this->password,
             'SIGNATURE' => $this->signature
         ));
         $params_build = http_build_query($params_merge, '', '&');
@@ -103,6 +104,8 @@ class classMpPaypal {
         $response = curl_exec($curl);
         $responseArray = array();
         parse_str($response, $responseArray);
+        $this->response = $responseArray;
+        
         if (curl_errno($curl)) {
             $this->errors = curl_error($curl);
             curl_close($curl);
@@ -110,7 +113,7 @@ class classMpPaypal {
         } else {
             if ($responseArray['ACK'] == 'Success') {
                 curl_close($curl);
-                return $responseArray;
+                return true;
             } else {
                 $this->errors = $responseArray;
                 curl_close($curl);
@@ -127,7 +130,7 @@ class classMpPaypal {
             $route = 'https://www.sandbox.paypal.com/webscr?cmd=_express-checkout&useraction=commit&token=' . $token;
         }
         
-        $this->context->smarty->assign(array(
+        Context::getContext()->smarty->assign(array(
             'route' => $route
         ));
 
@@ -138,4 +141,51 @@ class classMpPaypal {
     {
         return $this->errors;
     }
+    
+    public function getToken()
+    {
+        return $this->response['TOKEN'];
+    }
+    
+    public function getResponse()
+    {
+        return $this->response;
+    }
+    
+    public function getResponseACK()
+    {
+        return $this->response['ACK'];
+    }
+    
+    public function getResponseTransactionID()
+    {
+        return $this->response['PAYMENTINFO_0_TRANSACTIONID'];
+    }
+    
+    public function getPaymentRequest0()
+    {
+        return $this->response['PAYMENTREQUEST_0_AMT'];
+    }
+    
+    public function getPaymentItemRequest0()
+    {
+        return $this->response['PAYMENTREQUEST_0_ITEMAMT'];
+    }
+    
+    public function getCurrencyCode0()
+    {
+        return $this->response['PAYMENTREQUEST_0_CURRENCYCODE'];
+    }
+    
+    public function getStatus()
+    {
+        return $this->response['CHECKOUTSTATUS'];
+    }
+    
+    public function getPayerID()
+    {
+        return $this->response['PAYERID'];
+    }
+    
+    
 }
