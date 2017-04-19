@@ -26,19 +26,19 @@
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
         . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . 'classes' 
+        . DIRECTORY_SEPARATOR . 'classes'
         . DIRECTORY_SEPARATOR . 'classMpPaymentCalc.php';
 
 class MpAdvPaymentPaypalReturnModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;
     
-    public function initContent() 
+    public function initContent()
     {
         $this->display_column_left = false;
         $this->display_column_right = false;
         parent::initContent();
-        $id_order = Tools::getValue('id_order',0);
+        $id_order = Tools::getValue('id_order', 0);
         $order = new OrderCore($id_order);
         context::getContext()->smarty->assign("order", $order);
         context::getContext()->smarty->assign("transaction_id", Tools::getValue('transaction_id', ''));

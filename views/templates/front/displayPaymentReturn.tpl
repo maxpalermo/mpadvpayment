@@ -40,17 +40,17 @@
                     <strong>{displayPrice price=$order->total_paid}</strong></span>
                 <br>
                 <span><i class='icon-user'></i> {l s='Owner: ' mod='mpadvpayment'} 
-                    <strong>{$arr_details->owner}</strong></span>
+                    <strong>{$arr_details->owner|escape:'htmlall':'UTF-8'}</strong></span>
                 <br>
                 <span><i class='icon-file'></i> {l s='Details: ' mod='mpadvpayment'} 
-                    <strong>{$arr_details->iban}</strong></span>
+                    <strong>{$arr_details->iban|escape:'htmlall':'UTF-8'}</strong></span>
                 <br>
                 <span><i class='icon-home'></i> {l s='Bank: ' mod='mpadvpayment'} 
-                    <strong>{$arr_details->bank}</strong></span>
+                    <strong>{$arr_details->bank|escape:'htmlall':'UTF-8'}</strong></span>
                 <br>
                 {if !empty($arr_details->addr)}
                 <span><i class='icon-mail-forward'></i> {l s='Address: ' mod='mpadvpayment'} 
-                    <strong>{$arr_details->addr}</strong></span>
+                    <strong>{$arr_details->addr|escape:'htmlall':'UTF-8'}</strong></span>
                 <br>
                 {/if}
                 <br>

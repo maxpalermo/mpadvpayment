@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 mpSOFT
  *
@@ -24,31 +25,31 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-class MpAdvPaymentDisplayPaymentReturnController
-{
-    public function __construct($module, $file, $path)
-    {
-        $this->file = $file;
-        $this->module = $module;
-        $this->context = Context::getContext();
-        $this->_path = $path;
-    }
+require_once(dirname(__FILE__).'/../../../config/config.inc.php');
+require_once(dirname(__FILE__).'/../../../init.php');
 
-    public function run($params)
-    {
-        return "<h1>PAYMENT RETURN</h1>";
-            
-        $reference = $params['objOrder']->id;
-        if (isset($params['objOrder']->reference) && !empty($params['objOrder']->reference)) {
-            $reference = $params['objOrder']->reference;
-        }
-        $total_to_pay = Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false);
+$logo = Tools::getValue('filename','');
+$image = Tools::getValue('image','');
 
-        $this->context->smarty->assign(array(
-                    'reference' => $reference,
-                    'total_to_pay' => $total_to_pay,
-            ));
+print "\nimage encoded: " . $image;
 
-        return $this->module->display($this->file, 'displayPaymentReturn.tpl');
-    }
+if ($image) {
+    $data = base64_decode($image);
+    $filename = $logo;
+    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+
+    $serverFile = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
+            . DIRECTORY_SEPARATOR . "paypal_logo.";
+
+    array_map('unlink', glob($serverFile . "*"));
+
+    $fp = file_put_contents($serverFile . $ext, $data);
+    chmod($serverFile . $ext, 0777);
+    
+    print "\nLOGO SAVED.";
+    print "\nimage data: " . $image;
+    print "\nimage decoded: " . $data;
+    exit();
 }
+
+print "NO LOGO TO SAVE";

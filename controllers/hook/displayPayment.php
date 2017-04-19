@@ -29,7 +29,8 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
         . DIRECTORY_SEPARATOR . "classes"
         . DIRECTORY_SEPARATOR . "classMpPayment.php";
 
-class MpAdvPaymentDisplayPaymentController {
+class MpAdvPaymentDisplayPaymentController
+{
     public $context;
     public $module;
     public $file;
@@ -37,12 +38,13 @@ class MpAdvPaymentDisplayPaymentController {
     public $smarty;
     
     /**
-     * 
+     *
      * @param ModuleCore $module
      * @param string $file
      * @param string $path
      */
-    public function __construct($module, $file, $path) {
+    public function __construct($module, $file, $path)
+    {
         $this->file = $file;
         $this->module = $module;
         $this->_path = $path;
@@ -75,9 +77,8 @@ class MpAdvPaymentDisplayPaymentController {
                 ->from("mp_advpayment_configuration")
                 ->orderBy("payment_type");
         $result = $db->executeS($sql);
-        $output = [];
-        foreach ($result as $record)
-        {
+        $output = array();
+        foreach ($result as $record) {
             $output[$record['payment_type']] = $record['is_active'];
         }
         
@@ -90,8 +91,7 @@ class MpAdvPaymentDisplayPaymentController {
         
         //print_r($cartProducts);
         
-        foreach($cartProducts as $product)
-        {
+        foreach ($cartProducts as $product) {
             if (in_array($product['id_product'], $cashExclusions)) {
                 $output['cash']=false;
             }

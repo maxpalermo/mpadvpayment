@@ -32,7 +32,11 @@
 </ps-switch>
 <input type="hidden" id="input_paypal_switch_hidden" value="1">
 <div id='div_paypal_panel'>
-        <label class="control-label col-lg-3 ">{l s='Fee type' mod='mpadvpayment'}</label>
+    <label class="control-label col-lg-3 ">{l s='Logo for paypal page' mod='mpadvpayment'}</label>
+    <input type="file" id="files" accept="*.jpg"/>
+    <img id="image" style="margin-top: 10px; margin-bottom: 10px; border: 1px solid #eeeeee; box-shadow: 2px 2px 4px #eeeeee; max-width: 300px;" src="{$paypal_logo}"/>
+    <br>
+    <label class="control-label col-lg-3 ">{l s='Fee type' mod='mpadvpayment'}</label>
     <select id="input_paypal_select_type" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
         <option value='0'>{l s='None' mod='mpadvpayment'}</option>
         <option value='1'>{l s='Amount' mod='mpadvpayment'}</option>
@@ -206,9 +210,15 @@
             savePaypalValues();
             $("#mp-dialog-box").html("{l s='Paypal configuration saved.' mod='mpadvpayment'}").fadeIn().delay(5000).fadeOut();
         });
+        
+        $("#files").on("change", function(){
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                $("#image").attr("src",e.target.result);
+            };
+            
+            reader.readAsDataURL(this.files[0]);
+        });
     });
 </script>
-
-
- 
-

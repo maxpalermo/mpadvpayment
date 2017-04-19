@@ -49,6 +49,9 @@
         this.products = new Array();
         this.payment_type = '';
         this.id_order_state = 0;
+        this.logo = '';
+        this.data = null;
+        
         this.load = function(){
             $.ajax({
                 url: '{$path}/ajax/getPayment.php',
@@ -56,6 +59,7 @@
                 data:   { 'type' : this.payment_type },
                 success: function(response)
                         {
+                            console.log("Class loaded")
                             var result = JSON.parse(response);
                             console.log(result);
                         }
@@ -70,6 +74,7 @@
                         },
                 success: function(response)
                         {
+                            console.log("Class saved")
                             console.log(response);
                         }
             });
@@ -365,6 +370,8 @@
         cash_payment.products = $("#input_cash_select_products_hidden").val();
         cash_payment.id_order_state = $("#input_cash_select_order_states_hidden").val();
         cash_payment.payment_type = 'cash';
+        cash_payment.logo = '';
+        cash_payment.data = null;
         
         cash_payment.save();
         
@@ -441,6 +448,8 @@
         bankwire_payment.products = $("#input_bankwire_select_products_hidden").val();
         bankwire_payment.id_order_state = $("#input_bankwire_select_order_states_hidden").val();
         bankwire_payment.payment_type = 'bankwire';
+        bankwire_payment.logo = '';
+        bankwire_payment.data = null;
         
         bankwire_payment.save();
         
@@ -468,7 +477,7 @@
             $("#input_paypal_switch_off").click();
         {/if}
         $('#input_paypal_select_type').val({(int)$paypal_values->fee_type}).trigger('chosen:updated').change();
-        $("#input_paypal_discount").val(Number({(float)$paypal_values->discount}).toFixed(2));
+        //$("#input_paypal_discount").val(Number({(float)$paypal_values->discount}).toFixed(2));
         $("#input_paypal_fee_amount").val(Number({(float)$paypal_values->fee_amount}).toFixed(2));
         $("#input_paypal_fee_percent").val(Number({(float)$paypal_values->fee_percent}).toFixed(2));
         $("#input_paypal_fee_min").val(Number({(float)$paypal_values->fee_min}).toFixed(2));
@@ -519,7 +528,7 @@
         
         paypal_payment.active = $("#input_paypal_switch_hidden").val();
         paypal_payment.fee_type = $("#input_paypal_select_type_hidden").val();
-        paypal_payment.discount = $("#input_paypal_discount").val();
+        paypal_payment.discount = 0;
         paypal_payment.fee_amount = $("#input_paypal_fee_amount").val();
         paypal_payment.fee_percent = $("#input_paypal_fee_percent").val();
         paypal_payment.fee_min = $("#input_paypal_fee_min").val();
@@ -536,7 +545,36 @@
         paypal_payment.products = $("#input_paypal_select_products_hidden").val();
         paypal_payment.id_order_state = $("#input_paypal_select_order_states_hidden").val();
         paypal_payment.payment_type = 'paypal';
+        paypal_payment.logo = '';
+        paypal_payment.data = '';
         
+        var file = document.getElementById('files').files[0];
+        
+        if(file) {
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(e) {
+                var result = e.target.result.split(",", 2)[1];
+                var fileName = document.getElementById('files').files[0].name; 
+                
+                console.log(result);
+                
+                $.ajax({
+                    type : 'POST',
+                    url  : '../modules/mpadvpayment/ajax/savePaypalLogo.php',
+                    data :
+                            {
+                                "filename" : fileName,
+                                "image"    : result,
+                            },
+                    success: function(response)
+                            {
+                                console.log(response);
+                            }
+                });
+                
+            };
+        }
         paypal_payment.save();
         
         $.ajax({

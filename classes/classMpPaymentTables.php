@@ -24,12 +24,13 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-abstract class CRUD {
-    public abstract function create();
-    public abstract function read($payment_type);
-    public abstract function update();
-    public abstract function delete();
-    public abstract function save();
+abstract class CRUD
+{
+    abstract public function create();
+    abstract public function read($payment_type);
+    abstract public function update();
+    abstract public function delete();
+    abstract public function save();
 }
 
 /**
@@ -37,7 +38,8 @@ abstract class CRUD {
  *
  * @author Massimiliano Palermo <maxx.palermo@gmail.com>
  */
-class classMpPaymentConfiguration extends CRUD{
+class classMpPaymentConfiguration extends CRUD
+{
     public $id_configuration;
     public $fee_type;
     public $discount;
@@ -58,18 +60,22 @@ class classMpPaymentConfiguration extends CRUD{
     public $id_order_state;
     public $payment_type;
     public $is_active;
+    public $logo;
+    public $data;
     
     private $tablename;
     
-    public function __construct() {
+    public function __construct()
+    {
         $this->tablename = 'mp_advpayment_configuration';
     }
 
-    public function create() {
+    public function create()
+    {
         $db = Db::getInstance();
         try {
             $id = $db->insert($this->tablename,
-                    [
+                    array(
                         'fee_type' => $this->fee_type,
                         'discount' => $this->discount,
                         'fee_amount' => $this->fee_amount,
@@ -89,7 +95,7 @@ class classMpPaymentConfiguration extends CRUD{
                         'id_order_state' => $this->id_order_state,
                         'payment_type' => $this->payment_type,
                         'is_active' => $this->is_active
-                    ]
+                        )
                     );
         } catch (Exception $exc) {
             return $exc->getMessage();
@@ -97,12 +103,14 @@ class classMpPaymentConfiguration extends CRUD{
         return $id;
     }
 
-    public function delete() {
+    public function delete()
+    {
         $db = Db::getInstance();
         return $db->delete($this->tablename, 'id_configuration = ' . $this->id_configuration);
     }
 
-    public function read($payment_type) {
+    public function read($payment_type)
+    {
         $db = Db::getInstance();
         $sql = new DbQueryCore();
         
@@ -132,11 +140,12 @@ class classMpPaymentConfiguration extends CRUD{
         $this->is_active = $result['is_active'];
     }
 
-    public function update() {
+    public function update()
+    {
         $db = Db::getInstance();
         try {
             $id = $db->update($this->tablename,
-                    [
+                    array(
                         'fee_type' => $this->fee_type,
                         'discount' => $this->discount,
                         'fee_amount' => $this->fee_amount,
@@ -156,7 +165,7 @@ class classMpPaymentConfiguration extends CRUD{
                         'id_order_state' => $this->id_order_state,
                         'payment_type' => $this->payment_type,
                         'is_active' => $this->is_active
-                    ],
+                        ),
                     'id_configuration = ' . $this->id_configuration
                     );
         } catch (Exception $exc) {
@@ -165,7 +174,8 @@ class classMpPaymentConfiguration extends CRUD{
         return $id;
     }
 
-    public function save() {
+    public function save()
+    {
         $db = Db::getInstance();
         $sql = new DbQueryCore();
         
@@ -181,14 +191,14 @@ class classMpPaymentConfiguration extends CRUD{
             $this->update();
         }
     }
-
 }
 
 /**
  * CLASS PAYMENT ORDERS
  * This class manage order additional payment data
  */
-class classMpPaymentOrders extends CRUD {
+class classMpPaymentOrders extends CRUD
+{
     public $id_cart;
     public $id_order;
     public $total_amount;
@@ -200,15 +210,17 @@ class classMpPaymentOrders extends CRUD {
     
     private $tablename;
     
-    public function __construct() {
+    public function __construct()
+    {
         $this->tablename = 'mp_advpayment_orders';
     }
 
-    public function create() {
+    public function create()
+    {
         $db = Db::getInstance();
         try {
             $id = $db->insert($this->tablename,
-                    [
+                    array(
                         'id_cart' => $this->id_cart,
                         'id_order' => $this->id_order,
                         'total_amount' => $this->total_amount,
@@ -217,7 +229,7 @@ class classMpPaymentOrders extends CRUD {
                         'fees' => $this->fees,
                         'transaction_id' => $this->transaction_id,
                         'payment_type' => $this->payment_type,
-                    ]
+                        )
                     );
         } catch (Exception $exc) {
             return $exc->getMessage();
@@ -225,14 +237,16 @@ class classMpPaymentOrders extends CRUD {
         return $id;
     }
 
-    public function delete() {
+    public function delete()
+    {
         $db = Db::getInstance();
         return $db->delete(
-                $this->tablename, 
+                $this->tablename,
                 'id_cart = ' . $this->id_cart . ' and id_order = ' . $this->id_order);
     }
 
-    public function read($id_order) {
+    public function read($id_order)
+    {
         $db = Db::getInstance();
         $sql = new DbQueryCore();
         
@@ -251,18 +265,19 @@ class classMpPaymentOrders extends CRUD {
         $this->payment_type = $result['payment_type'];
     }
 
-    public function update() {
+    public function update()
+    {
         $db = Db::getInstance();
         try {
             $id = $db->update($this->tablename,
-                    [
+                    array(
                         'total_amount' => $this->total_amount,
                         'tax_rate' => $this->tax_rate,
                         'discounts' => $this->discounts,
                         'fees' => $this->fees,
                         'transaction_id' => $this->transaction_id,
                         'payment_type' => $this->payment_type,
-                    ],
+                        ),
                     'id_cart = ' . $this->id_cart . ' and id_order = ' . $this->id_order
                     );
         } catch (Exception $exc) {
@@ -271,7 +286,8 @@ class classMpPaymentOrders extends CRUD {
         return $id;
     }
 
-    public function save() {
+    public function save()
+    {
         $db = Db::getInstance();
         $sql = new DbQueryCore();
         
@@ -286,5 +302,4 @@ class classMpPaymentOrders extends CRUD {
             $this->update();
         }
     }
-
 }

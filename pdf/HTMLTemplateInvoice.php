@@ -58,7 +58,7 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         $this->date = Tools::displayDate($order_invoice->date_add);
 
         $id_lang = Context::getContext()->language->id;
-        $this->title = $order_invoice->getInvoiceNumberFormatted($id_lang,(int)$this->order->id_shop);
+        $this->title = $order_invoice->getInvoiceNumberFormatted($id_lang, (int)$this->order->id_shop);
 
         $this->shop = new Shop((int)$this->order->id_shop);
     }
@@ -275,14 +275,14 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
             'total_paid_tax_incl' => $this->order_invoice->total_paid_tax_incl
         );
         
-        if(isset($order_fee['discount_tax_excl'])) {
-           $footer['discount_tax_excl'] = $order_fee['discount_tax_excl'];
-           $footer['discount_taxes']    = $order_fee['discount_taxes'];
-           $footer['discount_tax_incl'] = $order_fee['discount_tax_incl'];
+        if (isset($order_fee['discount_tax_excl'])) {
+            $footer['discount_tax_excl'] = $order_fee['discount_tax_excl'];
+            $footer['discount_taxes']    = $order_fee['discount_taxes'];
+            $footer['discount_tax_incl'] = $order_fee['discount_tax_incl'];
         } else {
-           $footer['fee_tax_excl'] = $order_fee['fee_tax_excl'];
-           $footer['fee_taxes']    = $order_fee['fee_taxes'];
-           $footer['fee_tax_incl'] = $order_fee['fee_tax_incl'];
+            $footer['fee_tax_excl'] = $order_fee['fee_tax_excl'];
+            $footer['fee_taxes']    = $order_fee['fee_taxes'];
+            $footer['fee_tax_incl'] = $order_fee['fee_tax_incl'];
         }
 
         foreach ($footer as $key => $value) {
@@ -351,7 +351,7 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
             'product_tab' => $this->smarty->fetch($this->getTemplate('invoice.product-tab')),
             'tax_tab' => $this->getTaxTabContent(),
             'payment_tab' => $this->smarty->fetch($this->getTemplate('invoice.payment-tab')),
-			'note_tab' => $this->smarty->fetch($this->getTemplate('invoice.note-tab')),
+            'note_tab' => $this->smarty->fetch($this->getTemplate('invoice.note-tab')),
             'total_tab' => $this->smarty->fetch($this->getTemplate('invoice.total-tab')),
             'shipping_tab' => $this->smarty->fetch($this->getTemplate('invoice.shipping-tab')),
         );
@@ -475,7 +475,7 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         $result = $db->getRow($sql);
         
         if ($result) {
-            if($result['fees']<0) { //discount
+            if ($result['fees']<0) { //discount
                 return [
                     'discount_tax_excl' => $result['fees'],
                     'discount_tax_incl' => $result['fees'] * ((100 + $result['tax_rate'])/100),
@@ -491,7 +491,6 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         } else {
             return [];
         }
-        
     }
     
     /*

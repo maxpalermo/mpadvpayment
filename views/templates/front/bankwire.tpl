@@ -101,11 +101,11 @@
                         {assign var=total_products value=$total_products+$prod_total}
                         <tr>
                             <td>{$cart_product['image_tag']}</td>
-                            <td>{$cart_product['name']}</td>
-                            <td>{displayPrice price=$cart_product['price']}</td>
-                            <td>{$cart_product['cart_quantity']}</td>
-                            <td>{displayPrice price=$prod_total}</td>
-                            <td>{$cart_product['rate']|string_format:"%.2f"} %</td>
+                            <td>{$cart_product['name']|escape:'htmlall':'UTF-8'}</td>
+                            <td>{displayPrice price=$cart_product['price']|escape:'htmlall':'UTF-8'}</td>
+                            <td>{$cart_product['cart_quantity']|escape:'htmlall':'UTF-8'}</td>
+                            <td>{displayPrice price=$prod_total|escape:'htmlall':'UTF-8'}</td>
+                            <td>{{$cart_product['rate']|string_format:"%.2f"}|escape:'htmlall':'UTF-8'} %</td>
                         </tr>
                     {/foreach}
                     
@@ -114,7 +114,7 @@
                     
                     {if $total_products}
                     <tr>
-                        <td colspan='4' style='text-align: right; padding-right: 5px; font-weight: bold;'>{l s='Total products' mod='mpadvpayment'}: {$cart->nbProducts()}</td>
+                        <td colspan='4' style='text-align: right; padding-right: 5px; font-weight: bold;'>{l s='Total products' mod='mpadvpayment'}: {$cart->nbProducts()|escape:'htmlall':'UTF-8'}</td>
                         <td style='text-align: right; padding-right: 5px;'>{displayPrice price=$total_products}</td>
                     </tr>
                     {/if}
@@ -146,7 +146,7 @@
                     </tr>
                     <tr>
                         <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold; font-size: 1.2em; background-color: #DFDCDC'>{l s='TOTAL CART' mod='mpadvpayment'}</td>
-                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{displayPrice price={$taxable+$taxes}}</td>
+                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{displayPrice price={$taxable+$taxes}|escape:'htmlall':'UTF-8'}</td>
                     </tr>
                 </tbody>
             </table>
@@ -169,15 +169,3 @@
     </p>
 </form>
         
-<pre>
-    <h3>Products excluded: {$excluded_products|count}</h3>
-    {$excluded_products|@print_r}
-</pre>
-<pre>
-    <h3>Products list: {$cart_product_list|count}</h3>
-    {$cart_product_list|@print_r}
-</pre>
-<pre>
-    <h3>Cart</h3>
-    {$cart|@print_r}
-</pre>

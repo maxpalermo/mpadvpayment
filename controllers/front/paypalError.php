@@ -26,51 +26,50 @@
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
         . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . 'classes' 
+        . DIRECTORY_SEPARATOR . 'classes'
         . DIRECTORY_SEPARATOR . 'classMpPaymentCalc.php';
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
         . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . 'classes' 
+        . DIRECTORY_SEPARATOR . 'classes'
         . DIRECTORY_SEPARATOR . 'classMpPaypal.php';
 
 class MpAdvPaymentPaypalErrorModuleFrontController extends ModuleFrontControllerCore
 {
-   public $ssl = true;
+    public $ssl = true;
     
-    public function initContent() 
+    public function initContent()
     {
         $this->display_column_left = false;
         $this->display_column_right = false;
         parent::initContent();
         
-        $id_order = Tools::getValue('id_order',0);
+        $id_order = Tools::getValue('id_order', 0);
         $order = new OrderCore($id_order);
         
-        $token = Tools::getValue('token','');
+        $token = Tools::getValue('token', '');
         
         if ($token) {
-            
             context::getContext()->smarty->assign("function", 'module paypalerror');
-            context::getContext()->smarty->assign("paypal_params", ['TOKEN' => $token]);
+            context::getContext()->smarty->assign("paypal_params", array('TOKEN' => $token));
             context::getContext()->smarty->assign("transaction_id", Tools::getValue('transaction_id', ''));
             context::getContext()->smarty->assign("order", $order);
-            context::getContext()->smarty->assign("paypal_error", []);
+            context::getContext()->smarty->assign("paypal_error", array());
             
             $paypal = new classMpPaypal();
-            $result = $paypal->request('GetExpressCheckoutDetails', ['TOKEN' => $token]);
+            $result = $paypal->request('GetExpressCheckoutDetails', array('TOKEN' => $token));
             if ($result) {
                 context::getContext()->smarty->assign("paypal_error", $paypal->getResponse());
                 switch ($paypal->getStatus()) {
                     case 'PaymentActionNotInitiated':
-                        context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Transaction cancelled by user','paypalerror'));
+                        context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Transaction cancelled by user', 'paypalerror'));
                         break;
                     default:
-                        context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Unknown error during redirecting','paypalerror'));
+                        context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Unknown error during redirecting', 'paypalerror'));
                         break;
-                }                
+                }
             } else {
-                context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Unknown error during redirecting','paypalerror'));
+                context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Unknown error during redirecting', 'paypalerror'));
             }
         }
         $this->setTemplate('paypal_error.tpl');

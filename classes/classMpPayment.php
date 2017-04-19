@@ -1,9 +1,34 @@
 <?php
+/**
+ * 2017 mpSOFT
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    mpSOFT <info@mpsoft.it>
+ *  @copyright 2017 mpSOFT Massimiliano Palermo
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of mpSOFT
+ */
 
-require_once (dirname(__FILE__) . '/classMpPaymentTables.php');
-require_once (dirname(__FILE__) . '/classMpPaymentCalc.php');
+require_once(dirname(__FILE__) . '/classMpPaymentTables.php');
+require_once(dirname(__FILE__) . '/classMpPaymentCalc.php');
 
-class classMpPayment extends classMpPaymentConfiguration{
+class classMpPayment extends classMpPaymentConfiguration
+{
     const CASH      = 'cash';
     const BANKWIRE  = 'bankwire';
     const PAYPAL    = 'paypal';
@@ -24,7 +49,8 @@ class classMpPayment extends classMpPaymentConfiguration{
     public $total_fee_without_taxes;
     public $total_fee_taxes;
     
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->total_cart=0;
         $this->total_products=0;
@@ -95,7 +121,7 @@ class classMpPayment extends classMpPaymentConfiguration{
         //Check restrictions
         if ($this->fee_type!=self::FEE_TYPE_DISCOUNT) {
             if ($this->fee_min!=0 && $this->fee_min>$fee) {
-               $fee = $this->fee_min; 
+                $fee = $this->fee_min;
             }
             if ($this->fee_max>0 && $this->fee_max<$fee) {
                 $fee = $this->fee_max;
@@ -110,7 +136,7 @@ class classMpPayment extends classMpPaymentConfiguration{
                 $fee=0;
             }
             
-            $output = [
+            $output = array(
                 'total_cart' => $total_cart,
                 'total_products' => $total_products,
                 'total_discounts' => $total_discounts,
@@ -123,9 +149,9 @@ class classMpPayment extends classMpPaymentConfiguration{
                 'fee_type' => $this->fee_type,
                 'fee_label' => 'fee',
                 'fee_tax_rate' => $this->tax_rate,
-            ];
+            );
         } else {
-            $output = [
+            $output = array(
                 'total_cart' => $total_cart,
                 'total_products' => $total_products,
                 'total_discounts' => $total_discounts,
@@ -138,7 +164,7 @@ class classMpPayment extends classMpPaymentConfiguration{
                 'fee_type' => $this->fee_type,
                 'fee_label' => 'discount',
                 'fee_tax_rate' => $this->tax_rate,
-            ];
+            );
         }
         
             
@@ -155,5 +181,4 @@ class classMpPayment extends classMpPaymentConfiguration{
         
         return $output;
     }
-    
 }

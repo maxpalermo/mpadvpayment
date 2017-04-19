@@ -26,12 +26,12 @@
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
         . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . 'classes' 
+        . DIRECTORY_SEPARATOR . 'classes'
         . DIRECTORY_SEPARATOR . 'classMpPaymentCalc.php';
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
         . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . 'classes' 
+        . DIRECTORY_SEPARATOR . 'classes'
         . DIRECTORY_SEPARATOR . 'classMpPaypal.php';
 
 
@@ -51,7 +51,7 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
     private $returnURL;
     private $cancelURL;
     
-    public function initContent() 
+    public function initContent()
     {
         $this->display_column_left = false;
         $this->display_column_right = false;
@@ -62,10 +62,10 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
         $this->password = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PWD");
         $this->signature = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_SIGN");
         $this->_lang = Context::getContext()->language->id;
-        $this->action = Tools::getValue('action','');
-        $this->total_pay = (float)Tools::getValue('total_pay',0);
-        $this->cancelURL = Tools::getValue('cancelURL','');
-        $this->returnURL = Tools::getValue('returnURL','');
+        $this->action = Tools::getValue('action', '');
+        $this->total_pay = (float)Tools::getValue('total_pay', 0);
+        $this->cancelURL = Tools::getValue('cancelURL', '');
+        $this->returnURL = Tools::getValue('returnURL', '');
         $this->currency = Context::getContext()->currency->iso_code;
         $this->decimals = Context::getContext()->currency->decimals;
         
@@ -74,6 +74,17 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
             'RETURNURL' => $this->returnURL,
             'CANCELURL' => $this->cancelURL
         );
+        
+        $image_file = glob(
+                dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." 
+                . DIRECTORY_SEPARATOR . ".."
+                . DIRECTORY_SEPARATOR . "paypal_logo.*"
+                );
+        if ($image_file) {
+            $filename = _PS_BASE_URL_ . __PS_BASE_URI__ . "/modules/mpadvpayment/" . basename($image_file[0]);
+        } else {
+            $filename = "";
+        }
         
         $orderParams = array(
             'LOGOIMG' => "https://www.dalavoro.it/img/imprendo-srls-logo-1480691391.jpg", //You can paste here your logo image URL
@@ -101,9 +112,9 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
                     $this->GetExpressCheckoutDetails();
                     break;
                 default:
-                    $this->context->smarty->assign("function","InitContent");
-                    $this->context->smarty->assign("paypal_params",$requestParams + $orderParams + $item);
-                    $this->context->smarty->assign("paypal_error",'ACTION UNKNOWN:' . Tools::getValue('action','-unknown-'));
+                    $this->context->smarty->assign("function", "InitContent");
+                    $this->context->smarty->assign("paypal_params", $requestParams + $orderParams + $item);
+                    $this->context->smarty->assign("paypal_error", 'ACTION UNKNOWN:' . Tools::getValue('action', '-unknown-'));
                     $this->setTemplate('paypal_error.tpl');
                     break;
             }
@@ -112,51 +123,50 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
     
     public function SetExpressCheckout($params)
     {
-        
         $paypal = new classMpPaypal();
         
         $result = $paypal->request('SetExpressCheckout', $params);
-        $this->context->smarty->assign("function","SetExpressCheckout");
-        $this->context->smarty->assign("paypal_params",$params);
+        $this->context->smarty->assign("function", "SetExpressCheckout");
+        $this->context->smarty->assign("paypal_params", $params);
         
         if ($result) { //Request successful
             //Now we have to redirect user to the PayPal
-            $this->context->smarty->assign("paypal_response",$paypal->getResponse());
-            $this->context->smarty->assign(['paypal_token' => $paypal->getToken()]);
+            $this->context->smarty->assign("paypal_response", $paypal->getResponse());
+            $this->context->smarty->assign(array('paypal_token' => $paypal->getToken()));
             //$this->setTemplate('paypal_redirect.tpl');
             $paypal->redirectPaypal($paypal->getToken());
-        } else{
-            $this->context->smarty->assign(['paypal_error' => $paypal->getErrors()]);
+        } else {
+            $this->context->smarty->assign(array('paypal_error' => $paypal->getErrors()));
             $this->setTemplate('paypal_error.tpl');
         }
     }
     
     public function GetExpressCheckoutDetails()
     {
-        $this->context->smarty->assign("function","GetExpressCheckoutDetails");
+        $this->context->smarty->assign("function", "GetExpressCheckoutDetails");
         
         
         $paypal = new classMpPaypal();
-        $params = [
+        $params = array(
             'TOKEN'     => Tools::getValue('token', ''),
             'PAYERID'   => Tools::getValue('PayerID', ''),
-            ];
+            );
         
         if (empty($params['TOKEN']) || empty($params['PAYERID'])) {
-            $this->context->smarty->assign("paypal_params",$params);
-            $this->context->smarty->assign(['paypal_error' => 'BAD SERVER RESPONSE']);
+            $this->context->smarty->assign("paypal_params", $params);
+            $this->context->smarty->assign(array('paypal_error' => 'BAD SERVER RESPONSE'));
             $this->setTemplate('paypal_error.tpl');
         } else {
-            $params = ['TOKEN' => Tools::getValue('token', '')];
+            $params = array('TOKEN' => Tools::getValue('token', ''));
             
             $result = $paypal->request("GetExpressCheckoutDetails", $params);
-            if($result) {
-                $this->context->smarty->assign("paypal_response",$paypal->getResponse());
-                $this->context->smarty->assign("paypal_params",$params);
+            if ($result) {
+                $this->context->smarty->assign("paypal_response", $paypal->getResponse());
+                $this->context->smarty->assign("paypal_params", $params);
                 $params = $paypal->getResponse();
                 $this->DoExpressCheckoutPayment($params);
             } else {
-                $this->context->smarty->assign("paypal_params",$params);
+                $this->context->smarty->assign("paypal_params", $params);
                 $this->context->smarty->assign('paypal_error', $paypal->getErrors());
                 $this->setTemplate('paypal_error.tpl');
             }
@@ -165,8 +175,8 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
     
     public function DoExpressCheckoutPayment($params)
     {
-        $this->context->smarty->assign("function","DoExpressCheckoutPayment");
-        $this->context->smarty->assign("paypal_params",$params);
+        $this->context->smarty->assign("function", "DoExpressCheckoutPayment");
+        $this->context->smarty->assign("paypal_params", $params);
         
         $paypal = new classMpPaypal();
         $result = $paypal->request('DoExpressCheckoutPayment', $params);
@@ -183,27 +193,26 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
     
     public function createOrder($transactionID)
     {
-        $params = [
+        $params = array(
             'transaction_id' => $transactionID,
             'payment_method' => classMpPayment::PAYPAL,
             'payment_display' => 'PAYPAL',
-        ];
+        );
         $this->context->smarty->assign('transaction_id', $transactionID);
         $link = new LinkCore();
-        $url = $link->getModuleLink('mpadvpayment','validation',$params);
+        $url = $link->getModuleLink('mpadvpayment', 'validation', $params);
         Tools::redirect($url);
     }
     
     public function checkCurrency()
-    {   
+    {
         $currency_order = new CurrencyCore($this->_cart->id_currency);
         $currencies_module = $this->module->getCurrency($this->_cart->id_currency);
         
         //Check if module accept currency
         if (is_array($currencies_module)) {
-            foreach($currencies_module as $currency_module)
-            {
-                if($currency_order->id == $currency_module['id_currency']) {
+            foreach ($currencies_module as $currency_module) {
+                if ($currency_order->id == $currency_module['id_currency']) {
                     return true;
                 }
             }
@@ -212,17 +221,18 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
         return false;
     }
     
-    function cast($obj, $to_class) {
-        if(class_exists($to_class)) {
+    public function cast($obj, $to_class)
+    {
+        if (class_exists($to_class)) {
             $obj_in = serialize($obj);
-            $obj_out = 'O:' . strlen($to_class) . ':"' . $to_class . '":' . substr($obj_in, $obj_in[2] + 7);
+            $obj_out = 'O:' . Tools::strlen($to_class) . ':"' . $to_class . '":' . Tools::substr($obj_in, $obj_in[2] + 7);
             return unserialize($obj_out);
         } else {
             return false;
         }
     }
     
-    function getPaypalDetails()
+    public function getPaypalDetails()
     {
         $det = new stdClass();
         $det->test       = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST");

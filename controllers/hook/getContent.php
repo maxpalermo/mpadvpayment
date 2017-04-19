@@ -1,4 +1,28 @@
 <?php
+/**
+ * 2017 mpSOFT
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    mpSOFT <info@mpsoft.it>
+ *  @copyright 2017 mpSOFT Massimiliano Palermo
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of mpSOFT
+ */
 
 class MpAdvPaymentGetContentController
 {
@@ -11,11 +35,12 @@ class MpAdvPaymentGetContentController
     
     public function __construct($module, $file, $path)
     {
-            $this->file = $file;
-            $this->module = $module;
-            $this->context = Context::getContext(); $this->_path = $path;
-            $this->_path = __PS_BASE_URI__.'modules/mpadvpayment/';
-            $this->_lang = Context::getContext()->language->id;
+        $this->file = $file;
+        $this->module = $module;
+        $this->context = Context::getContext();
+        $this->_path = $path;
+        $this->_path = __PS_BASE_URI__.'modules/mpadvpayment/';
+        $this->_lang = Context::getContext()->language->id;
     }
     
     public function setFilePath($file_path)
@@ -40,8 +65,19 @@ class MpAdvPaymentGetContentController
     
     public function renderForm()
     {
-        
         $this->class->setMedia();
+        
+        $image_file = glob(
+                dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." 
+                . DIRECTORY_SEPARATOR . ".."
+                . DIRECTORY_SEPARATOR . "paypal_logo.*"
+                );
+        if ($image_file) {
+            $filename = _PS_BASE_URL_ . __PS_BASE_URI__ . "/modules/mpadvpayment/" . basename($image_file[0]);
+            $this->smarty->assign('paypal_logo', $filename);
+        } else {
+            $this->smarty->assign('paypal_logo', '');
+        }
         
         $this->smarty->assign('path', __PS_BASE_URI__ . 'modules/mpadvpayment');
         $this->smarty->assign('base_uri', __PS_BASE_URI__);
@@ -59,6 +95,7 @@ class MpAdvPaymentGetContentController
         $this->smarty->assign('form_cash', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_cash.tpl'));
         $this->smarty->assign('form_bankwire', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_bankwire.tpl'));
         $this->smarty->assign('form_paypal', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_paypal.tpl'));
+            
         $template  = $this->class->display($this->file_path, 'getContent.tpl');
         $psui_tags = $this->class->display($this->file_path, 'views/templates/admin/prestui/ps-tags.tpl');
         return $template . $psui_tags;
@@ -75,10 +112,9 @@ class MpAdvPaymentGetContentController
     public function getTaxList()
     {
         $taxes = TaxCore::getTaxes($this->_lang);
-        $options = [];
-        $options[] = "<option value='0'>" . $this->module->l('Please select','getContent') . "</option>";
-        foreach($taxes as $tax)
-        {
+        $options = array();
+        $options[] = "<option value='0'>" . $this->module->l('Please select', 'getContent') . "</option>";
+        foreach ($taxes as $tax) {
             $options[] = "<option value='" . $tax['rate'] . "'>" . $tax['name'] . "</option>";
         }
         return implode("\n", $options);
@@ -87,9 +123,8 @@ class MpAdvPaymentGetContentController
     public function getCarrierList()
     {
         $carriers = CarrierCore::getCarriers($this->_lang);
-        $options = [];
-        foreach($carriers as $carrier)
-        {
+        $options = array();
+        foreach ($carriers as $carrier) {
             $options[] = "<option value='" . $carrier['id_carrier'] . "'>" . Tools::strtoupper($carrier['name']) . "</option>";
         }
         return implode("\n", $options);
@@ -98,11 +133,9 @@ class MpAdvPaymentGetContentController
     public function getCategoriesList()
     {
         $categories = CategoryCore::getCategories($this->_lang);
-        $options = [];
-        foreach($categories as $category)
-        {
-            foreach($category as $cat)
-            {
+        $options = array();
+        foreach ($categories as $category) {
+            foreach ($category as $cat) {
                 $options[] = "<option value='" . $cat['infos']['id_category'] . "'>" . Tools::strtoupper($cat['infos']['name']) . "</option>";
             }
         }
@@ -112,9 +145,8 @@ class MpAdvPaymentGetContentController
     public function getManufacturersList()
     {
         $items = ManufacturerCore::getManufacturers();
-        $options = [];
-        foreach($items as $item)
-        {
+        $options = array();
+        foreach ($items as $item) {
             $options[] = "<option value='" . $item['id_manufacturer'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
         }
         return implode("\n", $options);
@@ -123,9 +155,8 @@ class MpAdvPaymentGetContentController
     public function getSuppliersList()
     {
         $items = SupplierCore::getSuppliers();
-        $options = [];
-        foreach($items as $item)
-        {
+        $options = array();
+        foreach ($items as $item) {
             $options[] = "<option value='" . $item['id_supplier'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
         }
         return implode("\n", $options);
@@ -134,9 +165,8 @@ class MpAdvPaymentGetContentController
     public function getProductsList()
     {
         $items = ProductCore::getSimpleProducts($this->_lang);
-        $options = [];
-        foreach($items as $item)
-        {
+        $options = array();
+        foreach ($items as $item) {
             $options[] = "<option value='" . $item['id_product'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
         }
         return implode("\n", $options);
@@ -145,9 +175,8 @@ class MpAdvPaymentGetContentController
     public function getOrderStateList()
     {
         $items = OrderStateCore::getOrderStates($this->_lang);
-        $options = [];
-        foreach($items as $item)
-        {
+        $options = array();
+        foreach ($items as $item) {
             $options[] = "<option value='" . $item['id_order_state'] . "'>" . Tools::strtoupper($item['name']) . "</option>";
         }
         return implode("\n", $options);
@@ -169,7 +198,7 @@ class MpAdvPaymentGetContentController
         $cash->order_max            = $values->order_max;
         $cash->order_free           = $values->order_free;
         $cash->tax_included         = $values->tax_included;
-        $cash->tax_rate             = number_format($values->tax_rate,3);
+        $cash->tax_rate             = number_format($values->tax_rate, 3);
         $cash->carriers             = $this->toArray($values->carriers);
         $cash->categories           = $this->toArray($values->categories);
         $cash->manufacturers        = $this->toArray($values->manufacturers);
@@ -197,7 +226,7 @@ class MpAdvPaymentGetContentController
         $bankwire->order_max            = $values->order_max;
         $bankwire->order_free           = $values->order_free;
         $bankwire->tax_included         = $values->tax_included;
-        $bankwire->tax_rate             = number_format($values->tax_rate,3);
+        $bankwire->tax_rate             = number_format($values->tax_rate, 3);
         $bankwire->carriers             = $this->toArray($values->carriers);
         $bankwire->categories           = $this->toArray($values->categories);
         $bankwire->manufacturers        = $this->toArray($values->manufacturers);
@@ -225,7 +254,7 @@ class MpAdvPaymentGetContentController
         $paypal->order_max            = $values->order_max;
         $paypal->order_free           = $values->order_free;
         $paypal->tax_included         = $values->tax_included;
-        $paypal->tax_rate             = number_format($values->tax_rate,3);
+        $paypal->tax_rate             = number_format($values->tax_rate, 3);
         $paypal->carriers             = $this->toArray($values->carriers);
         $paypal->categories           = $this->toArray($values->categories);
         $paypal->manufacturers        = $this->toArray($values->manufacturers);
@@ -239,14 +268,14 @@ class MpAdvPaymentGetContentController
     public function toArray($input_string, $separator = ",")
     {
         if (empty($input_string)) {
-            return [];
+            return array();
         }
         
         if (is_array($input_string)) {
             return $input_string;
         }
         
-        return explode($separator,$input_string);
+        return explode($separator, $input_string);
     }
     
     public function run()

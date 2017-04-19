@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2017 mpSOFT
  *
@@ -28,7 +27,8 @@
 include_once(dirname(__FILE__) . '/../../../config/config.inc.php');
 include_once(_PS_ROOT_DIR_ . '/classes/Configuration.php');
 
-class classMpPaypal {
+class classMpPaypal
+{
     private $test;
     private $user;
     private $password;
@@ -38,10 +38,10 @@ class classMpPaypal {
     
     private $errors;
     
-    public function __construct($test = '', $user = '', $password = '', $signature = '', $test_id = '') 
+    public function __construct($test = '', $user = '', $password = '', $signature = '', $test_id = '')
     {
         if (empty($test)) {
-           $this->test = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST");
+            $this->test = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST");
         } else {
             $this->test = $test;
         }
@@ -73,7 +73,6 @@ class classMpPaypal {
     
     public function request($method, $params)
     {
-
         $params_merge = array_merge($params, array(
             'METHOD'    => $method,
             'VERSION'   => '74.0',
@@ -186,6 +185,4 @@ class classMpPaypal {
     {
         return $this->response['PAYERID'];
     }
-    
-    
 }
