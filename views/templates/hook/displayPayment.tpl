@@ -64,5 +64,22 @@
         </form>
     </div>
     {/if}
+    {if isset($activeModules['credit card']) && $activeModules['credit card']}
+    <div class="col-xs-12">
+        <div class="payment_block_module">
+            <a href="{$link->getModuleLink('mpadvpayment','card')|escape:'html'}" class="mpadvpayment mpadvpayment_card" id="card_process_payment_">
+                <div style='display: inline-block;'>
+                    {$card_summary}
+                </div>
+            </a>
+        </div>
+        <form id="mp_advpayment_card" action='{$card_controllerURL|escape:'htmlall':'UTF-8'}' data-ajax='false' method="post">
+            <input type="hidden" name="cancelURL" value="{$card_cancelURL|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="returnURL" value="{$card_returnURL|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="total_pay" value="{$total_pay|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="method"    value="{$action|escape:'htmlall':'UTF-8'}" />
+        </form>
+    </div>
+    {/if}
 </div>
 

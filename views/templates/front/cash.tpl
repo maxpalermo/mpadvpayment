@@ -71,17 +71,6 @@
     {l s='Cash payment' mod='mpadvpayment'}
 {/capture}
 
-<pre>
-    FEE
-    total cart     : {$fee['total_cart']}
-    total products : {$fee['total_products']}
-    total discounts: {$fee['total_discounts']}
-    total_shipping : {$fee['total_shipping']}
-    shipping no tax: {$fee['total_shipping_no_tax']}
-    fee with tax   : {$fee['total_fee_with_taxes']}
-    fee no   tax   : {$fee['total_fee_without_taxes']}
-    fee      tax   : {$fee['total_fee_taxes']}
-</pre>
 <form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $params, true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
@@ -164,15 +153,6 @@
         </div>
     </div>
     <br>
-    <table class='table-bordered'>
-        <tbody>
-            <tr><td>nb_products: {$nb_products}</td></tr>
-            <tr><td>currencies : {$currencies|print_r}</td></tr>
-            <tr><td>total_amount: {$total_amount}</td></tr>
-            <tr><td>path: {$path|escape:'html'}</td></tr>
-        </tbody>
-    </table>
-    <br>
     <p class="cart_navigation clearfix" id="cart_navigation">
         <a
             class="button-exclusive btn btn-default"
@@ -186,16 +166,3 @@
         </button>
 	</p>
 </form>
-        
-<pre>
-    <h3>Products excluded: {$excluded_products|count}</h3>
-    {$excluded_products|@print_r}
-</pre>
-<pre>
-    <h3>Products list: {$cart_product_list|count}</h3>
-    {$cart_product_list|@print_r}
-</pre>
-<pre>
-    <h3>Cart</h3>
-    {$cart|@print_r}
-</pre>

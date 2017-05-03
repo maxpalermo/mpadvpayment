@@ -50,7 +50,7 @@ class MpAdvPayment extends PaymentModule
         $this->description = $this->l('This module include three payments method with advanced custom parameters');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
       
-        $this->payment = new classMpPayment();
+        $this->payment = new ClassMpPayment();
     }
   
     public function install()
@@ -84,9 +84,9 @@ class MpAdvPayment extends PaymentModule
         /** @var CartCore $cart */
         //$cart = new CartCore();
         $cart = Context::getContext()->cart;
-        $cash_fee       = $this->payment->calculateFee(classMpPayment::CASH, $cart);
-        $bankwire_fee   = $this->payment->calculateFee(classMpPayment::BANKWIRE, $cart);
-        $paypal_fee   = $this->payment->calculateFee(classMpPayment::PAYPAL, $cart);
+        $cash_fee       = $this->payment->calculateFee(ClassMpPayment::CASH, $cart);
+        $bankwire_fee   = $this->payment->calculateFee(ClassMpPayment::BANKWIRE, $cart);
+        $paypal_fee   = $this->payment->calculateFee(ClassMpPayment::PAYPAL, $cart);
         
         $this->smarty->assign(array(
             'total_cart' => $cash_fee['total_cart'],
@@ -94,7 +94,9 @@ class MpAdvPayment extends PaymentModule
             'total_pay' => $cash_fee['total_cart']+$cash_fee['total_fee_with_taxes'],
             'payment_type' => $this->l('Cash'),
         ));
-        $this->smarty->assign('cash_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
+        $this->smarty->assign(
+                'cash_summary',
+                $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
         
         $this->smarty->assign(array(
             'total_cart' => $bankwire_fee['total_cart'],
@@ -102,7 +104,9 @@ class MpAdvPayment extends PaymentModule
             'total_pay' => $bankwire_fee['total_cart']+$bankwire_fee['total_fee_with_taxes'],
             'payment_type' => $this->l('Bankwire'),
         ));
-        $this->smarty->assign('bankwire_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
+        $this->smarty->assign(
+                'bankwire_summary',
+                $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
         
         $link = new LinkCore();
         $returnUrl = $link->getModuleLink('mpadvpayment', 'paypal', array('action' => 'GetExpressCheckoutDetails'));
@@ -120,25 +124,21 @@ class MpAdvPayment extends PaymentModule
         ));
         $this->smarty->assign('paypal_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
         
-        /*
-        $this->smarty->assign(
-                "cash_summary",
-                $this->l("Cart:") . ' ' . Tools::displayPrice($cash_fee['total_cart']) . ' + ' .
-                $this->l("Fee:") . ' ' . Tools::displayPrice($cash_fee['total_fee_with_taxes']) . ' = ' .
-                $this->l("Total:") . ' ' . Tools::displayPrice($cash_fee['total_cart']+$cash_fee['total_fee_with_taxes']));
-
-        $this->smarty->assign(
-                "bankwire_summary",
-                $this->l("Cart:") . ' ' . Tools::displayPrice($bankwire_fee['total_cart']) . ' + ' .
-                $this->l("Fee:") . ' ' . Tools::displayPrice($bankwire_fee['total_fee_with_taxes']) . ' = ' .
-                $this->l("Total:") . ' ' . Tools::displayPrice($bankwire_fee['total_cart']+$bankwire_fee['total_fee_with_taxes']));
-
-        $this->smarty->assign(
-                "paypal_summary",
-                $this->l("Cart:") . ' ' . Tools::displayPrice($paypal_fee['total_cart']) . ' + ' .
-                $this->l("Fee:") . ' ' . Tools::displayPrice($paypal_fee['total_fee_with_taxes']) . ' = ' .
-                $this->l("Total:") . ' ' . Tools::displayPrice($paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes']));
-        */
+        $linkCard = new LinkCore();
+        $card_returnUrl = $linkCard->getModuleLink('mpadvpayment', 'card', array('action' => 'GetExpressCheckoutDetails'));
+        $card_cancelUrl = $linkCard->getModuleLink('mpadvpayment', 'carderror');
+        $card_controllerUrl = $linkCard->getModuleLink('mpadvpayment', 'card', array('action'=>'SetExpressCheckout'));
+        $this->smarty->assign(array(
+            'total_cart' => $paypal_fee['total_cart'],
+            'fees' => $paypal_fee['total_fee_with_taxes'],
+            'total_pay' => $paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes'],
+            'payment_type' => $this->l('Credit Card'),
+            'action' => 'SetExpressCheckout',
+            'card_returnURL' => $card_returnUrl,
+            'card_cancelURL' => $card_cancelUrl,
+            'card_controllerURL' => $card_controllerUrl,
+        ));
+        $this->smarty->assign('card_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
         
         $controller = $this->getHookController('displayPayment');
         $controller->setSmarty($this->smarty);
@@ -220,9 +220,12 @@ class MpAdvPayment extends PaymentModule
     
     public function installPdf()
     {
-        $source = dirname(__FILE__) . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
-        $dest_class   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
-        $dest_pdf   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
+        $source = dirname(__FILE__) . DIRECTORY_SEPARATOR
+                . "pdf" . DIRECTORY_SEPARATOR;
+        $dest_class   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR .
+                "classes" . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
+        $dest_pdf   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR .
+                "pdf" . DIRECTORY_SEPARATOR;
         
         rename($dest_class . 'HTMLTemplateInvoice.php', $dest_class . 'HTMLTemplateInvoice.old.php');
         copy($source . 'HTMLTemplateInvoice.php', $dest_class . 'HTMLTemplateInvoice.php');

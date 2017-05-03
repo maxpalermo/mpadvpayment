@@ -83,10 +83,10 @@ class MpAdvPaymentDisplayPaymentController
         }
         
         //Check module restrictions
-        $Payment = new classMpPaymentCalc;
-        $cashExclusions = $Payment->getListProductsExclusion(classMpPayment::CASH);
-        $bankExclusions = $Payment->getListProductsExclusion(classMpPayment::BANKWIRE);
-        $paypalExclusions = $Payment->getListProductsExclusion(classMpPayment::PAYPAL);
+        $Payment = new ClassMpPaymentCalc;
+        $cashExclusions = $Payment->getListProductsExclusion(ClassMpPayment::CASH);
+        $bankExclusions = $Payment->getListProductsExclusion(ClassMpPayment::BANKWIRE);
+        $paypalExclusions = $Payment->getListProductsExclusion(ClassMpPayment::PAYPAL);
         $cartProducts = Context::getContext()->cart->getProducts();
         
         //print_r($cartProducts);

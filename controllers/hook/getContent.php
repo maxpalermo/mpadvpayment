@@ -68,10 +68,9 @@ class MpAdvPaymentGetContentController
         $this->class->setMedia();
         
         $image_file = glob(
-                dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." 
-                . DIRECTORY_SEPARATOR . ".."
-                . DIRECTORY_SEPARATOR . "paypal_logo.*"
-                );
+            dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." 
+            . DIRECTORY_SEPARATOR . ".."
+            . DIRECTORY_SEPARATOR . "paypal_logo.*");
         if ($image_file) {
             $filename = _PS_BASE_URL_ . __PS_BASE_URI__ . "/modules/mpadvpayment/" . basename($image_file[0]);
             $this->smarty->assign('paypal_logo', $filename);
@@ -95,6 +94,7 @@ class MpAdvPaymentGetContentController
         $this->smarty->assign('form_cash', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_cash.tpl'));
         $this->smarty->assign('form_bankwire', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_bankwire.tpl'));
         $this->smarty->assign('form_paypal', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_paypal.tpl'));
+        $this->smarty->assign('form_card', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_card.tpl'));
             
         $template  = $this->class->display($this->file_path, 'getContent.tpl');
         $psui_tags = $this->class->display($this->file_path, 'views/templates/admin/prestui/ps-tags.tpl');
@@ -185,8 +185,8 @@ class MpAdvPaymentGetContentController
     public function getCashValues()
     {
         $cash = new stdClass();
-        $values = new classMpPayment();
-        $values->read(classMpPayment::CASH);
+        $values = new ClassMpPayment();
+        $values->read(ClassMpPayment::CASH);
         
         $cash->input_switch_on      = $values->is_active;
         $cash->fee_type             = $values->fee_type;
@@ -212,8 +212,8 @@ class MpAdvPaymentGetContentController
     public function getBankwireValues()
     {
         $bankwire = new stdClass();
-        $values = new classMpPayment();
-        $values->read(classMpPayment::BANKWIRE);
+        $values = new ClassMpPayment();
+        $values->read(ClassMpPayment::BANKWIRE);
         
         $bankwire->input_switch_on      = $values->is_active;
         $bankwire->discount             = $values->discount;
@@ -240,8 +240,8 @@ class MpAdvPaymentGetContentController
     public function getPaypalValues()
     {
         $paypal = new stdClass();
-        $values = new classMpPayment();
-        $values->read(classMpPayment::PAYPAL);
+        $values = new ClassMpPayment();
+        $values->read(ClassMpPayment::PAYPAL);
         
         $paypal->input_switch_on      = $values->is_active;
         $paypal->discount             = $values->discount;

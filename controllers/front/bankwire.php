@@ -38,7 +38,7 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
     public function initContent()
     {
         $this->_lang = Context::getContext()->language->id;
-        $this->mpPayment = new classMpPayment();
+        $this->mpPayment = new ClassMpPayment();
         
         $id_cart = Context::getContext()->cart->id;
         $this->_cart = new CartCore($id_cart);
@@ -54,11 +54,12 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
         parent::initContent();
         
         //Check product list
-        $cart_product_list = classMpPaymentCalc::getCartProductList($id_cart);
+        $cart_product_list = ClassMpPaymentCalc::getCartProductList($id_cart);
         //add thumb image to product list
         foreach ($cart_product_list as &$cart_product) {
             $id_product = $cart_product['id_product'];
-            $product_attribute = isset($cart_product['id_product_attribute'])?'_'.$cart_product['id_product_attribute']:'';
+            $product_attribute = isset($cart_product['id_product_attribute'])?'_'
+                    . $cart_product['id_product_attribute']:'';
             $product = new ProductCore($id_product);
             $images = $product->getImages($this->_lang);
             if (is_array($images)) {
@@ -90,12 +91,12 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
             'path' => $this->module->getPathUri(),
             'summary' => $this->_cart->getSummaryDetails(),
             'params' => array(
-                'payment_method' => 'bankwire', 
+                'payment_method' => 'bankwire',
                 'payment_display' => $this->module->l('Bankwire payment')
             ),
-            'excluded_products' => classMpPaymentCalc::getListProductsExclusion('cash'),
+            'excluded_products' => ClassMpPaymentCalc::getListProductsExclusion('cash'),
             'cart_product_list' => $cart_product_list,
-            'fee' => $this->mpPayment->calculateFee(classMpPayment::BANKWIRE, $this->_cart),
+            'fee' => $this->mpPayment->calculateFee(ClassMpPayment::BANKWIRE, $this->_cart),
             'arr_details' => $this->getBankwireDetails(),
         ));
         
@@ -123,7 +124,8 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
     {
         if (class_exists($to_class)) {
             $obj_in = serialize($obj);
-            $obj_out = 'O:' . Tools::strlen($to_class) . ':"' . $to_class . '":' . Tools::substr($obj_in, $obj_in[2] + 7);
+            $obj_out = 'O:' . Tools::strlen($to_class) . ':"' . $to_class . '":' 
+                    . Tools::substr($obj_in, $obj_in[2] + 7);
             return unserialize($obj_out);
         } else {
             return false;

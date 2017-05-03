@@ -24,7 +24,7 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-class classMpPaymentCalc
+class ClassMpPaymentCalc
 {
     /**
      *
@@ -81,7 +81,7 @@ class classMpPaymentCalc
     {
         $purified_array = array();
         foreach ($array as $item) {
-            foreach ($item as $key=>$value) {
+            foreach ($item as $key => $value) {
                 $purified_array[] = $value;
             }
         }

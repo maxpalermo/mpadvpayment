@@ -35,7 +35,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
         . DIRECTORY_SEPARATOR . 'classMpPaypal.php';
 
 
-class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
+class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;
     
@@ -55,51 +55,83 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
     {
         $this->display_column_left = false;
         $this->display_column_right = false;
+        $link = new LinkCore();
+        
         parent::initContent();
         
-        $this->test = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST");
-        $this->user = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_USER");
-        $this->password = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PWD");
-        $this->signature = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_SIGN");
-        $this->_lang = Context::getContext()->language->id;
-        $this->action = Tools::getValue('action', '');
-        $this->total_pay = (float)Tools::getValue('total_pay', 0);
-        $this->cancelURL = Tools::getValue('cancelURL', '');
-        $this->returnURL = Tools::getValue('returnURL', '');
-        $this->currency = Context::getContext()->currency->iso_code;
-        $this->decimals = Context::getContext()->currency->decimals;
-        
-        
-        $requestParams = array(
-            'RETURNURL' => $this->returnURL,
-            'CANCELURL' => $this->cancelURL
-        );
-        
-        $image_file = glob(
-                dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." 
-                . DIRECTORY_SEPARATOR . ".."
-                . DIRECTORY_SEPARATOR . "paypal_logo.*"
-                );
-        if ($image_file) {
-            $filename = _PS_BASE_URL_ . __PS_BASE_URI__ . "/modules/mpadvpayment/" . basename($image_file[0]);
+        if((int)Tools::getValue("success",0)==1) {
+            $transaction_id = Tools::getValue('tx','');
+            $this->context->smarty->assign("transaction_id",$transaction_id);
+            $this->setTemplate("card_success.tpl");
+        } elseif((int)Tools::getValue('cancel',0)==1) {
+            $payment_page = $link->getPageLink('order', true, NULL, "step=3");
+            header("Location: $payment_page");
+        } elseif((int)Tools::getValue('notify',0)==1) {
+            header("Location: https://www.google.it");
         } else {
-            $filename = "";
+            $this->test = (bool)ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST_API");
+            $this->user = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_USER_API");
+            $this->password = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PWD_API");
+            $this->signature = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_SIGN_API");
+            $this->email_business = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_EMAIL_API");
+            $this->_lang = Context::getContext()->language->id;
+            $this->action = Tools::getValue('action', '');
+            $this->total_pay = (float)Tools::getValue('total_pay', 0);
+            $this->cancelURL = $link->getModuleLink('mpadvpayment', 'card', array('cancel' => '1'));
+            $this->returnURL = $link->getModuleLink('mpadvpayment', 'card', array('success' => '1'));
+            $this->notifyURL = $link->getModuleLink('mpadvpayment', 'card', array('notify' => '1'));
+            $this->currency = Context::getContext()->currency->iso_code;
+            $this->decimals = Context::getContext()->currency->decimals;
+
+
+            $requestParams = array(
+                'RETURNURL' => $this->returnURL,
+                'CANCELURL' => $this->cancelURL
+            );
+
+            $image_file = glob(
+                    dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." 
+                    . DIRECTORY_SEPARATOR . ".."
+                    . DIRECTORY_SEPARATOR . "paypal_logo.*"
+                    );
+            if ($image_file) {
+                $filename = _PS_BASE_URL_ . __PS_BASE_URI__ . "/modules/mpadvpayment/" . basename($image_file[0]);
+            } else {
+                $filename = "";
+            }
+
+            $orderParams = array(
+                'LOGOIMG' => "https://www.dalavoro.it/img/imprendo-srls-logo-1480691391.jpg", //You can paste here your logo image URL
+                "MAXAMT" => "100", //Set max transaction amount
+                "NOSHIPPING" => "1", //I do not want shipping
+                "ALLOWNOTE" => "0", //I do not want to allow notes
+                "BRANDNAME" => ConfigurationCore::get("PS_SHOP_NAME"),
+                "GIFTRECEIPTENABLE" => "0",
+                "GIFTMESSAGEENABLE" => "0"
+            );
+            $item = array(
+                'PAYMENTREQUEST_0_AMT' => number_format($this->total_pay, (int)$this->decimals),
+                'PAYMENTREQUEST_0_CURRENCYCODE' => $this->currency,
+                'PAYMENTREQUEST_0_ITEMAMT' => number_format($this->total_pay, (int)$this->decimals),
+            );
+            if($this->test) {
+                $this->context->smarty->assign("PAYPAL_URL", "https://securepayments.sandbox.paypal.com/acquiringweb");
+            } else {
+                $this->context->smarty->assign("PAYPAL_URL", "https://securepayments.paypal.com/webapps/HostedSoleSolutionApp/webflow/sparta/hostedSoleSolutionProcess");
+            }
+
+            $this->context->smarty->assign("USER",$this->user);
+            $this->context->smarty->assign("PWD",$this->password);
+            $this->context->smarty->assign("SIGNATURE",$this->signature);
+            $this->context->smarty->assign("EMAIL_BUSINESS",$this->email_business);
+            $this->context->smarty->assign("notifyURL",$this->notifyURL);
+            $this->context->smarty->assign("cancelURL",$this->cancelURL);
+            $this->context->smarty->assign("returnURL",$this->returnURL);
+            $this->context->smarty->assign("AMT","59.99");//$this->total_pay);
+            $this->setTemplate('card.tpl');
         }
         
-        $orderParams = array(
-            'LOGOIMG' => "https://www.dalavoro.it/img/imprendo-srls-logo-1480691391.jpg", //You can paste here your logo image URL
-            "MAXAMT" => "100", //Set max transaction amount
-            "NOSHIPPING" => "1", //I do not want shipping
-            "ALLOWNOTE" => "0", //I do not want to allow notes
-            "BRANDNAME" => ConfigurationCore::get("PS_SHOP_NAME"),
-            "GIFTRECEIPTENABLE" => "0",
-            "GIFTMESSAGEENABLE" => "0"
-        );
-        $item = array(
-            'PAYMENTREQUEST_0_AMT' => number_format($this->total_pay, (int)$this->decimals),
-            'PAYMENTREQUEST_0_CURRENCYCODE' => $this->currency,
-            'PAYMENTREQUEST_0_ITEMAMT' => number_format($this->total_pay, (int)$this->decimals),
-        );
+        return; 
         
         if (empty($this->action)) {
             $this->setTemplate('paypal_error.tpl');
@@ -119,6 +151,8 @@ class MpAdvPaymentPaypalModuleFrontController extends ModuleFrontControllerCore
                     break;
             }
         }
+        
+        
     }
     
     public function SetExpressCheckout($params)

@@ -169,6 +169,7 @@
                     <li><a href="#tabs-1"><i class="icon-dollar"></i> {l s='Cash configuration' mod='mpadvpayment'}</a></li>
                     <li><a href="#tabs-2"><i class="icon-building"></i> {l s='Bankwire configuration' mod='mpadvpayment'}</a></li>
                     <li><a href="#tabs-3"><i class="icon-credit-card"></i> {l s='Paypal configuration' mod='mpadvpayment'}</a></li>
+                    <li><a href="#tabs-4"><i class="icon-credit-card"></i> {l s='Credit Card configuration' mod='mpadvpayment'}</a></li>
                 </ul>
                 <div id="tabs-1">
                     <!-- ******************************
@@ -211,6 +212,21 @@
                                 {l s='Paypal configuration' mod='mpadvpayment'}
                             </p>  
                             {$form_paypal}
+                            <br style="clear: both;">
+                        </div>
+                    </div>
+                </div>
+                <div id="tabs-4">
+                    <!-- *******************************
+                         ** CREDIT CARD CONFIGURATION **
+                         ******************************* -->
+                    <div class="form-wrapper">
+                        <div class="form-group">
+                            <p class='panel-heading' style="margin-top: 20px;">
+                                <img src='../modules/mpadvpayment/views/img/card.png' alt='Config' style="width: 28px;">
+                                {l s='Credit Card configuration' mod='mpadvpayment'}
+                            </p>  
+                            {$form_card}
                             <br style="clear: both;">
                         </div>
                     </div>

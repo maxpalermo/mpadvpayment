@@ -62,14 +62,20 @@ class MpAdvPaymentPaypalErrorModuleFrontController extends ModuleFrontController
                 context::getContext()->smarty->assign("paypal_error", $paypal->getResponse());
                 switch ($paypal->getStatus()) {
                     case 'PaymentActionNotInitiated':
-                        context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Transaction cancelled by user', 'paypalerror'));
+                        context::getContext()->smarty->assign(
+                                "paypal_error_message",
+                                $this->module->l('Transaction cancelled by user', 'paypalerror'));
                         break;
                     default:
-                        context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Unknown error during redirecting', 'paypalerror'));
+                        context::getContext()->smarty->assign(
+                                "paypal_error_message",
+                                $this->module->l('Unknown error during redirecting', 'paypalerror'));
                         break;
                 }
             } else {
-                context::getContext()->smarty->assign("paypal_error_message", $this->module->l('Unknown error during redirecting', 'paypalerror'));
+                context::getContext()->smarty->assign(
+                        "paypal_error_message",
+                        $this->module->l('Unknown error during redirecting', 'paypalerror'));
             }
         }
         $this->setTemplate('paypal_error.tpl');

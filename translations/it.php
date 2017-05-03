@@ -160,6 +160,7 @@ $_MODULE['<{mpadvpayment}prestashop>form_cash_b027a5f1cfff7b36c57375dd08292fbb']
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_a8cb650117ae9a64ae9d3743edc01c9e'] = 'Attivare il pagamento tramite Paypal?';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_7469a286259799e5b37e5db9296f00b3'] = 'SI';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_c2f3f489a00553e7a01d369c103c7251'] = 'NO';
+$_MODULE['<{mpadvpayment}prestashop>form_paypal_9d0f84e225b56b4129f44d201b78693b'] = 'Logo per la pagina Paypal';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_3cd1e3f3c57cdf09f5e1eaafb18ab00b'] = 'Tipo di commissione';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_fd78de8738ecd90a4eea042fb7d9123c'] = 'Scegli la tassa';
 $_MODULE['<{mpadvpayment}prestashop>form_paypal_6adf97f83acf6453d4a6a4b1070f3754'] = 'Nessuna';

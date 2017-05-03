@@ -27,7 +27,7 @@
 require_once(dirname(__FILE__) . '/classMpPaymentTables.php');
 require_once(dirname(__FILE__) . '/classMpPaymentCalc.php');
 
-class classMpPayment extends classMpPaymentConfiguration
+class ClassMpPayment extends ClassMpPaymentConfiguration
 {
     const CASH      = 'cash';
     const BANKWIRE  = 'bankwire';

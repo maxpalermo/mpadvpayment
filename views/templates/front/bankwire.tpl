@@ -146,7 +146,7 @@
                     </tr>
                     <tr>
                         <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold; font-size: 1.2em; background-color: #DFDCDC'>{l s='TOTAL CART' mod='mpadvpayment'}</td>
-                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{displayPrice price={$taxable+$taxes}|escape:'htmlall':'UTF-8'}</td>
+                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{{displayPrice price=$taxable+$taxes}|escape:'htmlall':'UTF-8'}</td>
                     </tr>
                 </tbody>
             </table>

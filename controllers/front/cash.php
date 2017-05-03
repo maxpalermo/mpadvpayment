@@ -38,7 +38,7 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
     public function initContent()
     {
         $this->_lang = Context::getContext()->language->id;
-        $this->mpPayment = new classMpPayment();
+        $this->mpPayment = new ClassMpPayment();
         
         $id_cart = Context::getContext()->cart->id;
         $this->_cart = new CartCore($id_cart);
@@ -54,7 +54,7 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
         parent::initContent();
         
         //Check product list
-        $cart_product_list = classMpPaymentCalc::getCartProductList($id_cart);
+        $cart_product_list = ClassMpPaymentCalc::getCartProductList($id_cart);
         //add thumb image to product list
         foreach ($cart_product_list as &$cart_product) {
             $id_product = $cart_product['id_product'];
@@ -93,9 +93,9 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
                 'payment_method' => 'cash', 
                 'payment_display' => $this->module->l('Cash payment','cash')
             ),
-            'excluded_products' => classMpPaymentCalc::getListProductsExclusion('cash'),
+            'excluded_products' => ClassMpPaymentCalc::getListProductsExclusion('cash'),
             'cart_product_list' => $cart_product_list,
-            'fee' => $this->mpPayment->calculateFee(classMpPayment::CASH, $this->_cart),
+            'fee' => $this->mpPayment->calculateFee(ClassMpPayment::CASH, $this->_cart),
         ));
         
         $this->setTemplate('cash.tpl');

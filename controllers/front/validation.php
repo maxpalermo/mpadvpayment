@@ -39,7 +39,7 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
     public function postProcess()
     {
         //Set Class payment
-        $this->paymentConfig = new classMpPaymentConfiguration();
+        $this->paymentConfig = new ClassMpPaymentConfiguration();
 
         //Set params
         $this->payment_method   = Tools::getValue('payment_method');
@@ -96,26 +96,26 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
                 false,
                 $customer->secure_key)) {
             //Get Extra data
-            $classPaymentFee = new classMpPayment();
+            $classPaymentFee = new ClassMpPayment();
             $classPaymentFee->calculateFee($this->payment_method, $cart);
             
             $objLang = new LanguageCore(Context::getContext()->language->id);
             
             
             //Payment type
-            if ($this->payment_method==classMpPayment::CASH) {
+            if ($this->payment_method==ClassMpPayment::CASH) {
                 if ($objLang->iso_code=="it") {
                     $payment_type = "Contanti alla consegna";
                 } else {
                     $payment_type = $this->module->l('Adv Payment: Cash', 'validation');
                 }
-            } elseif ($this->payment_method==classMpPayment::BANKWIRE) {
+            } elseif ($this->payment_method==ClassMpPayment::BANKWIRE) {
                 if ($objLang->iso_code=="it") {
                     $payment_type = "Bonifico bancario anticipato";
                 } else {
                     $payment_type = $this->module->l('Adv Payment: Bankwire', 'validation');
                 }
-            } elseif ($this->payment_method==classMpPayment::PAYPAL) {
+            } elseif ($this->payment_method==ClassMpPayment::PAYPAL) {
                 if ($objLang->iso_code=="it") {
                     $payment_type = "Pagamento tramite Paypal";
                 } else {
@@ -153,7 +153,7 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
             
             //Save extra data
             $id_order = OrderCore::getOrderByCartId($cart->id);
-            $classExtra = new classMpPaymentOrders();
+            $classExtra = new ClassMpPaymentOrders();
             $classExtra->id_cart = $cart->id;
             $classExtra->id_order = $id_order;
             $classExtra->payment_type = $this->payment_method;
@@ -163,14 +163,14 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
             $classExtra->transaction_id = $this->transaction_id;
             $classExtra->save();
             
-            if ($this->payment_method == classMpPayment::CASH) {
+            if ($this->payment_method == ClassMpPayment::CASH) {
                 //Redirect on order confirmation page
                 Tools::redirect('index.php?controller=order-confirmation'
                         .'&idcart='.$cart->id
                         .'&id_module='.$this->module->id
                         .'&id_order='.$this->module->currentOrder
                         .'&key='.$customer->secure_key);
-            } elseif ($this->payment_method == classMpPayment::BANKWIRE) {
+            } elseif ($this->payment_method == ClassMpPayment::BANKWIRE) {
                 //Redirect on order confirmation page
                 $link = new LinkCore();
                 $url = $link->getModuleLink('mpadvpayment', 'bankwireReturn', array('id_order' => $this->module->currentOrder));
@@ -183,7 +183,7 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
                         .'&key='.$customer->secure_key);
                  *
                  */
-            } elseif ($this->payment_method == classMpPayment::PAYPAL) {
+            } elseif ($this->payment_method == ClassMpPayment::PAYPAL) {
                 //Redirect on order confirmation page
                 $params = array(
                     'id_order' => $this->module->currentOrder,

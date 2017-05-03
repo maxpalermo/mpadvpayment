@@ -24,31 +24,11 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-require_once(dirname(__FILE__).'/../../../config/config.inc.php');
-require_once(dirname(__FILE__).'/../../../init.php');
-
-$logo = Tools::getValue('filename','');
-$image = Tools::getValue('image','');
-
-print "\nimage encoded: " . $image;
-
-if ($image) {
-    $data = base64_decode($image);
-    $filename = $logo;
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-
-    $serverFile = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
-            . DIRECTORY_SEPARATOR . "paypal_logo.";
-
-    array_map('unlink', glob($serverFile . "*"));
-
-    $fp = file_put_contents($serverFile . $ext, $data);
-    chmod($serverFile . $ext, 0777);
-    
-    print "\nLOGO SAVED.";
-    print "\nimage data: " . $image;
-    print "\nimage decoded: " . $data;
-    exit();
+abstract class CRUD
+{
+    abstract public function create();
+    abstract public function read($payment_type);
+    abstract public function update();
+    abstract public function delete();
+    abstract public function save();
 }
-
-print "NO LOGO TO SAVE";

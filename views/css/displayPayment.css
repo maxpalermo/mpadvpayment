@@ -65,3 +65,12 @@ div.payment_block_module a.mpadvpayment_paypal
     text-shadow: 1px 1px 1px #dddddd;
 }
 
+div.payment_block_module a.mpadvpayment_card
+{
+    background: url("../img/card64.png");
+    background-position: 15px 15px;
+    background-repeat: no-repeat;
+    background-size: 48px;
+    text-shadow: 1px 1px 1px #dddddd;
+}
+
