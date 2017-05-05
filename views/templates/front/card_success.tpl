@@ -24,9 +24,11 @@
 *}
 
 {capture name=path}
-    {l s='Credit Card payment' mod='mpadvpayment'}
+    {l s='Paypal Pro payment' mod='mpadvpayment'}
 {/capture}
 
+{assign var=cart_id value=$cart->id}
+{assign var=cart_total value=Tools::displayPrice($cart->getOrderTotal(true))}
 <div class="container">
     <div class='panel-advice'>
         <legend>{l s='Payment' mod='mpadvpayment'}</legend>
@@ -41,6 +43,18 @@
                 <i class='icon-2x icon-arrow-right'></i> 
                 {l s='Transaction id:' mod='mpadvpayment'} 
                 <strong>{$transaction_id}</strong>
+            </span>
+            <br>
+            <span style='font-size: 1.2em;'>
+                <i class='icon-2x icon-paper-clip'></i> 
+                {l s='Cart id:' mod='mpadvpayment'} 
+                <strong>{$cart_id}</strong>
+            </span>
+            <br>
+            <span style='font-size: 1.2em;'>
+                <i class='icon-2x icon-dollar'></i> 
+                {l s='Total paid:' mod='mpadvpayment'} 
+                <strong>{$cart_total}</strong>
             </span>
         </div>
             <br>

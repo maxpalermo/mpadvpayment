@@ -27,12 +27,7 @@
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
         . DIRECTORY_SEPARATOR . '..'
         . DIRECTORY_SEPARATOR . 'classes'
-        . DIRECTORY_SEPARATOR . 'classMpPaymentCalc.php';
-
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . 'classes'
-        . DIRECTORY_SEPARATOR . 'classMpPaypal.php';
+        . DIRECTORY_SEPARATOR . 'autoload.php';
 
 
 class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
@@ -60,15 +55,72 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
         parent::initContent();
         
         if((int)Tools::getValue("success",0)==1) {
+            /*
+             * TRANSACTION SUCCESS
+             */
             $transaction_id = Tools::getValue('tx','');
             $this->context->smarty->assign("transaction_id",$transaction_id);
             $this->setTemplate("card_success.tpl");
         } elseif((int)Tools::getValue('cancel',0)==1) {
+            /*
+             * TRANSACTION CANCELED
+             */
             $payment_page = $link->getPageLink('order', true, NULL, "step=3");
             header("Location: $payment_page");
         } elseif((int)Tools::getValue('notify',0)==1) {
+            /*
+             * IPN LISTENER
+             */
             header("Location: https://www.google.it");
+        } elseif((int)Tools::getValue('error',0)==1) {
+            /*
+             * ERROR DURING TRANSACTION
+             */
+            $this->setTemplate("card_error.tpl");
         } else {
+            /*
+             * DISPLAY PAYMENT PAGE
+             */
+            //$cart = new CartCore(Context::getContext()->cart->id);
+            
+            $cart = new Cart(Context::getContext()->cart->id);
+            $shipping = new stdClass();
+            $billing = new stdClass();
+            $customer = new stdClass();
+            
+            $addr_ship = new AddressCore($cart->id_address_delivery);
+            $addr_bill = new AddressCore($cart->id_address_invoice);
+            $cust = new CustomerCore($addr_ship->id_customer);
+            $state1 = new StateCore($addr_ship->id_state);
+            $state2 = new StateCore($addr_bill->id_state);
+            $country1 = new CountryCore($addr_ship->id_country);
+            $country2 = new CountryCore($addr_bill->id_country);
+                    
+            $shipping->first_name = $addr_ship->firstname;
+            $shipping->last_name = $addr_ship->lastname;
+            $shipping->address1 = $addr_ship->address1;
+            $shipping->address2 = $addr_ship->address2;
+            $shipping->city = $addr_ship->city;
+            $shipping->state = $state1->name;
+            $shipping->zip = $addr_ship->postcode;
+            $shipping->country = $country1->iso_code;
+            $shipping->email = $cust->email;
+            
+            $billing->first_name = $addr_bill->firstname;
+            $billing->last_name = $addr_bill->lastname;
+            $billing->address1 = $addr_bill->address1;
+            $billing->address2 = $addr_bill->address2;
+            $billing->city = $addr_bill->city;
+            $billing->state = $state2->name;
+            $billing->zip = $addr_bill->postcode;
+            $billing->country = $country2->iso_code;
+            $billing->email = $cust->email;
+            $billing->phone_prefix = $country2->call_prefix;
+            $billing->phone_number = empty($addr_bill->phone)?$addr_bill->phone_mobile:$addr_bill->phone;
+            
+            $customer->shipping = $shipping;
+            $customer->billing = $billing;
+            
             $this->test = (bool)ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST_API");
             $this->user = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_USER_API");
             $this->password = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PWD_API");
@@ -80,9 +132,9 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
             $this->cancelURL = $link->getModuleLink('mpadvpayment', 'card', array('cancel' => '1'));
             $this->returnURL = $link->getModuleLink('mpadvpayment', 'card', array('success' => '1'));
             $this->notifyURL = $link->getModuleLink('mpadvpayment', 'card', array('notify' => '1'));
+            $this->checkPayment = $link->getModuleLink('mpadvpayment', 'card', array('check' => '1', 'id_cart' => $cart->id));
             $this->currency = Context::getContext()->currency->iso_code;
             $this->decimals = Context::getContext()->currency->decimals;
-
 
             $requestParams = array(
                 'RETURNURL' => $this->returnURL,
@@ -117,42 +169,18 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
             if($this->test) {
                 $this->context->smarty->assign("PAYPAL_URL", "https://securepayments.sandbox.paypal.com/acquiringweb");
             } else {
-                $this->context->smarty->assign("PAYPAL_URL", "https://securepayments.paypal.com/webapps/HostedSoleSolutionApp/webflow/sparta/hostedSoleSolutionProcess");
+                $this->context->smarty->assign("PAYPAL_URL", "https://securepayments.paypal.com/acquiringweb");
             }
 
-            $this->context->smarty->assign("USER",$this->user);
-            $this->context->smarty->assign("PWD",$this->password);
-            $this->context->smarty->assign("SIGNATURE",$this->signature);
             $this->context->smarty->assign("EMAIL_BUSINESS",$this->email_business);
             $this->context->smarty->assign("notifyURL",$this->notifyURL);
             $this->context->smarty->assign("cancelURL",$this->cancelURL);
             $this->context->smarty->assign("returnURL",$this->returnURL);
-            $this->context->smarty->assign("AMT","59.99");//$this->total_pay);
+            $this->context->smarty->assign("customer", $customer);
+            $this->context->smarty->assign("total_order", Tools::displayPrice($cart->getOrderTotal(true)));
+            $this->context->smarty->assign("AMT",$cart->getOrderTotal(true));
             $this->setTemplate('card.tpl');
         }
-        
-        return; 
-        
-        if (empty($this->action)) {
-            $this->setTemplate('paypal_error.tpl');
-        } else {
-            switch ($this->action) {
-                case 'SetExpressCheckout':
-                    $this->SetExpressCheckout($requestParams + $orderParams + $item);
-                    break;
-                case 'GetExpressCheckoutDetails':
-                    $this->GetExpressCheckoutDetails();
-                    break;
-                default:
-                    $this->context->smarty->assign("function", "InitContent");
-                    $this->context->smarty->assign("paypal_params", $requestParams + $orderParams + $item);
-                    $this->context->smarty->assign("paypal_error", 'ACTION UNKNOWN:' . Tools::getValue('action', '-unknown-'));
-                    $this->setTemplate('paypal_error.tpl');
-                    break;
-            }
-        }
-        
-        
     }
     
     public function SetExpressCheckout($params)
@@ -269,11 +297,12 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
     public function getPaypalDetails()
     {
         $det = new stdClass();
-        $det->test       = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST");
-        $det->user       = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_USER");
-        $det->password   = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PWD");
-        $det->signature  = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_SIGN");
-        
+        $det->test       = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST_API");
+        $det->user       = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_USER_API");
+        $det->password   = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PWD_API");
+        $det->signature  = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_SIGN_API");
+        $det->paypal_pro = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PRO_API");
+        $det->email      = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_EMAIL_API");
         return $det;
     }
 }

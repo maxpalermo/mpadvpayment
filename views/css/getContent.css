@@ -1,0 +1,74 @@
+/* 
+    Created on : 5-mag-2017, 8.28.31
+    Author     : Massimiliano Palermo <maxx.palermo@gmail.com>
+*/
+
+.number_align
+{
+    text-align: right !important;
+    padding-right: 10px !important;
+}
+#cover-wait-operations
+{
+    background: url("../img/waiting.gif") no-repeat scroll center center #FFF;
+    background-size: 128px;
+    position: fixed;
+    z-index: 99999999;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    display: block;
+}
+
+/* The alert message box */
+.mp-dialog
+{
+    display: none;
+    z-index: 999999;
+    position: fixed;
+    top: 10%;
+    left: 30%;
+    padding: 20px;
+    width: 40%;
+    border: 2px solid #555555;
+    border-radius: 10px;
+    box-shadow: 2px 2px 6px #cccccc;
+}
+.mp-dialog-alert {
+    background-color: #FFCC00; /* Yellow */
+    color: white;
+    margin-bottom: 15px;
+}
+
+.mp-dialog-success {
+    background-color: #090; /* Green */
+    color: white;
+    margin-bottom: 15px;
+}
+
+.mp-dialog-error {
+    background-color: #f44336; /* Red */
+    color: white;
+    margin-bottom: 15px;
+}
+
+/* The close button */
+.mp-dialog .closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    position: absolute;
+    top: 5px;
+    left: calc(100% -10px);
+}
+
+/* When moving the mouse over the close button */
+.mp-dialog .closebtn:hover {
+    color: black;
+}

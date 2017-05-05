@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 mpSOFT
  *
@@ -23,10 +24,46 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of mpSOFT
  */
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'autoload.php';
 
-class ClassMpPayment extends ClassMpPaymentConfiguration
-{
+class classCustomer {
+    public $first_name;
+    public $last_name;
+    public $address1;
+    public $address2;
+    public $city;
+    public $state;
+    public $zip;
+    public $country;
+    public $email;
+    public $phone_prefix;
+    public $phone_number;
+    
+    /**
+     * Initialize class and fills values
+     * @param int $id_cart Cart id
+     * @param AddressCore $address class Address
+     */
+    public function __construct($address) 
+    {
+        $state = new StateCore($address->id_state);
+        $country = new CountryCore($address->id_country);
+        $customer = new CustomerCore($address->id_customer);
+        
+        $this->first_name = $address->firstname;
+        $this->last_name = $address->lastname;
+        $this->address1 = $address->address1;
+        $this->address2 = $address->address2;
+        $this->city = $address->city;
+        $this->state = $state->name;
+        $this->zip = $address->postcode;
+        $this->country = $country->iso_code;
+        $this->email = $customer->email;
+        $this->phone_prefix = $country->call_prefix;
+        $this->phone_number = empty($address->phone)?$address->phone_mobile:$address->phone;
+    }
+}
+
+class classCart extends ClassMpPaymentConfiguration{
     const CASH      = 'cash';
     const BANKWIRE  = 'bankwire';
     const PAYPAL    = 'paypal';
@@ -37,51 +74,37 @@ class ClassMpPayment extends ClassMpPaymentConfiguration
     const FEE_TYPE_MIXED    = '3';
     const FEE_TYPE_DISCOUNT = '4';
     
-    public $total_cart;
-    public $total_products;
-    public $total_discounts;
-    public $total_shipping;
-    public $total_wrapping;
-    public $total_shipping_no_tax;
-    public $total_fee_with_taxes;
-    public $total_fee_without_taxes;
-    public $total_fee_taxes;
+    private $id;
+    private $payment_type;
+    public $subtotal;
+    public $products;
+    public $discounts;
+    public $shipping;
+    public $wrapping;
+    public $fee_no_tax;
+    public $fee_with_tax;
+    public $fee_taxes;
+    public $total;
+    public $currency;
+    public $decimals;
+    public $suffix;
     
-    public function __construct()
+    
+    public function __construct($id_cart, $payment_type) 
     {
         parent::__construct();
-        $this->total_cart=0;
-        $this->total_products=0;
-        $this->total_discounts=0;
-        $this->total_shipping=0;
-        $this->total_wrapping=0;
-        $this->total_shipping_no_tax=0;
-        $this->total_fee_with_taxes=0;
-        $this->total_fee_without_taxes=0;
-        $this->total_fee_taxes=0;
+        $this->id = $id_cart;
+        $this->payment_type = $payment_type;
+        $this->calc();
     }
     
-    /**
-     * Get cart fee values
-     * @param string $payment_type
-     * @param CartCore $cart
-     * @return array Associative array of result calc
-     *      'total_cart',
-            'total_products',
-            'total_discounts',
-            'total_shipping',
-            'total_wrapping',
-            'total_shipping_no_tax',
-            'total_fee_with_taxes',
-            'total_fee_without_taxes',
-            'total_fee_taxes'
-     */
-    public function calculateFee($payment_type, $cart)
+    private function calc()
     {
         //Get Payment cnfiguration
-        $this->read($payment_type);
+        $this->read($this->payment_type);
         
         //Get total cart
+        $cart = new CartCore($this->id);
         $total_cart      = $cart->getOrderTotal(true, CartCore::BOTH);
         $total_products  = $cart->getOrderTotal(false, CartCore::ONLY_PRODUCTS_WITHOUT_SHIPPING);
         $total_discounts = $cart->getOrderTotal(false, CartCore::ONLY_DISCOUNTS);
@@ -165,7 +188,13 @@ class ClassMpPayment extends ClassMpPaymentConfiguration
             );
         }
         
-            
+        $this->id = (int)$result['id'];
+        $this->subtotal = (float)$result['subtotal'];
+        $this->fee = (float)$result['fee'];
+        $this->total = (float)$result['total'];
+        $this->currency = $currency->name;
+        $this->decimals = $currency->decimals;
+        $this->suffix = $currency->suffix;
         
         $this->total_cart = $total_cart;
         $this->total_products=$total_products;
@@ -178,5 +207,101 @@ class ClassMpPayment extends ClassMpPaymentConfiguration
         $this->total_fee_taxes = $output['total_fee_taxes'];
         
         return $output;
+    }
+}
+
+class classURL {
+    public $action;
+    public $cancel;
+    public $error;
+    public $success;
+    public $notify;
+    
+    public function __construct() 
+    {
+        $link = new LinkCore();
+        
+        $this->cancel = $link->getModuleLink('mpadvpayment', 'card', array('cancel' => '1'));
+        $this->return = $link->getModuleLink('mpadvpayment', 'card', array('success' => '1'));
+        $this->notify = $link->getModuleLink('mpadvpayment', 'card', array('notify' => '1'));
+        $this->erorr = $link->getModuleLink('mpadvpayment', 'card', array('error' => '1'));
+        $this->action = Tools::getValue('action', '');
+    }
+}
+
+class classCustomerMain {
+    /**
+     *
+     * @var classCustomer $shipping Shipping Customer values
+     */
+    public $shipping;
+    /**
+     *
+     * @var classCustomer $billing Invoice Customer values
+     */
+    public $billing;
+    
+    /**
+     * Initialize class and fills values
+     * @param int $id_cart cart id
+     */
+    public function __construct($id_cart) {
+        $cart = new CartCore($id_cart);
+        
+        $this->shipping = new classCustomer(new AddressCore($cart->id_address_delivery));
+        $this->billing = new classCustomer(new AddressCore($cart->id_address_invoice));
+    }
+}
+
+class classPaypalSummary {
+    public $test;
+    public $user;
+    public $password;
+    public $signature;
+    public $email;
+    public $image;
+    public $cart;
+    public $URL;
+    public $customer;
+    
+    public function __construct($id_cart, $url) 
+    {
+        $this->test = (bool)ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST_API");
+        $this->user = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_USER_API");
+        $this->password = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PWD_API");
+        $this->signature = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_SIGN_API");
+        $this->email_business = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_EMAIL_API");
+        
+        $image_file = glob(_MPADVPAYMENT_ . "paypal_logo.*");
+        if ($image_file) {
+            $filename = _MPADVPAYMENT_URL_ . basename($image_file[0]);
+        } else {
+            $filename = "";
+        }
+        
+        $this->cart = new classCart($id_cart, 'paypal');
+        $this->customer = new classCustomerMain($id_cart);
+        $this->URL = new classURL();
+        
+        
+    }
+}
+
+class classSummary {
+    public $cash;
+    public $bankwire;
+    public $paypal;
+    public $id_cart;
+    public $payment_type;
+    
+    /**
+     * Initialize class and fills values
+     * @param int $id_cart cart id
+     * @param string $paymentType Type Payment ['cash', 'bankwire', 'paypal']
+     */
+    public function __construct($id_cart, $payment_type) 
+    {
+        $cart = new CartCore($id_cart);
+        $this->paypal = new classPaypalSummary($cart->id, $url);
     }
 }

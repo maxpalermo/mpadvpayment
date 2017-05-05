@@ -25,8 +25,9 @@
  */
 
 require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "CRUD.php");
-require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "classMpPayment.php");
-require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "classMpPaymentCalc.php");
 require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "classMpPaymentConfiguration.php");
+require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "classMpPaymentCalc.php");
+require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "classMpPayment.php");
 require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "classMpPaypal.php");
 require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "classPaymentOrders.php");
+require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "classSummary.php");

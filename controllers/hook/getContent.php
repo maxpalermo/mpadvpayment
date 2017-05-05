@@ -30,6 +30,7 @@ class MpAdvPaymentGetContentController
     private $_path;
     private $_lang;
     private $smarty;
+    private $context;
     private $class;
     private $file_path;
     
@@ -39,7 +40,6 @@ class MpAdvPaymentGetContentController
         $this->module = $module;
         $this->context = Context::getContext();
         $this->_path = $path;
-        $this->_path = __PS_BASE_URI__.'modules/mpadvpayment/';
         $this->_lang = Context::getContext()->language->id;
     }
     
@@ -65,20 +65,22 @@ class MpAdvPaymentGetContentController
     
     public function renderForm()
     {
-        $this->class->setMedia();
+        //$this->class->setMedia();
+        $this->setMedia();
         
         $image_file = glob(
             dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." 
             . DIRECTORY_SEPARATOR . ".."
             . DIRECTORY_SEPARATOR . "paypal_logo.*");
         if ($image_file) {
-            $filename = _PS_BASE_URL_ . __PS_BASE_URI__ . "/modules/mpadvpayment/" . basename($image_file[0]);
+            //$filename = _PS_BASE_URL_ . __PS_BASE_URI__ . "/modules/mpadvpayment/" . basename($image_file[0]);
+            $filename = _MPADVPAYMENT_URL_ . basename($image_file[0]);
             $this->smarty->assign('paypal_logo', $filename);
         } else {
             $this->smarty->assign('paypal_logo', '');
         }
         
-        $this->smarty->assign('path', __PS_BASE_URI__ . 'modules/mpadvpayment');
+        $this->smarty->assign('path', _MPADVPAYMENT_URL_);
         $this->smarty->assign('base_uri', __PS_BASE_URI__);
         $this->smarty->assign('tax_list', $this->getTaxList());
         $this->smarty->assign('carrier_list', $this->getCarrierList());
@@ -91,10 +93,10 @@ class MpAdvPaymentGetContentController
         $this->smarty->assign('bankwire_values', $this->getBankwireValues());
         $this->smarty->assign('paypal_values', $this->getPaypalValues());
         $this->smarty->assign('ps_version', Tools::substr(_PS_VERSION_, 0, 3));
-        $this->smarty->assign('form_cash', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_cash.tpl'));
-        $this->smarty->assign('form_bankwire', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_bankwire.tpl'));
-        $this->smarty->assign('form_paypal', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_paypal.tpl'));
-        $this->smarty->assign('form_card', $this->smarty->fetch($this->local_path . 'views/templates/hook/form_card.tpl'));
+        $this->smarty->assign('form_cash', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'form_cash.tpl'));
+        $this->smarty->assign('form_bankwire', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'form_bankwire.tpl'));
+        $this->smarty->assign('form_paypal', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'form_paypal.tpl'));
+        $this->smarty->assign('form_card', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'form_card.tpl'));
             
         $template  = $this->class->display($this->file_path, 'getContent.tpl');
         $psui_tags = $this->class->display($this->file_path, 'views/templates/admin/prestui/ps-tags.tpl');
@@ -103,10 +105,8 @@ class MpAdvPaymentGetContentController
 
     public function setMedia()
     {
-        $this->context->controller->addJqueryUI('ui.tabs');
-        $this->context->controller->addJS("https://cdnjs.cloudflare.com/ajax/libs/riot/3.4.0/riot+compiler.min.js");
-        $this->context->controller->addCSS($this->_path . 'js/chosen/chosen.min.css');
-        $this->context->controller->addJS($this->_path . 'js/chosen/chosen.jquery.min.js');
+        $this->class->setMedia();
+        $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'getContent.css');
     }
     
     public function getTaxList()

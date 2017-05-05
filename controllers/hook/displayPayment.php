@@ -27,7 +27,7 @@
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
         . DIRECTORY_SEPARATOR . ".."
         . DIRECTORY_SEPARATOR . "classes"
-        . DIRECTORY_SEPARATOR . "classMpPayment.php";
+        . DIRECTORY_SEPARATOR . "autoload.php";
 
 class MpAdvPaymentDisplayPaymentController
 {
@@ -58,7 +58,7 @@ class MpAdvPaymentDisplayPaymentController
     
     public function run($params)
     {
-        $this->context->controller->addCSS($this->_path.'views/css/displayPayment.css', 'all');
+        $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css', 'all');
         $this->smarty->assign('activeModules', $this->getActiveModules());
         return $this->module->display($this->file, 'displayPayment.tpl');
     }
@@ -82,6 +82,13 @@ class MpAdvPaymentDisplayPaymentController
             $output[$record['payment_type']] = $record['is_active'];
         }
         
+        //Check if PaypalPro is active
+        $paypal_pro = (bool)ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_PRO_API');
+        if ($paypal_pro) {
+            $output['paypal pro'] = 1;
+            $output['paypal'] = 0;
+        }
+        
         //Check module restrictions
         $Payment = new ClassMpPaymentCalc;
         $cashExclusions = $Payment->getListProductsExclusion(ClassMpPayment::CASH);
@@ -100,6 +107,7 @@ class MpAdvPaymentDisplayPaymentController
             }
             if (in_array($product['id_product'], $paypalExclusions)) {
                 $output['paypal']=false;
+                $output['paypal pro']=false;
             }
         }
         

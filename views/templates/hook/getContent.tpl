@@ -23,9 +23,6 @@
 *  International Registered Trademark & Property of mpSOFT
 *}
 
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.4.0/riot+compiler.min.js"></script>
-<script type="text/javascript" src="{$base_uri}modules/mpadvpayment/views/js/chosen/chosen.jquery.js"></script>
 <script type="text/javascript">
     /*
      * CONFIG OBJECT
@@ -74,86 +71,14 @@
                         },
                 success: function(response)
                         {
-                            console.log("Class saved")
+                            console.log("Class saved");
                             console.log(response);
                         }
             });
-        }
+        };
     };
     
 </script>
-<style type="text/css">
-    .number_align
-    {
-        text-align: right !important;
-        padding-right: 10px !important;
-    }
-    #cover-wait-operations
-    {
-        background: url("../modules/mpmanageproducts/views/img/waiting.gif") no-repeat scroll center center #FFF;
-        background-size: 128px;
-        position: fixed;
-        z-index: 99999999;
-        height: 100%;
-        width: 100%;
-        top: 0;
-        left: 0;
-        display: block;
-    }
-    
-    /* The alert message box */
-    .mp-dialog
-    {
-        display: none;
-        z-index: 999999;
-        position: fixed;
-        top: 10%;
-        left: 30%;
-        padding: 20px;
-        width: 40%;
-        border: 2px solid #555555;
-        border-radius: 10px;
-        box-shadow: 2px 2px 6px #cccccc;
-    }
-    .mp-dialog-alert {
-        background-color: #FFCC00; /* Yellow */
-        color: white;
-        margin-bottom: 15px;
-    }
-    
-    .mp-dialog-success {
-        background-color: #090; /* Green */
-        color: white;
-        margin-bottom: 15px;
-    }
-    
-    .mp-dialog-error {
-        background-color: #f44336; /* Red */
-        color: white;
-        margin-bottom: 15px;
-    }
-
-    /* The close button */
-    .mp-dialog .closebtn {
-        margin-left: 15px;
-        color: white;
-        font-weight: bold;
-        float: right;
-        font-size: 22px;
-        line-height: 20px;
-        cursor: pointer;
-        transition: 0.3s;
-        position: absolute;
-        top: 5px;
-        left: calc(100% -10px);
-    }
-
-    /* When moving the mouse over the close button */
-    .mp-dialog .closebtn:hover {
-        color: black;
-    }
-    
-</style>
 
 <div id='cover-wait-operations'></div>
 
@@ -162,14 +87,26 @@
         <div class='panel-heading'>
             <i class="icon-cogs"></i>
             {l s='Configuration section' mod='mpadvpayment'}
-        </div>  
+        </div>
+        
+        <div class='idTab'>
+            <ul class="idTabs nav nav-tabs clearfix" id="idTabMenu"> 
+                <li><a class="selected" href="#tab1">jQuery</a></li> 
+                <li><a href="#tab2">Tabs 3</a></li> 
+            </ul>
+            <div class='tab-content panel'>
+                <div class="panel" id="tab1">If you haven't checked out ...</div> 
+                <div class="panel" id="tab2">idTabs is only a simple ...</div>
+            </div>
+        </div>
+            
+        
         <div class="form-wrapper">
             <div id="tabs">
                 <ul>
                     <li><a href="#tabs-1"><i class="icon-dollar"></i> {l s='Cash configuration' mod='mpadvpayment'}</a></li>
                     <li><a href="#tabs-2"><i class="icon-building"></i> {l s='Bankwire configuration' mod='mpadvpayment'}</a></li>
                     <li><a href="#tabs-3"><i class="icon-credit-card"></i> {l s='Paypal configuration' mod='mpadvpayment'}</a></li>
-                    <li><a href="#tabs-4"><i class="icon-credit-card"></i> {l s='Credit Card configuration' mod='mpadvpayment'}</a></li>
                 </ul>
                 <div id="tabs-1">
                     <!-- ******************************
@@ -216,21 +153,6 @@
                         </div>
                     </div>
                 </div>
-                <div id="tabs-4">
-                    <!-- *******************************
-                         ** CREDIT CARD CONFIGURATION **
-                         ******************************* -->
-                    <div class="form-wrapper">
-                        <div class="form-group">
-                            <p class='panel-heading' style="margin-top: 20px;">
-                                <img src='../modules/mpadvpayment/views/img/card.png' alt='Config' style="width: 28px;">
-                                {l s='Credit Card configuration' mod='mpadvpayment'}
-                            </p>  
-                            {$form_card}
-                            <br style="clear: both;">
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
                     
@@ -249,6 +171,7 @@
     $(window).bind("load",function()
     {
         $("#tabs").tabs();
+        //$("#idTabMenu").idTabs();
         
         $("input[id^='input_'][type='input']").each(function()
         {
@@ -526,10 +449,17 @@
                 } else {
                     $("#input_paypal_switch_test_off").click();
                 }
+                if(obj.paypal_pro==1) {
+                    $("#input_paypal_switch_pro_on").click();
+                } else {
+                    $("#input_paypal_switch_pro_off").click();
+                }
+                
                 $("#input_paypal_user_api").val(obj.user);
                 $("#input_paypal_password_api").val(obj.password);
                 $("#input_paypal_signature_api").val(obj.signature);
                 $("#input_paypal_test_api").val(obj.test_id);
+                $("#input_paypal_pro_email_api").val(obj.email);
             }
         });
         
@@ -602,7 +532,9 @@
                         user      : $("#input_paypal_user_api").val(),
                         password  : $("#input_paypal_password_api").val(),
                         signature : $("#input_paypal_signature_api").val(),
-                        test_id   : $("#input_paypal_test_api").val()
+                        test_id   : $("#input_paypal_test_api").val(),
+                        paypal_pro: $("#input_paypal_switch_pro_hidden").val(),
+                        email     : $("#input_paypal_pro_email_api").val()
                     }
         });
         
@@ -695,5 +627,10 @@
             $(div_panel).fadeIn();
         }
         $(input_switch + "hidden").val(value);
+    }
+    
+    function setSwitchPaypalPro(value)
+    {
+        $("#input_paypal_switch_pro_hidden").val(value);
     }
 </script>

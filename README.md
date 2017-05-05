@@ -1,6 +1,16 @@
 # mpadvpayment
 This module include three payments method with advanced custom parameters
 
+*2017-05-05*
+Working on Paypal Pro
+- iFrame page seems to work correctly
+- paypal messages sent and received correctly
+- created a page for every message received
+
+*TODO*
+- [ ] Rebuild class to clean code
+- [ ] Process cart after payment and create order
+
 2017-04-19
 Working on paypal page
 - fixed bug on virtual products

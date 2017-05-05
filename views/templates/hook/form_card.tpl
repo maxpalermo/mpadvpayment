@@ -24,7 +24,7 @@
 *}
 <ps-switch 
     name="input_card_switch" 
-    label="{l s='Activate Credit Card payments' mod='mpadvpayment'}" 
+    label="{l s='Activate Paypal Pro payments' mod='mpadvpayment'}" 
     yes="{l s='YES' mod='mpadvpayment'}" 
     no="{l s='NO' mod='mpadvpayment'}" 
     active="true"
@@ -49,7 +49,7 @@
     $(document).ready(function(){        
         $("#submit_card_save").on("click", function(){
             savePaypalValues();
-            $("#mp-dialog-box").html("{l s='Credit Card configuration saved.' mod='mpadvpayment'}").fadeIn().delay(5000).fadeOut();
+            $("#mp-dialog-box").html("{l s='Paypal Pro configuration saved.' mod='mpadvpayment'}").fadeIn().delay(5000).fadeOut();
         });
     });
 </script>

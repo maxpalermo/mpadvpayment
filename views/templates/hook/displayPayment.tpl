@@ -64,7 +64,7 @@
         </form>
     </div>
     {/if}
-    {if isset($activeModules['credit card']) && $activeModules['credit card']}
+    {if isset($activeModules['paypal pro']) && $activeModules['paypal pro']}
     <div class="col-xs-12">
         <div class="payment_block_module">
             <a href="{$link->getModuleLink('mpadvpayment','card')|escape:'html'}" class="mpadvpayment mpadvpayment_card" id="card_process_payment_">

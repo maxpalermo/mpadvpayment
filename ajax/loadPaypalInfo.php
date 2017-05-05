@@ -27,18 +27,22 @@
 require_once(dirname(__FILE__).'/../../../config/config.inc.php');
 require_once(dirname(__FILE__).'/../../../init.php');
 
-$test      = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_TEST');
-$user      = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_USER_API');
-$password  = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_PWD_API');
-$signature = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_SIGN_API');
-$test_id   = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_TEST_API');
+$test       = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_TEST_API');
+$user       = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_USER_API');
+$password   = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_PWD_API');
+$signature  = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_SIGN_API');
+$test_id    = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_TEST_API');
+$paypal_pro = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_PRO_API');
+$email      = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_EMAIL_API');
 
 $output = new stdClass();
-$output->test      = $test;
-$output->user      = $user;
-$output->password  = $password;
-$output->signature = $signature;
-$output->test_id   = $test_id;
+$output->test       = $test;
+$output->user       = $user;
+$output->password   = $password;
+$output->signature  = $signature;
+$output->test_id    = $test_id;
+$output->paypal_pro = $paypal_pro;
+$output->email      = $email;
 
 print Tools::jsonEncode($output);
 

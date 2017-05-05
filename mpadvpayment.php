@@ -50,6 +50,47 @@ class MpAdvPayment extends PaymentModule
         $this->description = $this->l('This module include three payments method with advanced custom parameters');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
       
+        //SET DEFINITIONS
+        if(!defined('_MPADVPAYMENT_URL_')) {
+            define('_MPADVPAYMENT_URL_', $this->_path);
+        }
+        
+        if(!defined('_MPADVPAYMENT_')) {
+            define('_MPADVPAYMENT_', $this->local_path);
+        }
+
+        if(!defined('_MPADVPAYMENT_CLASSES_')) {
+            define('_MPADVPAYMENT_CLASSES_', _MPADVPAYMENT_ . "classes/");
+        }
+
+        if(!defined('_MPADVPAYMENT_CONTROLLERS_')) {
+            define('_MPADVPAYMENT_CONTROLLERS_', _MPADVPAYMENT_ . "controllers/");
+        }
+
+        if(!defined('_MPADVPAYMENT_CSS_URL_')) {
+            define('_MPADVPAYMENT_CSS_URL_', _MPADVPAYMENT_URL_ . "views/css/");
+        }
+
+        if(!defined('_MPADVPAYMENT_JS_URL_')) {
+            define('_MPADVPAYMENT_JS_URL_', _MPADVPAYMENT_URL_ . "views/js/");
+        }
+
+        if(!defined('_MPADVPAYMENT_IMG_URL_')) {
+            define('_MPADVPAYMENT_IMG_URL_', _MPADVPAYMENT_URL_ . "views/img/");
+        }
+
+        if(!defined('_MPADVPAYMENT_TEMPLATES_')) {
+            define('_MPADVPAYMENT_TEMPLATES_', _MPADVPAYMENT_ . "views/templates/");
+        }
+        
+        if(!defined('_MPADVPAYMENT_TEMPLATES_HOOK_')) {
+            define('_MPADVPAYMENT_TEMPLATES_HOOK_', _MPADVPAYMENT_TEMPLATES_ . "hook/");
+        }
+        
+        if(!defined('_MPADVPAYMENT_TEMPLATES_FRONT_')) {
+            define('_MPADVPAYMENT_TEMPLATES_FRONT_', _MPADVPAYMENT_TEMPLATES_ . "front/");
+        }
+        
         $this->payment = new ClassMpPayment();
     }
   
@@ -80,14 +121,17 @@ class MpAdvPayment extends PaymentModule
     public function hookDisplayPayment($params)
     {
         $this->smarty = Context::getContext()->smarty;
-        $this->context->controller->addCSS($this->_path . 'views/css/displayPayment.css');
+        $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css');
         /** @var CartCore $cart */
         //$cart = new CartCore();
         $cart = Context::getContext()->cart;
-        $cash_fee       = $this->payment->calculateFee(ClassMpPayment::CASH, $cart);
-        $bankwire_fee   = $this->payment->calculateFee(ClassMpPayment::BANKWIRE, $cart);
-        $paypal_fee   = $this->payment->calculateFee(ClassMpPayment::PAYPAL, $cart);
+        $cash_fee = $this->payment->calculateFee(ClassMpPayment::CASH, $cart);
+        $bankwire_fee = $this->payment->calculateFee(ClassMpPayment::BANKWIRE, $cart);
+        $paypal_fee = $this->payment->calculateFee(ClassMpPayment::PAYPAL, $cart);
         
+        /*
+         * CASH PAYMENT
+         */
         $this->smarty->assign(array(
             'total_cart' => $cash_fee['total_cart'],
             'fees' => $cash_fee['total_fee_with_taxes'],
@@ -96,8 +140,11 @@ class MpAdvPayment extends PaymentModule
         ));
         $this->smarty->assign(
                 'cash_summary',
-                $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
+                $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
+        /*
+         * BANKWIRE PAYMENT
+         */
         $this->smarty->assign(array(
             'total_cart' => $bankwire_fee['total_cart'],
             'fees' => $bankwire_fee['total_fee_with_taxes'],
@@ -106,8 +153,12 @@ class MpAdvPayment extends PaymentModule
         ));
         $this->smarty->assign(
                 'bankwire_summary',
-                $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
+                //$this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
+                $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
+        /*
+         * PAYPAL PAYMENT
+         */
         $link = new LinkCore();
         $returnUrl = $link->getModuleLink('mpadvpayment', 'paypal', array('action' => 'GetExpressCheckoutDetails'));
         $cancelUrl = $link->getModuleLink('mpadvpayment', 'paypalerror');
@@ -122,7 +173,7 @@ class MpAdvPayment extends PaymentModule
             'cancelURL' => $cancelUrl,
             'controllerURL' => $controllerUrl,
         ));
-        $this->smarty->assign('paypal_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
+        $this->smarty->assign('paypal_summary', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
         $linkCard = new LinkCore();
         $card_returnUrl = $linkCard->getModuleLink('mpadvpayment', 'card', array('action' => 'GetExpressCheckoutDetails'));
@@ -132,13 +183,13 @@ class MpAdvPayment extends PaymentModule
             'total_cart' => $paypal_fee['total_cart'],
             'fees' => $paypal_fee['total_fee_with_taxes'],
             'total_pay' => $paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes'],
-            'payment_type' => $this->l('Credit Card'),
+            'payment_type' => $this->l('Paypal Pro'),
             'action' => 'SetExpressCheckout',
             'card_returnURL' => $card_returnUrl,
             'card_cancelURL' => $card_cancelUrl,
             'card_controllerURL' => $card_controllerUrl,
         ));
-        $this->smarty->assign('card_summary', $this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
+        $this->smarty->assign('card_summary', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
         $controller = $this->getHookController('displayPayment');
         $controller->setSmarty($this->smarty);
@@ -170,10 +221,10 @@ class MpAdvPayment extends PaymentModule
     
     public function setMedia()
     {
-        $this->context->controller->addJqueryUI('ui.tabs');
         $this->context->controller->addJS("https://cdnjs.cloudflare.com/ajax/libs/riot/3.4.0/riot+compiler.min.js");
-        $this->context->controller->addCSS($this->_path . 'js/chosen/chosen.min.css');
-        $this->context->controller->addJS($this->_path . 'js/chosen/chosen.jquery.min.js');
+        $this->context->controller->addJqueryPlugin(array('idTabs','chosen'));
+        $this->context->controller->addJqueryUI('ui.tabs');
+        $this->context->controller->addJS(_PS_JS_DIR_ . "jquery/plugins/jquery.idTabs.js");
     }
     
     private function installSQL()

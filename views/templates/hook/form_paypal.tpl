@@ -196,6 +196,21 @@
         <span class="input-group-addon"><i class="icon-pencil"></i></span>
     </div>
     <br>
+    <ps-switch 
+        name="input_paypal_switch_pro" 
+        label="{l s='Activate Paypal Pro payments' mod='mpadvpayment'}" 
+        yes="{l s='YES' mod='mpadvpayment'}" 
+        no="{l s='NO' mod='mpadvpayment'}" 
+        active="true"
+        onSwitch="setSwitchPaypalPro">
+    </ps-switch>
+    <input type="hidden" id="input_paypal_switch_pro_hidden" value="1">
+    <label class="control-label">{l s='Email business' mod='mpadvpayment'}</label>
+    <div class="input-group input" style="width: 80%;">
+        <input type="text" id="input_paypal_pro_email_api" class="input" onfocus='selectAll(this);'>
+        <span class="input-group-addon"><i class="icon-credit-card"></i></span>
+    </div>
+    <br/>
 </div>
 <div class="panel-footer" style="margin: 0 auto;">
     <button type="button" value="1" id="submit_paypal_save" name="submit_paypal_save" class="btn btn-default pull-right">

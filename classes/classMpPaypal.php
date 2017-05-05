@@ -34,11 +34,13 @@ class classMpPaypal
     private $password;
     private $signature;
     private $test_id;
+    private $paypal_pro;
+    private $email_business;
     private $response;
     
     private $errors;
     
-    public function __construct($test = '', $user = '', $password = '', $signature = '', $test_id = '')
+    public function __construct($test = '', $user = '', $password = '', $signature = '', $test_id = '', $paypal_pro, $email_business)
     {
         if (empty($test)) {
             $this->test = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST");
@@ -68,6 +70,18 @@ class classMpPaypal
             $this->test_id = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_TEST_API");
         } else {
             $this->test_id = $test_id;
+        }
+        
+        if (empty($paypal_pro)) {
+            $this->paypal_pro = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PRO_API");
+        } else {
+            $this->paypal_pro = $paypal_pro;
+        }
+        
+        if (empty($email_business)) {
+            $this->email_business = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_EMAIL_API");
+        } else {
+            $this->email_business = $email_business;
         }
     }
     

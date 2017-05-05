@@ -27,7 +27,7 @@
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
         . DIRECTORY_SEPARATOR . ".."
         . DIRECTORY_SEPARATOR . "classes"
-        . DIRECTORY_SEPARATOR . "classMpPaymentTables.php";
+        . DIRECTORY_SEPARATOR . "autoload.php";
 
 class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerCore
 {
