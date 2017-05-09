@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 mpSOFT
  *
@@ -24,25 +25,22 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-$classes = array(
-    'CRUD',
-    'classMpPaymentConfiguration',
-    'classMpPaymentCalc',
-    'classMpPayment',
-    'classMpPaypal',
-    'classPaymentOrders',
-    'classCustomer',
-    'classCustomerMain',
-    'classCart',
-    'classURL',
-    'classPaypalSummary',
-    'classCashSummary',
-    'classBankwireDetails',
-    'classBankwireSummary',
-    'classSummary',
-);
-
-foreach ($classes as $class)
-{
-    require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . $class . ".php");
+class classURL {
+    public $action;
+    public $cancel;
+    public $error;
+    public $success;
+    public $notify;
+    
+    public function __construct() 
+    {
+        $link = new LinkCore();
+        
+        $this->cancel = $link->getModuleLink('mpadvpayment', 'card', array('cancel' => '1'));
+        $this->return = $link->getModuleLink('mpadvpayment', 'card', array('success' => '1'));
+        $this->notify = $link->getModuleLink('mpadvpayment', 'card', array('notify' => '1'));
+        $this->error = $link->getModuleLink('mpadvpayment', 'card', array('error' => '1'));
+        $this->success = $this->return;
+        $this->action = Tools::getValue('action', '');
+    }
 }

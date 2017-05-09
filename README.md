@@ -1,6 +1,16 @@
 # mpadvpayment
 This module include three payments method with advanced custom parameters
 
+*2017-5-09*
+Working on Pypal Pro
+- Improved code, now core is splitted into several classes
+- Autoload of core classes
+- Paypal fee calculation works correctly
+
+*TODO*
+- [x] Rebuild class to clean code
+- [ ] Process cart after payment and create order
+
 *2017-05-05*
 Working on Paypal Pro
 - iFrame page seems to work correctly

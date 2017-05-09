@@ -50,6 +50,9 @@ class ClassMpPaymentConfiguration extends CRUD
     public $is_active;
     public $logo;
     public $data;
+    public $currency;
+    public $currency_decimals;
+    public $currency_suffix;
     
     private $tablename;
     
@@ -96,7 +99,12 @@ class ClassMpPaymentConfiguration extends CRUD
         $db = Db::getInstance();
         return $db->delete($this->tablename, 'id_configuration = ' . $this->id_configuration);
     }
-
+    
+    /**
+     * Read payment parameters from db table and fill class
+     * @param string $payment_type type of payment ('cash','bankwire','paypal')
+     * @return boolean true if success, false otherwise
+     */
     public function read($payment_type)
     {
         $db = Db::getInstance();
@@ -107,6 +115,11 @@ class ClassMpPaymentConfiguration extends CRUD
                 ->where("payment_type = '" . $payment_type . "'");
         
         $result = $db->getRow($sql);
+        
+        if(empty($result)) {
+            return false;
+        }
+        
         $this->fee_type = $result['fee_type'];
         $this->discount = $result['discount'];
         $this->fee_amount = $result['fee_amount'];
@@ -126,6 +139,8 @@ class ClassMpPaymentConfiguration extends CRUD
         $this->id_order_state = $result['id_order_state'];
         $this->payment_type = $result['payment_type'];
         $this->is_active = $result['is_active'];
+        
+        return true;
     }
 
     public function update()

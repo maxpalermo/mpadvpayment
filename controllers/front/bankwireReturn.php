@@ -38,10 +38,24 @@ class MpAdvPaymentBankwireReturnModuleFrontController extends ModuleFrontControl
         $this->display_column_left = false;
         $this->display_column_right = false;
         parent::initContent();
+        
+        //Get session cart summary
+        if (!session_id()) {
+            session_start();
+        }
+        /**
+         * @var classSummary $summary;
+         */
+        $summary = $_SESSION['classSummary'];
+        if (empty($summary)) {
+            return;
+        }
+        
         $id_order = Tools::getValue('id_order', 0);
         $order = new OrderCore($id_order);
         context::getContext()->smarty->assign("arr_details", $this->getBankwireDetails());
         context::getContext()->smarty->assign("order", $order);
+        context::getContext()->smarty->assign("classSummary", $summary);
         $this->setTemplate('displayPaymentReturn.tpl');
     }
     

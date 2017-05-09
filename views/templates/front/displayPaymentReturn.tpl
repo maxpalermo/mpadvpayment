@@ -23,6 +23,8 @@
 *  International Registered Trademark & Property of mpSOFT
 *}
 
+{assign var=test value=true}
+
 <div class="box">
 	<p class="cheque-indent">
 		<strong class="dark">{l s='Your order on %s is complete.' sprintf=$shop_name mod='mpadvpayment'}</strong>
@@ -84,3 +86,13 @@
 <p class="cart_navigation exclusive">
 	<a class="button-exclusive btn btn-default" href="{$link->getPageLink('history')|escape:'html':'UTF-8'}"><i class="icon-chevron-left"></i>{l s='Go to order history page' mod='mpadvpayment'}</a>
 </p>
+
+ {if $test}
+     <div class='panel'>
+         <div class='panel-body alert alert-info'>
+             <pre>
+                 {$classSummary|@print_r}
+             </pre>
+         </div>
+     </div>
+ {/if}

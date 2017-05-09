@@ -26,6 +26,9 @@
 {capture name=path}
     {l s='Paypal Pro payment' mod='mpadvpayment'}
 {/capture}
+{assign var=payment value=$classSummary->paypal->cart}
+{assign var=customer value=$classSummary->paypal->customer}
+{assign var=url value=$classSummary->paypal->URL}
 
 <div class="container">
     <form class="form-horizontal" method="POST" role="form" action='{$PAYPAL_URL}' style="display:none;" id="form_iframe" target="hss_iframe">
@@ -34,7 +37,7 @@
             <div class="form-group">
                 <input type="hidden" name="cmd" value="_hosted-payment">
                 <input type="hidden" name="paymentaction" value="sale">
-                <input type="hidden" name="business" value="{$EMAIL_BUSINESS}">
+                <input type="hidden" name="business" value="{$classSummary->paypal->email}">
                 <input type="hidden" name="template" value="templateD" >
 
                 <input type="hidden" name="first_name" value="{$customer->shipping->first_name}">
@@ -61,16 +64,16 @@
                 <input type="hidden" name="night_phone_a" value="{$customer->billing->phone_prefix}">
                 <input type="hidden" name="night_phone_b" value="{$customer->billing->phone_number}">
 
-                <input type="hidden" value="{$notifyURL}" name="notify_url">
-                <input type="hidden" value="{$returnURL}" name="return">
-                <input type="hidden" value="{$cancelURL}" name="cancel_return">
+                <input type="hidden" value="{$url->notify}" name="notify_url">
+                <input type="hidden" value="{$url->success}" name="return">
+                <input type="hidden" value="{$url->cancel}" name="cancel_return">
 
                 <label class="col-sm-3 control-label" for="card-holder-name">{l s='Total Amount' mod='mpadvpayment'}</label>
                 <div class="col-sm-9">
-                    <input type="text" readonly='readonly' style='width: 200px;' class="form-control align-right" name="subtotal" value="{$AMT}">
+                    <input type="hidden" value="{$payment->total}" name="subtotal">
                     <input type="hidden" value="0" name="shipping">
                     <input type="hidden" value="0" name="tax">
-                    <input type="hidden" name="currency_code" value="EUR">
+                    <input type="hidden" name="currency_code" value="{$payment->suffix}">
                 </div>
             </div>
         </fieldset>
@@ -100,7 +103,7 @@
                             border-width: 1px;
                             font-weight: bold;
                             font-size: 1.3em;'
-                    value='{$total_order}'
+                    value='{displayPrice price=$payment->total}'
                 >
             </div>
         </div>

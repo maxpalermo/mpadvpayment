@@ -28,11 +28,12 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once(dirname(__FILE__) . '/classes/classMpPayment.php');
+require_once(dirname(__FILE__) . '/classes/autoload.php');
     
 class MpAdvPayment extends PaymentModule
 {
     private $payment;
+    private $summary;
     
     public function __construct()
     {
@@ -120,14 +121,27 @@ class MpAdvPayment extends PaymentModule
     
     public function hookDisplayPayment($params)
     {
-        $this->smarty = Context::getContext()->smarty;
-        $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css');
         /** @var CartCore $cart */
         //$cart = new CartCore();
         $cart = Context::getContext()->cart;
+        
+        $this->smarty = Context::getContext()->smarty;
+        $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css');
+        $this->summary = new classSummary($cart->id, classCart::NONE);
+        
         $cash_fee = $this->payment->calculateFee(ClassMpPayment::CASH, $cart);
         $bankwire_fee = $this->payment->calculateFee(ClassMpPayment::BANKWIRE, $cart);
         $paypal_fee = $this->payment->calculateFee(ClassMpPayment::PAYPAL, $cart);
+        
+        /*
+         *  SUMMARY CLASS TO SMARTY
+         */
+        $this->smarty->assign(array('classSummary' => $this->summary));
+        if (!session_id()) {
+            session_start();
+        }
+        //SAVE TO SESSION
+        $_SESSION['classSummary'] = $this->summary;
         
         /*
          * CASH PAYMENT
@@ -137,6 +151,7 @@ class MpAdvPayment extends PaymentModule
             'fees' => $cash_fee['total_fee_with_taxes'],
             'total_pay' => $cash_fee['total_cart']+$cash_fee['total_fee_with_taxes'],
             'payment_type' => $this->l('Cash'),
+            'payment' => 'cash',
         ));
         $this->smarty->assign(
                 'cash_summary',
@@ -150,6 +165,7 @@ class MpAdvPayment extends PaymentModule
             'fees' => $bankwire_fee['total_fee_with_taxes'],
             'total_pay' => $bankwire_fee['total_cart']+$bankwire_fee['total_fee_with_taxes'],
             'payment_type' => $this->l('Bankwire'),
+            'payment' => 'bankwire',
         ));
         $this->smarty->assign(
                 'bankwire_summary',
@@ -168,6 +184,7 @@ class MpAdvPayment extends PaymentModule
             'fees' => $paypal_fee['total_fee_with_taxes'],
             'total_pay' => $paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes'],
             'payment_type' => $this->l('Paypal'),
+            'payment' => 'paypal',
             'action' => 'SetExpressCheckout',
             'returnURL' => $returnUrl,
             'cancelURL' => $cancelUrl,

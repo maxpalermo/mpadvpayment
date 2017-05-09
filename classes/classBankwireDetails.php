@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 mpSOFT
  *
@@ -24,25 +25,17 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-$classes = array(
-    'CRUD',
-    'classMpPaymentConfiguration',
-    'classMpPaymentCalc',
-    'classMpPayment',
-    'classMpPaypal',
-    'classPaymentOrders',
-    'classCustomer',
-    'classCustomerMain',
-    'classCart',
-    'classURL',
-    'classPaypalSummary',
-    'classCashSummary',
-    'classBankwireDetails',
-    'classBankwireSummary',
-    'classSummary',
-);
-
-foreach ($classes as $class)
-{
-    require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . $class . ".php");
+class classBankwireDetails {
+    public $owner;
+    public $iban;
+    public $bank;
+    public $address;
+    
+    public function __construct() 
+    {
+        $this->owner = ConfigurationCore::get('MP_ADVPAYMENT_BANKWIRE_OWNER');
+        $this->iban = ConfigurationCore::get('MP_ADVPAYMENT_BANKWIRE_IBAN');
+        $this->bank = ConfigurationCore::get('MP_ADVPAYMENT_BANKWIRE_BANK');
+        $this->address = ConfigurationCore::get('MP_ADVPAYMENT_BANKWIRE_ADDR');
+    }
 }

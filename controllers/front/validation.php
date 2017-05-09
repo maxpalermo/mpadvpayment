@@ -38,13 +38,25 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
     
     public function postProcess()
     {
+        //Get session cart summary
+        if (!session_id()) {
+            session_start();
+        }
+        /**
+         * @var classSummary $summary;
+         */
+        $summary = $_SESSION['classSummary'];
+        if (empty($summary)) {
+            return;
+        }
+        
         //Set Class payment
         $this->paymentConfig = new ClassMpPaymentConfiguration();
 
         //Set params
-        $this->payment_method   = Tools::getValue('payment_method');
-        $this->payment_display  = Tools::getValue('payment_display');
-        $this->transaction_id   = Tools::getValue('transaction_id');
+        $this->payment_method   = Tools::getValue('payment_method','');
+        $this->payment_display  = Tools::getValue('payment_display','');
+        $this->transaction_id   = Tools::getValue('transaction_id','');
         
         //Get configuration data
         $this->paymentConfig->read($this->payment_method);
@@ -175,14 +187,6 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
                 $link = new LinkCore();
                 $url = $link->getModuleLink('mpadvpayment', 'bankwireReturn', array('id_order' => $this->module->currentOrder));
                 Tools::redirect($url);
-                /*
-                Tools::redirect('index.php?controller=mpadv'
-                        .'&idcart='.$cart->id
-                        .'&id_module='.$this->module->id
-                        .'&id_order='.$this->module->currentOrder
-                        .'&key='.$customer->secure_key);
-                 *
-                 */
             } elseif ($this->payment_method == ClassMpPayment::PAYPAL) {
                 //Redirect on order confirmation page
                 $params = array(

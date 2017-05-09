@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 mpSOFT
  *
@@ -24,25 +25,15 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-$classes = array(
-    'CRUD',
-    'classMpPaymentConfiguration',
-    'classMpPaymentCalc',
-    'classMpPayment',
-    'classMpPaypal',
-    'classPaymentOrders',
-    'classCustomer',
-    'classCustomerMain',
-    'classCart',
-    'classURL',
-    'classPaypalSummary',
-    'classCashSummary',
-    'classBankwireDetails',
-    'classBankwireSummary',
-    'classSummary',
-);
-
-foreach ($classes as $class)
-{
-    require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . $class . ".php");
+class classCashSummary {
+    public $cart;
+    public $URL;
+    public $customer;
+    
+    public function __construct($id_cart) 
+    {
+        $this->cart = new classCart($id_cart, 'cash');
+        $this->customer = new classCustomerMain($id_cart);
+        $this->URL = new classURL();
+    }
 }

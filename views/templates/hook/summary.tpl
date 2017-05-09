@@ -23,12 +23,27 @@
 *  International Registered Trademark & Property of mpSOFT
 *}
 
+{if $payment=='cash'}
+    {assign var=payment value=$classSummary->cash->cart}
+{else if $payment=='bankwire'}
+    {assign var=payment value=$classSummary->bankwire->cart}
+{else if $payment=='paypal'}
+    {assign var=payment value=$classSummary->paypal->cart}
+{else}
+    {assign var=payment value=''}
+    <div class='alert alert-error'>
+        <i class='icon-2x icon-warning'></i>
+        <h3>{l s='ERROR: No payment method selected' l='mpadvpayment'}</h3>
+    </div>
+{/if}
+
+{if !empty($payment)}
 <table class="table">
     <tbody>
         <tr>
             <td rowspan='2' style='width: 256px; font-size: 1.2em; text-align: left;'><strong>{$payment_type}</strong></td>
             <td>{l s='TOTAL CART' mod='mpadvpayment'}</td>
-            {if $fees<0}
+            {if $payment->total_fee_with_taxes<0}
                 <td style='text-align: left;'>{l s='DISCOUNTS' mod='mpadvpayment'}</td>
             {else}
                 <td style='text-align: left;'>{l s='FEES' mod='mpadvpayment'}</td>
@@ -37,15 +52,17 @@
             <td style='text-align: left;'>{l s='TOTAL TO PAY' mod='mpadvpayment'}</td>
         </tr>
         <tr>
-            <td style='text-align: left;'>
-                {displayPrice price=$total_cart}
+            <td style='text-align: right;'>
+                {displayPrice price=$payment->total_cart}
             </td>
-            <td style='text-align: left;'>
-                {displayPrice price=$fees}
+            <td style='text-align: right;'>
+                {displayPrice price=$payment->total_fee_with_taxes}
             </td>
-            <td style='text-align: left;'>
-                <strong>{displayPrice price=$total_pay}</strong>
+            <td style='text-align: right;'>
+                <strong>{displayPrice price=$payment->total}</strong>
             </td>
         </tr>
     </tbody>
 </table>
+{/if}
+            

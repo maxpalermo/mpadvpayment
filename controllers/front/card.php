@@ -54,6 +54,18 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
         
         parent::initContent();
         
+        //Get session cart summary
+        if (!session_id()) {
+            session_start();
+        }
+        /**
+         * @var classSummary $summary;
+         */
+        $summary = $_SESSION['classSummary'];
+        if (empty($summary)) {
+            return;
+        }
+        
         if((int)Tools::getValue("success",0)==1) {
             /*
              * TRANSACTION SUCCESS
@@ -171,7 +183,8 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
             } else {
                 $this->context->smarty->assign("PAYPAL_URL", "https://securepayments.paypal.com/acquiringweb");
             }
-
+            
+            $this->context->smarty->assign("classSummary", $summary);
             $this->context->smarty->assign("EMAIL_BUSINESS",$this->email_business);
             $this->context->smarty->assign("notifyURL",$this->notifyURL);
             $this->context->smarty->assign("cancelURL",$this->cancelURL);
