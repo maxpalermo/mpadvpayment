@@ -32,7 +32,6 @@ require_once(dirname(__FILE__) . '/classes/autoload.php');
     
 class MpAdvPayment extends PaymentModule
 {
-    private $payment;
     private $summary;
     
     public function __construct()
@@ -91,8 +90,6 @@ class MpAdvPayment extends PaymentModule
         if(!defined('_MPADVPAYMENT_TEMPLATES_FRONT_')) {
             define('_MPADVPAYMENT_TEMPLATES_FRONT_', _MPADVPAYMENT_TEMPLATES_ . "front/");
         }
-        
-        $this->payment = new ClassMpPayment();
     }
   
     public function install()
@@ -129,10 +126,6 @@ class MpAdvPayment extends PaymentModule
         $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css');
         $this->summary = new classSummary($cart->id, classCart::NONE);
         
-        $cash_fee = $this->payment->calculateFee(ClassMpPayment::CASH, $cart);
-        $bankwire_fee = $this->payment->calculateFee(ClassMpPayment::BANKWIRE, $cart);
-        $paypal_fee = $this->payment->calculateFee(ClassMpPayment::PAYPAL, $cart);
-        
         /*
          *  SUMMARY CLASS TO SMARTY
          */
@@ -141,18 +134,14 @@ class MpAdvPayment extends PaymentModule
             session_start();
         }
         //SAVE TO SESSION
-        $_SESSION['classSummary'] = $this->summary;
+        $result = classSession::setSessionSummary($this->summary);
+        
+        print "OGGETTO SALVATO: " . (int)$result;
         
         /*
          * CASH PAYMENT
          */
-        $this->smarty->assign(array(
-            'total_cart' => $cash_fee['total_cart'],
-            'fees' => $cash_fee['total_fee_with_taxes'],
-            'total_pay' => $cash_fee['total_cart']+$cash_fee['total_fee_with_taxes'],
-            'payment_type' => $this->l('Cash'),
-            'payment' => 'cash',
-        ));
+        $this->smarty->assign('payment', 'cash');
         $this->smarty->assign(
                 'cash_summary',
                 $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
@@ -160,16 +149,9 @@ class MpAdvPayment extends PaymentModule
         /*
          * BANKWIRE PAYMENT
          */
-        $this->smarty->assign(array(
-            'total_cart' => $bankwire_fee['total_cart'],
-            'fees' => $bankwire_fee['total_fee_with_taxes'],
-            'total_pay' => $bankwire_fee['total_cart']+$bankwire_fee['total_fee_with_taxes'],
-            'payment_type' => $this->l('Bankwire'),
-            'payment' => 'bankwire',
-        ));
+        $this->smarty->assign('payment', 'bankwire');
         $this->smarty->assign(
                 'bankwire_summary',
-                //$this->smarty->fetch($this->local_path . 'views/templates/hook/summary.tpl'));
                 $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
         /*
@@ -179,34 +161,8 @@ class MpAdvPayment extends PaymentModule
         $returnUrl = $link->getModuleLink('mpadvpayment', 'paypal', array('action' => 'GetExpressCheckoutDetails'));
         $cancelUrl = $link->getModuleLink('mpadvpayment', 'paypalerror');
         $controllerUrl = $link->getModuleLink('mpadvpayment', 'paypal', array('action'=>'SetExpressCheckout'));
-        $this->smarty->assign(array(
-            'total_cart' => $paypal_fee['total_cart'],
-            'fees' => $paypal_fee['total_fee_with_taxes'],
-            'total_pay' => $paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes'],
-            'payment_type' => $this->l('Paypal'),
-            'payment' => 'paypal',
-            'action' => 'SetExpressCheckout',
-            'returnURL' => $returnUrl,
-            'cancelURL' => $cancelUrl,
-            'controllerURL' => $controllerUrl,
-        ));
+        $this->smarty->assign('payment', 'paypal');
         $this->smarty->assign('paypal_summary', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
-        
-        $linkCard = new LinkCore();
-        $card_returnUrl = $linkCard->getModuleLink('mpadvpayment', 'card', array('action' => 'GetExpressCheckoutDetails'));
-        $card_cancelUrl = $linkCard->getModuleLink('mpadvpayment', 'carderror');
-        $card_controllerUrl = $linkCard->getModuleLink('mpadvpayment', 'card', array('action'=>'SetExpressCheckout'));
-        $this->smarty->assign(array(
-            'total_cart' => $paypal_fee['total_cart'],
-            'fees' => $paypal_fee['total_fee_with_taxes'],
-            'total_pay' => $paypal_fee['total_cart']+$paypal_fee['total_fee_with_taxes'],
-            'payment_type' => $this->l('Paypal Pro'),
-            'action' => 'SetExpressCheckout',
-            'card_returnURL' => $card_returnUrl,
-            'card_cancelURL' => $card_cancelUrl,
-            'card_controllerURL' => $card_controllerUrl,
-        ));
-        $this->smarty->assign('card_summary', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
         $controller = $this->getHookController('displayPayment');
         $controller->setSmarty($this->smarty);

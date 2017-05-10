@@ -69,7 +69,7 @@
         <div class="payment_block_module">
             <a href="{$link->getModuleLink('mpadvpayment','card')|escape:'html'}" class="mpadvpayment mpadvpayment_card" id="card_process_payment_">
                 <div style='display: inline-block;'>
-                    {$card_summary}
+                    {$paypal_summary}
                 </div>
             </a>
         </div>

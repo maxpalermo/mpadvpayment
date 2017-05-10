@@ -292,7 +292,7 @@
         var cash_payment = new Payment();
         
         cash_payment.active = $("#input_cash_switch_hidden").val();
-        cash_payment.fee_type = $("#input_cash_type_hidden").val();
+        cash_payment.fee_type = $("#input_cash_select_type_hidden").val();
         cash_payment.fee_amount = $("#input_cash_fee_amount").val();
         cash_payment.fee_percent = $("#input_cash_fee_percent").val();
         cash_payment.fee_min = $("#input_cash_fee_min").val();
@@ -493,6 +493,7 @@
         paypal_payment.payment_type = 'paypal';
         paypal_payment.logo = '';
         paypal_payment.data = '';
+        paypal_payment.save();
         
         var file = document.getElementById('files').files[0];
         
@@ -511,7 +512,7 @@
                     data :
                             {
                                 "filename" : fileName,
-                                "image"    : result,
+                                "image"    : result
                             },
                     success: function(response)
                             {
@@ -521,20 +522,19 @@
                 
             };
         }
-        paypal_payment.save();
         
         $.ajax({
             url : '../modules/mpadvpayment/ajax/savePaypalInfo.php',
             type: 'POST',
             data: 
                     {
-                        test      : $("#input_paypal_switch_test_hidden").val(),
-                        user      : $("#input_paypal_user_api").val(),
-                        password  : $("#input_paypal_password_api").val(),
-                        signature : $("#input_paypal_signature_api").val(),
-                        test_id   : $("#input_paypal_test_api").val(),
-                        paypal_pro: $("#input_paypal_switch_pro_hidden").val(),
-                        email     : $("#input_paypal_pro_email_api").val()
+                        test        : $("#input_paypal_switch_test_hidden").val(),
+                        user        : $("#input_paypal_user_api").val(),
+                        password    : $("#input_paypal_password_api").val(),
+                        signature   : $("#input_paypal_signature_api").val(),
+                        app_test_id : $("#input_paypal_test_api").val(),
+                        paypal_pro  : $("#input_paypal_switch_pro_hidden").val(),
+                        email       : $("#input_paypal_pro_email_api").val()
                     }
         });
         

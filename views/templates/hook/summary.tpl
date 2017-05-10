@@ -25,10 +25,13 @@
 
 {if $payment=='cash'}
     {assign var=payment value=$classSummary->cash->cart}
+    {assign var=payment_type value={l s='Cash' mod='mpadvpayment'}}
 {else if $payment=='bankwire'}
     {assign var=payment value=$classSummary->bankwire->cart}
+    {assign var=payment_type value={l s='Bankwire' mod='mpadvpayment'}}
 {else if $payment=='paypal'}
     {assign var=payment value=$classSummary->paypal->cart}
+    {assign var=payment_type value={l s='Paypal or Credit Card' mod='mpadvpayment'}}
 {else}
     {assign var=payment value=''}
     <div class='alert alert-error'>
@@ -65,4 +68,4 @@
     </tbody>
 </table>
 {/if}
-            
+

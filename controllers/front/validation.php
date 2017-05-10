@@ -39,16 +39,8 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
     public function postProcess()
     {
         //Get session cart summary
-        if (!session_id()) {
-            session_start();
-        }
-        /**
-         * @var classSummary $summary;
-         */
-        $summary = $_SESSION['classSummary'];
-        if (empty($summary)) {
-            return;
-        }
+        //Get session cart summary
+        $summary = classSession::getSessionSummary();
         
         //Set Class payment
         $this->paymentConfig = new ClassMpPaymentConfiguration();
@@ -119,19 +111,19 @@ class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerC
                 if ($objLang->iso_code=="it") {
                     $payment_type = "Contanti alla consegna";
                 } else {
-                    $payment_type = $this->module->l('Adv Payment: Cash', 'validation');
+                    $payment_type = $this->module->l('Cash', 'validation');
                 }
             } elseif ($this->payment_method==ClassMpPayment::BANKWIRE) {
                 if ($objLang->iso_code=="it") {
                     $payment_type = "Bonifico bancario anticipato";
                 } else {
-                    $payment_type = $this->module->l('Adv Payment: Bankwire', 'validation');
+                    $payment_type = $this->module->l('Bankwire', 'validation');
                 }
             } elseif ($this->payment_method==ClassMpPayment::PAYPAL) {
                 if ($objLang->iso_code=="it") {
                     $payment_type = "Pagamento tramite Paypal";
                 } else {
-                    $payment_type = $this->module->l('Adv Payment: Paypal', 'validation');
+                    $payment_type = $this->module->l('Paypal', 'validation');
                 }
             } else {
                 if ($objLang->iso_code=="it") {

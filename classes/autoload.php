@@ -40,6 +40,7 @@ $classes = array(
     'classBankwireDetails',
     'classBankwireSummary',
     'classSummary',
+    'classSession',
 );
 
 foreach ($classes as $class)

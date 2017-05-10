@@ -40,16 +40,7 @@ class MpAdvPaymentBankwireReturnModuleFrontController extends ModuleFrontControl
         parent::initContent();
         
         //Get session cart summary
-        if (!session_id()) {
-            session_start();
-        }
-        /**
-         * @var classSummary $summary;
-         */
-        $summary = $_SESSION['classSummary'];
-        if (empty($summary)) {
-            return;
-        }
+        $summary = classSession::getSessionSummary();
         
         $id_order = Tools::getValue('id_order', 0);
         $order = new OrderCore($id_order);

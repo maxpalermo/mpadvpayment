@@ -187,8 +187,8 @@ class classCart extends ClassMpPaymentConfiguration{
         $this->tax_rate = $output['fee_tax_rate'];
         $this->total = $total_cart + $this->total_fee_with_taxes;
         $this->currency = $currency->name;
-        $this->currency_decimals = $currency->decimals;
-        $this->currency_suffix = $currency->suffix;
+        $this->currency_decimals = 2;
+        $this->currency_suffix = $currency->iso_code;
         
         return true;
     }

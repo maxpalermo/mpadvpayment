@@ -31,14 +31,18 @@
 {assign var=url value=$classSummary->paypal->URL}
 
 <div class="container">
-    <form class="form-horizontal" method="POST" role="form" action='{$PAYPAL_URL}' style="display:none;" id="form_iframe" target="hss_iframe">
+    <form class="form-horizontal" method="POST" role="form" action='{$PAYPAL_URL}' style="display:none;" id="form_iframe">
         <fieldset>
             <legend>{l s='Payment' mod='mpadvpayment'}</legend>
             <div class="form-group">
                 <input type="hidden" name="cmd" value="_hosted-payment">
                 <input type="hidden" name="paymentaction" value="sale">
                 <input type="hidden" name="business" value="{$classSummary->paypal->email}">
-                <input type="hidden" name="template" value="templateD" >
+                <input type="hidden" name="template" value="templateB" >
+                <input type="hidden" value="{$payment->total|number_format:$payment->currency_decimals}" name="subtotal">
+                <input type="hidden" value="0" name="shipping">
+                <input type="hidden" value="0" name="tax">
+                <input type="hidden" name="currency_code" value="{$payment->currency_suffix}">
 
                 <input type="hidden" name="first_name" value="{$customer->shipping->first_name}">
                 <input type="hidden" name="last_name" value="{$customer->shipping->last_name}">
@@ -67,14 +71,6 @@
                 <input type="hidden" value="{$url->notify}" name="notify_url">
                 <input type="hidden" value="{$url->success}" name="return">
                 <input type="hidden" value="{$url->cancel}" name="cancel_return">
-
-                <label class="col-sm-3 control-label" for="card-holder-name">{l s='Total Amount' mod='mpadvpayment'}</label>
-                <div class="col-sm-9">
-                    <input type="hidden" value="{$payment->total}" name="subtotal">
-                    <input type="hidden" value="0" name="shipping">
-                    <input type="hidden" value="0" name="tax">
-                    <input type="hidden" name="currency_code" value="{$payment->suffix}">
-                </div>
             </div>
         </fieldset>
     </form>
@@ -89,44 +85,19 @@
             <br>
             
             <div class='panel-body'>
-                <label class="control-label">{l s='Total order' mod='mpadvpayment'}</label>
-                <i class='icon-chevron-right'></i>
-                <input
-                    type="text" 
-                    id="input_card_email"  
-                    readonly='readonly' 
-                    style='background-color: #fefefe; 
-                            text-align: right; 
-                            padding-right: 10px; 
-                            border-radius: 5px; 
-                            border-color: #aaaaaa;
-                            border-width: 1px;
-                            font-weight: bold;
-                            font-size: 1.3em;'
-                    value='{displayPrice price=$payment->total}'
-                >
+                <span style='
+                      display: block; 
+                      margin: 10px auto; 
+                      font-size: 1.3em;
+                      text-shadow: 1px 1px 2px #bbbbcc;
+                      '>
+                    {l s='Please wait while redirecting to payment page...' mod='mpavpayment'}
+                </span>
             </div>
         </div>
     </form>
     <br>
-    <div class='panel-advice'>
-        <iframe 
-            name="hss_iframe" 
-            width="570px" 
-            height="540px" 
-            style="display: block; margin: 10px auto; box-shadow: 2px 2px 6px #999999;">
-        </iframe>
-    </div>
     <br>
-    <div class='panel-footer'>        
-        <p class="cart_navigation clearfix" id="cart_navigation">
-            <a
-                class="button-exclusive btn btn-default"
-                href="{$link->getPageLink('order', true, NULL, "step=3")|escape:'html':'UTF-8'}">
-                <i class="icon-chevron-left"></i>{l s='Other payment methods' mod='mpadvpayment'}
-            </a>
-        </p>
-    </div>
 </div>
 
 <script type='text/javascript'>
@@ -134,3 +105,21 @@
         $("#form_iframe").submit();
     });
 </script>
+
+{assign var=test value=true}
+{if $test}            
+<div class="panel">
+    <div class="panel-heading">
+        <i class="icon-2x icon-date"></i>
+        <span style="color: #0066CC; text-shadow: 1px 1px 1px #aaaaaa;">
+            CLASS SUMMARY
+        </span>
+    </div>
+    <br>
+    <div class="panel-body">
+        <pre>
+        {$classSummary|@print_r}
+        </pre>
+    </div>
+</div>
+{/if}

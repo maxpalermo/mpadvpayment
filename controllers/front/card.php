@@ -45,6 +45,11 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
     private $decimals;
     private $returnURL;
     private $cancelURL;
+    private $order_id;
+    private $transaction_id;
+    private $cart_id;
+    private $lang;
+    private $order_reference;
     
     public function initContent()
     {
@@ -53,25 +58,27 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
         $link = new LinkCore();
         
         parent::initContent();
-        
         //Get session cart summary
-        if (!session_id()) {
-            session_start();
-        }
-        /**
-         * @var classSummary $summary;
-         */
-        $summary = $_SESSION['classSummary'];
-        if (empty($summary)) {
-            return;
-        }
+        $summary = classSession::getSessionSummary();
         
         if((int)Tools::getValue("success",0)==1) {
             /*
              * TRANSACTION SUCCESS
              */
-            $transaction_id = Tools::getValue('tx','');
-            $this->context->smarty->assign("transaction_id",$transaction_id);
+            $this->order_id = Tools::getValue('id_order', 0);
+            $this->transaction_id = Tools::getValue('tx','');
+            $this->cart_id = Context::getContext()->cart->id;
+            $this->lang = COntext::getContext()->language->id;
+
+            $this->FinalizeOrder();
+
+            //Delete session cart summary
+            classSession::delSessionSummary();
+            
+            //Show success page
+            $this->context->smarty->assign("order_id",$this->order_id);
+            $this->context->smarty->assign("order_reference",$this->order_reference);
+            $this->context->smarty->assign("transaction_id",$this->transaction_id);
             $this->setTemplate("card_success.tpl");
         } elseif((int)Tools::getValue('cancel',0)==1) {
             /*
@@ -317,5 +324,127 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
         $det->paypal_pro = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_PRO_API");
         $det->email      = ConfigurationCore::get("MP_ADVPAYMENT_PAYPAL_EMAIL_API");
         return $det;
+    }
+    
+    /**
+     * Finalize cart and convert it to an order,
+     * save extra info bill
+     */
+    private function FinalizeOrder()
+    {
+        /**
+         * @var classSummary $summary
+         */
+        $summary = classSession::getSessionSummary();
+        /**
+         * @var ClassMpPaymentConfiguration $payment
+         */
+        $payment = new ClassMpPaymentConfiguration();
+        
+        $payment->read(classCart::PAYPAL);
+        
+        //Check if cart exists
+        /** @var CartCore $cart */
+        $cart = new Cart($this->cart_id);
+        if ($cart->id_customer == 0
+                || $cart->id_address_delivery == 0
+                || $cart->id_address_invoice == 0
+                || !$this->module->active) {
+            Tools::redirect('index.php?controller=order&step=1');
+        }
+        
+        //Check if module is enabled
+        /** @var bool $authorized */
+        $authorized = false;
+        foreach (ModuleCore::getPaymentModules() as $module) {
+            if ($module['name'] == $this->module->name) {
+                $authorized = true;
+                break;
+            }
+        }
+        
+        if (!$authorized) {
+            die($this->l("This payment method is not available."));
+        }
+        
+        //Check if customer exists
+        $customer = new CustomerCore($cart->id_customer);
+        if (!ValidateCore::isLoadedObject($customer)) {
+            Tools::redirect('index.php?controller=order&step=1');
+        }
+        
+        //Sets data
+        $currency = $this->context->currency;
+        $total = (float)$cart->getOrderTotal(true, CartCore::BOTH);
+        $extra_vars = array();
+        
+        print "order state: " . $payment->id_order_state;
+        
+        //Validate order
+        if ($this->module->validateOrder(
+                $cart->id,
+                $payment->id_order_state,
+                $total,
+                classCart::PAYPAL,
+                null,
+                $extra_vars,
+                (int)$currency->id,
+                false,
+                $customer->secure_key)) {
+            //Get Extra data
+            $classPaymentFee = new ClassMpPayment();
+            $classPaymentFee->calculateFee(classCart::PAYPAL, $cart);
+            
+            $payment_type = $this->module->l('Paypal', 'validation');
+            
+            //Update order
+            $this->order_id = $this->module->currentOrder;
+            $order = new OrderCore($this->order_id);
+            $this->order_reference = $order->reference;
+            
+            $order->payment = $payment_type;
+            $order->total_paid = number_format($order->total_paid +  $classPaymentFee->total_fee_with_taxes, 6);
+            $order->total_paid_tax_incl = number_format($order->total_paid_tax_incl + $classPaymentFee->total_fee_with_taxes, 6);
+            $order->total_paid_tax_excl = number_format($order->total_paid_tax_excl + $classPaymentFee->total_fee_without_taxes, 6);
+            $order->total_paid_real = $order->total_paid;
+            $order->update();
+            
+            //Update order payment
+            if ($this->deleteOrderPayment($order->reference)) {
+                $orderPayment = new OrderPaymentCore();
+                $orderPayment->amount = $order->total_paid;
+                $orderPayment->id_currency = Context::getContext()->currency->id;
+                $orderPayment->order_reference = $order->reference;
+                $orderPayment->payment_method = classCart::PAYPAL;
+                $orderPayment->transaction_id = $this->transaction_id;
+                $orderPayment->save();
+            } else {
+                // NO PAYMENT
+            }
+            
+            //Save extra data
+            $id_order = OrderCore::getOrderByCartId($cart->id);
+            $classExtra = new ClassMpPaymentOrders();
+            $classExtra->id_cart = $cart->id;
+            $classExtra->id_order = $id_order;
+            $classExtra->payment_type = classCart::PAYPAL;
+            $classExtra->total_amount = number_format($order->total_paid_tax_excl, 6);
+            $classExtra->tax_rate = number_format($payment->tax_rate, 6);
+            $classExtra->fees = number_format($classPaymentFee->total_fee_without_taxes, 6);
+            $classExtra->transaction_id = $this->transaction_id;
+            $classExtra->save();
+            
+        } else {
+            print "ERROR during cart convalidation.";
+            //ERROR
+        }
+        
+        classSession::delSessionSummary();
+    }
+    
+    private function deleteOrderPayment($reference)
+    {
+        $db = Db::getInstance();
+        return $db->delete('order_payment', "order_reference = '" . pSQL($reference) . "'");
     }
 }

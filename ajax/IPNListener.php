@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 mpSOFT
  *
@@ -26,21 +27,15 @@
 
 require_once(dirname(__FILE__).'/../../../config/config.inc.php');
 require_once(dirname(__FILE__).'/../../../init.php');
+require_once(dirname(__FILE__).'/../../../config/config.inc.php');
+require_once(dirname(__FILE__).'/../classes/PaypalIPN.php');
 
-$test        = Tools::getValue("test", '0');
-$user        = Tools::getValue("user", '');
-$password    = Tools::getValue("password", '');
-$signature   = Tools::getValue("signature", '');
-$app_test_id = Tools::getValue("app_test_id", '');
-$paypal_pro  = Tools::getValue("paypal_pro", '0');
-$email       = Tools::getValue("email", '');
+use PaypalIPN;
 
-ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_TEST_API', $test);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_USER_API', $user);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_PWD_API', $password);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_SIGN_API', $signature);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_APP_TEST_API', $app_test_id);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_PRO_API', $paypal_pro);
-ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_EMAIL_API', $email);
-
-exit();
+$ipn = new PaypalIPN();
+$ipn->useSandbox();
+$verified = $ipn->verifyIPN();
+if($verified) {
+    
+}
+header('HTTP/1.1 200 OK');

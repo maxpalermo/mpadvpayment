@@ -47,8 +47,14 @@
             <br>
             <span style='font-size: 1.2em;'>
                 <i class='icon-2x icon-paper-clip'></i> 
-                {l s='Cart id:' mod='mpadvpayment'} 
-                <strong>{$cart_id}</strong>
+                {l s='Order id:' mod='mpadvpayment'} 
+                <strong>{$order_id}</strong>
+            </span>
+            <br>
+            <span style='font-size: 1.2em;'>
+                <i class='icon-2x icon-paper-clip'></i> 
+                {l s='Order reference:' mod='mpadvpayment'} 
+                <strong>{$order_reference}</strong>
             </span>
             <br>
             <span style='font-size: 1.2em;'>

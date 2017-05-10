@@ -31,7 +31,7 @@ $test       = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_TEST_API');
 $user       = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_USER_API');
 $password   = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_PWD_API');
 $signature  = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_SIGN_API');
-$test_id    = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_TEST_API');
+$test_id    = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_APP_TEST_API');
 $paypal_pro = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_PRO_API');
 $email      = ConfigurationCore::get('MP_ADVPAYMENT_PAYPAL_EMAIL_API');
 
