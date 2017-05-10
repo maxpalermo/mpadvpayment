@@ -1,7 +1,16 @@
 # mpadvpayment
 This module include three payments method with advanced custom parameters
+*2017-05-10*
+Happy birthday Elisa!!! 
+- Paypal page display in new window
+- Trying to manage IPN API
+- Cart processed after payment
 
-*2017-5-09*
+TODO
+- [x] Process cart after payment and create order
+- [ ] Manage IPN API
+
+*2017-05-09*
 Working on Pypal Pro
 - Improved code, now core is splitted into several classes
 - Autoload of core classes
