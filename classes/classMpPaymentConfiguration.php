@@ -30,7 +30,6 @@ class ClassMpPaymentConfiguration extends CRUD
 {
     public $id_configuration;
     public $fee_type;
-    public $discount;
     public $fee_amount;
     public $fee_percent;
     public $fee_min;
@@ -38,6 +37,7 @@ class ClassMpPaymentConfiguration extends CRUD
     public $order_min;
     public $order_max;
     public $order_free;
+    public $discount;
     public $tax_included;
     public $tax_rate;
     public $carriers;
@@ -50,7 +50,7 @@ class ClassMpPaymentConfiguration extends CRUD
     public $is_active;
     public $logo;
     public $data;
-    public $currency;
+    public $currency_name;
     public $currency_decimals;
     public $currency_suffix;
     
@@ -68,7 +68,6 @@ class ClassMpPaymentConfiguration extends CRUD
             $id = $db->insert($this->tablename,
                     array(
                         'fee_type' => $this->fee_type,
-                        'discount' => $this->discount,
                         'fee_amount' => $this->fee_amount,
                         'fee_percent' => $this->fee_percent,
                         'fee_min' => $this->fee_min,
@@ -76,6 +75,7 @@ class ClassMpPaymentConfiguration extends CRUD
                         'order_min' => $this->order_min,
                         'order_max' => $this->order_max,
                         'order_free' => $this->order_free,
+                        'discount' => $this->discount,
                         'tax_included' => $this->tax_included,
                         'tax_rate' => $this->tax_rate,
                         'carriers' => $this->carriers,
@@ -121,7 +121,6 @@ class ClassMpPaymentConfiguration extends CRUD
         }
         
         $this->fee_type = $result['fee_type'];
-        $this->discount = $result['discount'];
         $this->fee_amount = $result['fee_amount'];
         $this->fee_percent = $result['fee_percent'];
         $this->fee_min = $result['fee_min'];
@@ -129,6 +128,7 @@ class ClassMpPaymentConfiguration extends CRUD
         $this->order_min = $result['order_min'];
         $this->order_max = $result['order_max'];
         $this->order_free = $result['order_free'];
+        $this->discount = $result['discount'];
         $this->tax_included = $result['tax_included'];
         $this->tax_rate = $result['tax_rate'];
         $this->carriers = $result['carriers'];
@@ -150,7 +150,6 @@ class ClassMpPaymentConfiguration extends CRUD
             $id = $db->update($this->tablename,
                     array(
                         'fee_type' => $this->fee_type,
-                        'discount' => $this->discount,
                         'fee_amount' => $this->fee_amount,
                         'fee_percent' => $this->fee_percent,
                         'fee_min' => $this->fee_min,
@@ -158,6 +157,7 @@ class ClassMpPaymentConfiguration extends CRUD
                         'order_min' => $this->order_min,
                         'order_max' => $this->order_max,
                         'order_free' => $this->order_free,
+                        'discount' => $this->discount,
                         'tax_included' => $this->tax_included,
                         'tax_rate' => $this->tax_rate,
                         'carriers' => $this->carriers,

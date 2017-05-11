@@ -26,15 +26,12 @@
 {if $payment=='cash'}
     {assign var=payment value=$classSummary->cash->cart}
     {assign var=payment_type value={l s='Cash' mod='mpadvpayment'}}
-    {assign var=icon value='icon-2x icon-dollar'}
 {else if $payment=='bankwire'}
     {assign var=payment value=$classSummary->bankwire->cart}
     {assign var=payment_type value={l s='Bankwire' mod='mpadvpayment'}}
-    {assign var=icon value='icon-2x icon-building'}
 {else if $payment=='paypal'}
     {assign var=payment value=$classSummary->paypal->cart}
     {assign var=payment_type value={l s='Paypal or Credit Card' mod='mpadvpayment'}}
-    {assign var=icon value='icon-2x icon-credit-card'}
 {else}
     {assign var=payment value=''}
     <div class='alert alert-error'>
@@ -44,32 +41,31 @@
 {/if}
 
 {if !empty($payment)}
-    <div class="panel-body">
-        <div style='position:absolute; top: 10px; left: 10px;'>
-            <i class='{$icon}'></i>
-            &nbsp;
-            <strong>{$payment_type}</strong>
-        </div>
-        <br>
-        <div>
-            <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
-                {assign var=total_cart value=$payment->cart->getOrderTotal(true,Cart::BOTH)}
-                {l s='TOTAL CART' mod='mpadvpayment'} : {displayPrice price=$total_cart}
-            </div>
-            <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
-                {if $payment->payment->fee_type==classCart::FEE_TYPE_DISCOUNT}
-                    <span style='text-align: left;'>{l s='DISCOUNTS' mod='mpadvpayment'}</span>
-                    : {displayPrice price=$payment->total_discount_with_taxes}
-                {else}
-                    <span style='text-align: left;'>{l s='FEES' mod='mpadvpayment'}</span>
-                    : {displayPrice price=$payment->total_fee_with_taxes}
-                {/if}
-                
-            </div>
-            <div style='display: inline-block; font-weight: normal;'>
-                {l s='TOTAL TO PAY' mod='mpadvpayment'} : <strong>{displayPrice price=$payment->total_tax_incl}</strong>
-            </div>
-        </div>
-    </div>
+<table class="table">
+    <tbody>
+        <tr>
+            <td rowspan='2' style='width: 256px; font-size: 1.2em; text-align: left;'><strong>{$payment_type}</strong></td>
+            <td>{l s='TOTAL CART' mod='mpadvpayment'}</td>
+            {if $payment->total_fee_with_taxes<0}
+                <td style='text-align: left;'>{l s='DISCOUNTS' mod='mpadvpayment'}</td>
+            {else}
+                <td style='text-align: left;'>{l s='FEES' mod='mpadvpayment'}</td>
+            {/if}
+            
+            <td style='text-align: left;'>{l s='TOTAL TO PAY' mod='mpadvpayment'}</td>
+        </tr>
+        <tr>
+            <td style='text-align: right;'>
+                {displayPrice price=$payment->total_cart}
+            </td>
+            <td style='text-align: right;'>
+                {displayPrice price=$payment->total_fee_with_taxes}
+            </td>
+            <td style='text-align: right;'>
+                <strong>{displayPrice price=$payment->total}</strong>
+            </td>
+        </tr>
+    </tbody>
+</table>
 {/if}
 

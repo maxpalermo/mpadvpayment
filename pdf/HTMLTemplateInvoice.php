@@ -22,6 +22,7 @@
  *  @copyright 2007-2016 PrestaShop SA
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
+ *  Modified by Massimiliano Palermo <info@mpsoft.it> 
  */
 
 /**
@@ -479,13 +480,15 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
                 return [
                     'discount_tax_excl' => $result['fees'],
                     'discount_tax_incl' => $result['fees'] * ((100 + $result['tax_rate'])/100),
-                    'discount_taxes' => $result['tax_rate'],
+                    'discount_taxes' => $result['fees'] * $result['tax_rate'] /100,
+                    'discount_tax_rate' => $result['tax_rate'],
                     ];
             } else { //fee
                 return [
                     'fee_tax_excl' => $result['fees'],
                     'fee_tax_incl' => $result['fees'] * ((100 + $result['tax_rate'])/100),
-                    'fee_taxes' => $result['tax_rate'],
+                    'fee_taxes' => $result['fees'] * $result['tax_rate'] /100,
+                    'fee_tax_rate' => $result['tax_rate'],
                 ];
             }
         } else {

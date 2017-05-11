@@ -27,8 +27,6 @@
     {l s='Paypal Pro payment' mod='mpadvpayment'}
 {/capture}
 
-{assign var=cart_id value=$cart->id}
-{assign var=cart_total value=Tools::displayPrice($cart->getOrderTotal(true))}
 <div class="container">
     <div class='panel-advice'>
         <legend>{l s='Payment' mod='mpadvpayment'}</legend>
@@ -60,7 +58,7 @@
             <span style='font-size: 1.2em;'>
                 <i class='icon-2x icon-dollar'></i> 
                 {l s='Total paid:' mod='mpadvpayment'} 
-                <strong>{$cart_total}</strong>
+                <strong>{Tools::displayPrice($total)}</strong>
             </span>
         </div>
             <br>

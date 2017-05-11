@@ -68,10 +68,26 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
             $this->order_id = Tools::getValue('id_order', 0);
             $this->transaction_id = Tools::getValue('tx','');
             $this->cart_id = Context::getContext()->cart->id;
-            $this->lang = COntext::getContext()->language->id;
+            $this->lang = Context::getContext()->language->id;
 
             $this->FinalizeOrder();
 
+            /**
+            /* Send mail
+            $to      = $summary->paypal->customer->shipping->email;
+            $subject = 'Paypal transaction success';
+            $message = 'Your paypal transaction has been succesfully processed'
+                    . PHP_EOL . 'transaction id: ' . $this->transaction_id
+                    . PHP_EOL . 'order reference: ' . $this->order_reference
+                    . PHP_EOL . 'Total payed: ' . Tools::displayPrice($summary->paypal->cart->total_cart_with_tax_and_fee);
+            $headers = 'From: ' . ConfigurationCore::get('PS_SHOP_EMAIL') . "\r\n" .
+                'Reply-To: ' . ConfigurationCore::get('PS_SHOP_EMAIL') . "\r\n" .
+                'X-Mailer: PHP/' . phpversion();
+
+            mail($to, $subject, $message, $headers);
+            */
+            
+            
             //Delete session cart summary
             classSession::delSessionSummary();
             
@@ -79,6 +95,7 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
             $this->context->smarty->assign("order_id",$this->order_id);
             $this->context->smarty->assign("order_reference",$this->order_reference);
             $this->context->smarty->assign("transaction_id",$this->transaction_id);
+            $this->context->smarty->assign("total",$summary->paypal->cart->total_cart_with_tax_and_fee);
             $this->setTemplate("card_success.tpl");
         } elseif((int)Tools::getValue('cancel',0)==1) {
             /*
@@ -375,27 +392,21 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
         
         //Sets data
         $currency = $this->context->currency;
-        $total = (float)$cart->getOrderTotal(true, CartCore::BOTH);
         $extra_vars = array();
-        
-        print "order state: " . $payment->id_order_state;
         
         //Validate order
         if ($this->module->validateOrder(
                 $cart->id,
-                $payment->id_order_state,
-                $total,
+                $summary->paypal->cart->payment->id_order_state,
+                $summary->paypal->cart->total_cart_with_tax_and_fee,
                 classCart::PAYPAL,
                 null,
                 $extra_vars,
                 (int)$currency->id,
                 false,
                 $customer->secure_key)) {
-            //Get Extra data
-            $classPaymentFee = new ClassMpPayment();
-            $classPaymentFee->calculateFee(classCart::PAYPAL, $cart);
             
-            $payment_type = $this->module->l('Paypal', 'validation');
+            $payment_type = $this->module->l('Paypal', 'card');
             
             //Update order
             $this->order_id = $this->module->currentOrder;
@@ -403,9 +414,11 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
             $this->order_reference = $order->reference;
             
             $order->payment = $payment_type;
-            $order->total_paid = number_format($order->total_paid +  $classPaymentFee->total_fee_with_taxes, 6);
-            $order->total_paid_tax_incl = number_format($order->total_paid_tax_incl + $classPaymentFee->total_fee_with_taxes, 6);
-            $order->total_paid_tax_excl = number_format($order->total_paid_tax_excl + $classPaymentFee->total_fee_without_taxes, 6);
+            $order->total_paid = number_format($summary->paypal->cart->total_cart_with_tax_and_fee, 6);
+            $order->total_paid_tax_incl = number_format($summary->paypal->cart->total_cart_with_tax_and_fee, 6);
+            $order->total_paid_tax_excl = number_format(
+                    $summary->paypal->cart->total_cart_with_tax_and_fee
+                    -$summary->paypal->cart->total_cart_without_tax, 6);
             $order->total_paid_real = $order->total_paid;
             $order->update();
             
@@ -429,8 +442,12 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
             $classExtra->id_order = $id_order;
             $classExtra->payment_type = classCart::PAYPAL;
             $classExtra->total_amount = number_format($order->total_paid_tax_excl, 6);
-            $classExtra->tax_rate = number_format($payment->tax_rate, 6);
-            $classExtra->fees = number_format($classPaymentFee->total_fee_without_taxes, 6);
+            $classExtra->tax_rate = number_format($summary->paypal->cart->payment->tax_rate, 6);
+            if($summary->paypal->cart->payment->fee_type==classCart::FEE_TYPE_DISCOUNT) {
+                $classExtra->fees = -number_format($summary->paypal->cart->total_discount_without-taxes, 6);
+            } else {
+                $classExtra->fees = number_format($summary->paypal->cart->total_fee_without_taxes, 6);
+            }
             $classExtra->transaction_id = $this->transaction_id;
             $classExtra->save();
             

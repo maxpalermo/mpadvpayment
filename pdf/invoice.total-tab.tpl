@@ -21,6 +21,7 @@
 *  @copyright  2007-2016 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
+*  Modified by Massimiliano Palermo <info@mpsoft.it> 
 *}
 <table id="total-tab" width="100%">
 
@@ -77,7 +78,7 @@
 			{l s='Pay method discount' pdf='true'}
 		</td>
 		<td class="white" width="30%">
-			{displayPrice currency=$order->id_currency price=$footer.discount_tax_excl}
+			-{displayPrice currency=$order->id_currency price=$footer.discount_tax_excl}
 		</td>
 	</tr>
 	{/if}
@@ -96,7 +97,14 @@
 			{l s='Total (Tax excl.)' pdf='true'}
 		</td>
 		<td class="white">
-			{displayPrice currency=$order->id_currency price=$footer.total_paid_tax_excl}
+                    {if isset($footer.fee_taxes)}
+                        {assign var=total_tax_excl value={$footer.total_paid_tax_excl + $footer.fee_tax_excl}}
+                    {else if isset($footer.discount_taxes)}
+                        {assign var=total_tax_excl value={$footer.total_paid_tax_excl - $footer.discount_tax_excl}}
+                    {else}
+                        {assign var=total_tax_excl value=$footer.total_paid_tax_excl}
+                    {/if}
+                    {displayPrice currency=$order->id_currency price=$total_tax_excl}
 		</td>
 	</tr>
 	{if $footer.total_taxes > 0}
@@ -105,7 +113,14 @@
 			{l s='Total Tax' pdf='true'}
 		</td>
 		<td class="white">
-			{displayPrice currency=$order->id_currency price=$footer.total_taxes}
+                    {if isset($footer.fee_taxes)}
+                        {assign var=total_taxes value={$footer.total_taxes+$footer.fee_taxes}}
+                    {else if isset($footer.discount_taxes)}
+                        {assign var=total_taxes value={$footer.total_taxes+$footer.fee_taxes}}
+                    {else}
+                        {assign var=total_taxes value={$footer.total_taxes+$footer.fee_taxes}}
+                    {/if}
+                    {displayPrice currency=$order->id_currency price=$total_taxes}
 		</td>
 	</tr>
 	{/if}
@@ -114,7 +129,14 @@
 			{l s='Total' pdf='true'}
 		</td>
 		<td class="white">
-			{displayPrice currency=$order->id_currency price=$footer.total_paid_tax_incl}
+                    {if isset($footer.fee_taxes)}
+                        {assign var=total_order value={$total_tax_excl+$total_taxes}}
+                    {else if isset($footer.discount_taxes)}
+                        {assign var=total_order value={$total_tax_excl-$total_taxes}}
+                    {else}
+			{assign var=total_order value=$footer.total_paid_tax_incl}
+                    {/if}
+                    {displayPrice currency=$order->id_currency price=$total_order}
 		</td>
 	</tr>
 </table>

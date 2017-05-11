@@ -27,8 +27,10 @@
     {if isset($activeModules['cash']) && $activeModules['cash']}
     <div class="col-xs-12">
         <div class="payment_block_module">
-            <a href="{$link->getModuleLink('mpadvpayment','cash')|escape:'html'}" class="mpadvpayment">
-                {$cash_summary}
+            <a href="{$link->getModuleLink('mpadvpayment','cash')|escape:'html'}" class="mpadvpayment mpadvpayment_cash">
+                <div style='display: inline-block;'>
+                    {$cash_summary}
+                </div>
             </a>
         </div>
     </div>
@@ -36,8 +38,10 @@
     {if isset($activeModules['bankwire']) && $activeModules['bankwire']}
     <div class="col-xs-12">
         <div class="payment_block_module">
-            <a href="{$link->getModuleLink('mpadvpayment','bankwire')|escape:'html'}" class="mpadvpayment">
-                {$bankwire_summary}
+            <a href="{$link->getModuleLink('mpadvpayment','bankwire')|escape:'html'}" class="mpadvpayment mpadvpayment_bankwire">
+                <div style='display: inline-block;'>
+                    {$bankwire_summary}
+                </div>
             </a>
             
         </div>
@@ -46,8 +50,10 @@
     {if isset($activeModules['paypal']) && $activeModules['paypal']}
     <div class="col-xs-12">
         <div class="payment_block_module">
-            <a href="javascript:$('#mp_advpayment_paypal').submit()" class="mpadvpayment" id="paypal_process_payment_">
-                {$paypal_summary}
+            <a href="javascript:$('#mp_advpayment_paypal').submit()" class="mpadvpayment mpadvpayment_paypal" id="paypal_process_payment_">
+                <div style='display: inline-block;'>
+                    {$paypal_summary}
+                </div>
             </a>
         </div>
         <form id="mp_advpayment_paypal" action='{$controllerURL|escape:'htmlall':'UTF-8'}' data-ajax='false' method="post">
@@ -61,16 +67,22 @@
     {if isset($activeModules['paypal pro']) && $activeModules['paypal pro']}
     <div class="col-xs-12">
         <div class="payment_block_module">
-            <a href="{$link->getModuleLink('mpadvpayment','card')|escape:'html'}" class="mpadvpayment" id="card_process_payment_">
+            <a href="{$link->getModuleLink('mpadvpayment','card')|escape:'html'}" class="mpadvpayment mpadvpayment_card" id="card_process_payment_">
                 <div style='display: inline-block;'>
                     {$paypal_summary}
                 </div>
             </a>
         </div>
+        <form id="mp_advpayment_card" action='{$card_controllerURL|escape:'htmlall':'UTF-8'}' data-ajax='false' method="post">
+            <input type="hidden" name="cancelURL" value="{$card_cancelURL|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="returnURL" value="{$card_returnURL|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="total_pay" value="{$total_pay|escape:'htmlall':'UTF-8'}" />
+            <input type="hidden" name="method"    value="{$action|escape:'htmlall':'UTF-8'}" />
+        </form>
     </div>
     {/if}
 </div>
-{assign var=test value=false}
+{assign var=test value=true}
 {if $test}            
 <div class="panel">
     <div class="panel-heading">

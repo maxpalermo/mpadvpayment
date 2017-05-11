@@ -136,8 +136,6 @@ class MpAdvPayment extends PaymentModule
         //SAVE TO SESSION
         $result = classSession::setSessionSummary($this->summary);
         
-        print "OGGETTO SALVATO: " . (int)$result;
-        
         /*
          * CASH PAYMENT
          */
@@ -171,6 +169,8 @@ class MpAdvPayment extends PaymentModule
     
     public function hookDisplayPaymentReturn($params)
     {
+        return true;
+        
         if (!$this->active) {
             return;
         }
