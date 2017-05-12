@@ -448,17 +448,26 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         $sql = new DbQueryCore();
         
         $sql    ->select('fees')
+                ->select('discounts')
                 ->select('tax_rate')
                 ->from('mp_advpayment_orders')
                 ->where('id_order=' . $id_order);
         $result = $db->getRow($sql);
         
         if ($result) {
-            return [[
-                'rate' => number_format($result['tax_rate'], 3),
-                'total_amount' => $result['fees'] * $result['tax_rate'] /100,
-                'total_tax_excl' => $result['fees'] * 100 / $result['tax_rate'],
-           ]];
+            if(!empty($result['fees']) && $result['fees']>0) {
+                return [[
+                    'rate' => number_format($result['tax_rate'], 3),
+                    'total_amount' => $result['fees'] * $result['tax_rate'] /100,
+                    'total_tax_excl' => $result['fees'] * 100 / $result['tax_rate'],
+               ]];
+            } else {
+                return [[
+                    'rate' => number_format($result['tax_rate'], 3),
+                    'total_amount' => -$result['discounts'] * $result['tax_rate'] /100,
+                    'total_tax_excl' => -$result['discounts'] * 100 / $result['tax_rate'],
+               ]];
+            }
         } else {
             return [];
         }
@@ -470,17 +479,18 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         $sql = new DbQueryCore();
         
         $sql    ->select('fees')
+                ->select('discounts')
                 ->select('tax_rate')
                 ->from('mp_advpayment_orders')
                 ->where('id_order=' . $id_order);
         $result = $db->getRow($sql);
         
         if ($result) {
-            if ($result['fees']<0) { //discount
+            if (!empty($result['discounts'])) { //discount
                 return [
-                    'discount_tax_excl' => $result['fees'],
-                    'discount_tax_incl' => $result['fees'] * ((100 + $result['tax_rate'])/100),
-                    'discount_taxes' => $result['fees'] * $result['tax_rate'] /100,
+                    'discount_tax_excl' => $result['discounts'],
+                    'discount_tax_incl' => $result['discounts'] * ((100 + $result['tax_rate'])/100),
+                    'discount_taxes' => $result['discounts'] * $result['tax_rate'] /100,
                     'discount_tax_rate' => $result['tax_rate'],
                     ];
             } else { //fee

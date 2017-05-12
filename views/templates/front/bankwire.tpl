@@ -71,6 +71,7 @@
     {l s='Bankwire payment' mod='mpadvpayment'}
 {/capture}
 
+{assign var=summary value=$summary->bankwire->cart}
 <form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $params, true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
@@ -109,8 +110,9 @@
                         </tr>
                     {/foreach}
                     
-                    {assign var=taxable value=$fee_cost+$discounts+$carrier_cost+$total_products}
-                    {assign var=taxes value=$cart->getOrderTotal()+$fee['total_fee_with_taxes']-$taxable}
+                    {assign var=taxable value=$summary->total_tax_excl}
+                    {assign var=taxes value=$summary->total_tax}
+                    {assign var=total value=$summary->total_tax_incl}
                     
                     {if $total_products}
                     <tr>
@@ -146,7 +148,7 @@
                     </tr>
                     <tr>
                         <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold; font-size: 1.2em; background-color: #DFDCDC'>{l s='TOTAL CART' mod='mpadvpayment'}</td>
-                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{{displayPrice price=$taxable+$taxes}|escape:'htmlall':'UTF-8'}</td>
+                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{{displayPrice price=$total}|escape:'htmlall':'UTF-8'}</td>
                     </tr>
                 </tbody>
             </table>
@@ -169,3 +171,6 @@
     </p>
 </form>
         
+        <pre>
+            {$summary|print_r}
+        </pre>

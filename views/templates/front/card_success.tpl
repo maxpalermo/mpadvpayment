@@ -27,6 +27,9 @@
     {l s='Paypal Pro payment' mod='mpadvpayment'}
 {/capture}
 
+{assign var=transaction_id value=Tools::getValue('transaction_id','')}
+{assign var=id_order value=Tools::getValue('id_order','')}
+
 <div class="container">
     <div class='panel-advice'>
         <legend>{l s='Payment' mod='mpadvpayment'}</legend>

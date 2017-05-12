@@ -70,9 +70,9 @@
     </div>
     {/if}
 </div>
-{assign var=test value=false}
+{assign var=test value=true}
 {if $test}            
-<div class="panel">
+<div class="panel panel-advice panel-info">
     <div class="panel-heading">
         <i class="icon-2x icon-date"></i>
         <span style="color: #0066CC; text-shadow: 1px 1px 1px #aaaaaa;">

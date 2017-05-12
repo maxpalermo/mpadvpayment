@@ -53,7 +53,7 @@
         <br>
         <div>
             <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
-                {assign var=total_cart value=$payment->cart->getOrderTotal(true,Cart::BOTH)}
+                {assign var=total_cart value=$cart->getOrderTotal(true,Cart::BOTH)}
                 {l s='TOTAL CART' mod='mpadvpayment'} : {displayPrice price=$total_cart}
             </div>
             <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>

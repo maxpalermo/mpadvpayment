@@ -96,7 +96,7 @@ class MpAdvPaymentPaypalReturnModuleFrontController extends ModuleFrontControlle
         }
         
         if (!$authorized) {
-            die($this->l("This payment method is not available."));
+            die($this->l('This payment method is not available.'));
         }
         
         //Check if customer exists

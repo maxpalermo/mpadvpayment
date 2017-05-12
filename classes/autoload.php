@@ -41,6 +41,7 @@ $classes = array(
     'classBankwireSummary',
     'classSummary',
     'classSession',
+    'classValidation',
 );
 
 foreach ($classes as $class)

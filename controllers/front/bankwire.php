@@ -32,20 +32,19 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
 class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;
-    private $_cart;
     private $mpPayment;
     
     public function initContent()
     {
-        $this->_lang = Context::getContext()->language->id;
+        $summary = classSession::getSessionSummary();
         $this->mpPayment = new ClassMpPayment();
         
         $id_cart = Context::getContext()->cart->id;
-        $this->_cart = new CartCore($id_cart);
+        $cart = new Cart($id_cart);
         //Cast into Cart to avoid exception
-        $this->_cart = $this->cast($this->_cart, "Cart");
+        //$cart = $this->cast($cart, "Cart");
         
-        if (!$this->checkCurrency()) {
+        if (!$this->checkCurrency($cart)) {
             Tools::redirect('index.php?controller=order');
         }
         
@@ -61,7 +60,7 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
             $product_attribute = isset($cart_product['id_product_attribute'])?'_'
                     . $cart_product['id_product_attribute']:'';
             $product = new ProductCore($id_product);
-            $images = $product->getImages($this->_lang);
+            $images = $product->getImages(Context::getContext()->language->id);
             if (is_array($images)) {
                 $image_id = $images[0]['id_image'];
                 $name = 'product_mini_'
@@ -83,30 +82,30 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
         
         //Assign to Smarty
         $this->context->smarty->assign(array(
-            'nb_products'=> $this->_cart->nbProducts(),
-            'cart' => $this->_cart,
-            'cart_currency' => $this->_cart->id_currency,
-            'currencies' => $this->module->getCurrency($this->_cart->id_currency),
-            'total_amount' => $this->_cart->getOrderTotal(true),
+            'nb_products'=> $cart->nbProducts(),
+            'cart' => $cart,
+            'cart_currency' => $cart->id_currency,
+            'currencies' => $this->module->getCurrency($cart->id_currency),
+            'total_amount' => $cart->getOrderTotal(true),
             'path' => $this->module->getPathUri(),
-            'summary' => $this->_cart->getSummaryDetails(),
+            'summary' => $summary,
             'params' => array(
                 'payment_method' => 'bankwire',
-                'payment_display' => $this->module->l('Bankwire payment')
+                'payment_display' => $this->module->l('Bankwire payment','bankwire')
             ),
-            'excluded_products' => ClassMpPaymentCalc::getListProductsExclusion('cash'),
+            'excluded_products' => ClassMpPaymentCalc::getListProductsExclusion('bankwire'),
             'cart_product_list' => $cart_product_list,
-            'fee' => $this->mpPayment->calculateFee(ClassMpPayment::BANKWIRE, $this->_cart),
+            'fee' => $this->mpPayment->calculateFee(ClassMpPayment::BANKWIRE, $cart),
             'arr_details' => $this->getBankwireDetails(),
         ));
         
         $this->setTemplate('bankwire.tpl');
     }
     
-    public function checkCurrency()
+    public function checkCurrency($cart)
     {
-        $currency_order = new CurrencyCore($this->_cart->id_currency);
-        $currencies_module = $this->module->getCurrency($this->_cart->id_currency);
+        $currency_order = new CurrencyCore($cart->id_currency);
+        $currencies_module = $this->module->getCurrency($cart->id_currency);
         
         //Check if module accept currency
         if (is_array($currencies_module)) {
