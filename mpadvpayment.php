@@ -100,9 +100,7 @@ class MpAdvPayment extends PaymentModule
 
         if (!parent::install() ||
           !$this->registerHook('displayPayment') ||
-          !$this->installProducts() ||
-          !$this->installSql() ||
-          !$this->installPdf()) {
+          !$this->installSql()) {
             return false;
         }
         return true;
@@ -111,9 +109,7 @@ class MpAdvPayment extends PaymentModule
     public function uninstall()
     {
         if (!parent::uninstall() || 
-                !$this->uninstallProducts() ||
-                !$this->uninstallSql() || 
-                $this->uninstallPdf()) {
+                !$this->uninstallSql()) {
             return false;
         }
         return true;
@@ -124,6 +120,10 @@ class MpAdvPayment extends PaymentModule
         /** @var CartCore $cart */
         //$cart = new CartCore();
         $cart = Context::getContext()->cart;
+        /**
+         * Remove fee from cart
+         */
+        classValidation::removeFeeFromCart();
         
         $this->smarty = Context::getContext()->smarty;
         $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css');
@@ -170,20 +170,6 @@ class MpAdvPayment extends PaymentModule
         return $controller->run($params);
     }
     
-    public function hookDisplayPaymentReturn($params)
-    {
-        return true;
-        
-        if (!$this->active) {
-            return;
-        }
-        
-        $this->context->smarty->assign(array('id_order' => $params['objOrder']->id));
-        
-        $controller = $this->getHookController('displayPaymentReturn');
-        return $controller->run($params);
-    }
-    
     public function getContent()
     {
         $this->smarty = Context::getContext()->smarty;
@@ -201,59 +187,6 @@ class MpAdvPayment extends PaymentModule
         $this->context->controller->addJqueryPlugin(array('idTabs','chosen'));
         $this->context->controller->addJqueryUI('ui.tabs');
         $this->context->controller->addJS(_PS_JS_DIR_ . "jquery/plugins/jquery.idTabs.js");
-    }
-    
-    private function installProducts()
-    {
-        $id_lang = Context::getContext()->language->id;
-        $lang = new LanguageCore($id_lang);
-        
-        $product_fee = new ProductCore();
-        $product_fee->active = true;
-        $product_fee->available_for_order = true;
-        $product_fee->link_rewrite[$id_lang]='product-fee';
-        $product_fee->id_category_default = 1;
-        if (Tools::strtolower($lang->iso_code)=='it') {
-            $product_fee->name[$id_lang] = 'Commissioni';
-        } else {
-            $product_fee->name[$id_lang] = 'Fees';
-        }
-        $product_fee->save();
-        
-        if($product_fee->id==0) {
-            return false;
-        }
-        ConfigurationCore::updateValue('MP_ADVPAYMENT_PRODUCT_FEE', $product_fee->id);
-        
-        $product_discount = new ProductCore();
-        $product_discount->active = true;
-        $product_discount->available_for_order = true;
-        $product_discount->id_category_default = 1;
-        $product_discount->link_rewrite[$id_lang]='product-discount';
-        if (Tools::strtolower($lang->iso_code)=='it') {
-            $product_discount->name[$id_lang] = 'Sconti';
-        } else {
-            $product_discount->name[$id_lang] = 'Discounts';
-        }
-        $product_discount->save();
-        
-        if($product_discount->id==0) {
-            return false;
-        }
-        ConfigurationCore::updateValue('MP_ADVPAYMENT_PRODUCT_DISCOUNT', $product_discount->id);
-        
-        return true;
-    }
-    
-    private function uninstallProducts()
-    {
-        $id_product_fee = ConfigurationCore::get('MP_ADVPAYMENT_PRODUCT_FEE');
-        $id_product_discount = ConfigurationCore::get('MP_ADVPAYMENT_PRODUCT_DISCOUNT');
-        $product_fee = new ProductCore($id_product_fee);
-        $product_fee->delete();
-        $product_discount = new ProductCore($id_product_discount);
-        $product_discount->delete();
-        return true;
     }
     
     private function installSQL()
@@ -295,42 +228,6 @@ class MpAdvPayment extends PaymentModule
                 }
             }
         }
-        return true;
-    }
-    
-    public function installPdf()
-    {
-        $source = dirname(__FILE__) . DIRECTORY_SEPARATOR
-                . "pdf" . DIRECTORY_SEPARATOR;
-        $dest_class   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR .
-                "classes" . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
-        $dest_pdf   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR .
-                "pdf" . DIRECTORY_SEPARATOR;
-        
-        rename($dest_class . 'HTMLTemplateInvoice.php', $dest_class . 'HTMLTemplateInvoice.old.php');
-        copy($source . 'HTMLTemplateInvoice.php', $dest_class . 'HTMLTemplateInvoice.php');
-        
-        rename($dest_pdf . 'invoice.tax-tab.tpl', $dest_pdf . 'invoice.tax-tab.old.tpl');
-        rename($dest_pdf . 'invoice.total-tab.tpl', $dest_pdf . 'invoice.total-tab.old.tpl');
-        copy($source . 'invoice.tax-tab.tpl', $dest_pdf . 'invoice.tax-tab.tpl');
-        copy($source . 'invoice.total-tab.tpl', $dest_pdf . 'invoice.total-tab.tpl');
-        
-        return true;
-    }
-    
-    public function uninstallPdf()
-    {
-        $dest_class   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
-        $dest_pdf   = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR;
-        
-        unlink($dest_class . 'HTMLTemplateInvoice.php');
-        rename($dest_class . 'HTMLTemplateInvoice.old.php', $dest_class . 'HTMLTemplateInvoice.php');
-        
-        unlink($dest_pdf . 'invoice.tax-tab.tpl');
-        unlink($dest_pdf . 'invoice.total-tab.tpl');
-        rename($dest_pdf . 'invoice.tax-tab.old.tpl', $dest_pdf . 'invoice.tax-tab.tpl');
-        rename($dest_pdf . 'invoice.total-tab.old.tpl', $dest_pdf . 'invoice.total-tab.tpl');
-        
         return true;
     }
     

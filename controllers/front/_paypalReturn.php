@@ -47,7 +47,7 @@ class MpAdvPaymentPaypalReturnModuleFrontController extends ModuleFrontControlle
         $this->order_id = Tools::getValue('id_order', 0);
         $this->transaction_id = Tools::getValue('transaction_id', '');
         $this->cart_id = Context::getContext()->cart->id;
-        $this->lang = COntext::getContext()->language->id;
+        $this->lang = Context::getContext()->language->id;
         
         $this->FinalizeOrder();
         
@@ -107,7 +107,7 @@ class MpAdvPaymentPaypalReturnModuleFrontController extends ModuleFrontControlle
         
         //Sets data
         $currency = $this->context->currency;
-        $total = (float)$cart->getOrderTotal(true, CartCore::BOTH);
+        $total = $summary->paypal->cart->getTotalCart();
         $extra_vars = array();
         
         //Validate order
@@ -123,7 +123,7 @@ class MpAdvPaymentPaypalReturnModuleFrontController extends ModuleFrontControlle
                 $customer->secure_key)) {
             //Get Extra data
             $classPaymentFee = new ClassMpPayment();
-            $classPaymentFee->calculateFee(classCart::PAYPAL, $cart);
+            $classPaymentFee->calculateFee(classCart::PAYPAL);
             
             $payment_type = $this->module->l('Paypal', 'validation');
             

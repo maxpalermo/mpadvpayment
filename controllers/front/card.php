@@ -51,45 +51,6 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
     private $lang;
     private $order_reference;
     
-    private function success($summary)
-    {
-       $this->order_id = Tools::getValue('id_order', 0);
-       $this->transaction_id = Tools::getValue('transaction_id','xxxxxxxxxxxx');
-       $this->tx = Tools::getValue('tx','');
-       $this->cart_id = Context::getContext()->cart->id;
-       $this->lang = Context::getContext()->language->id;
-
-       
-       $db = Db::getInstance();
-       $sql = new DbQueryCore();
-       
-       $sql->select('id_order')
-               ->select('reference')
-               ->from('orders')
-               ->where('id_cart = ' . $summary->id_cart);
-       $result = $db->getRow($sql);
-       $id_order = (int)$result['id_order'];
-       $order_reference = $result['reference'];
-       if($id_order == 0) 
-       {
-           classValidation::FinalizeOrder(classCart::PAYPAL, $this->transaction_id, $this->module);
-       } else {
-           classValidation::UpdateOrderPayment($order_reference, $this->transaction_id);
-       }
-
-       $this->sendMail();
-
-       //Delete session cart summary
-       classSession::delSessionSummary();
-
-       //Show success page
-       $this->context->smarty->assign("order_id",$this->order_id);
-       $this->context->smarty->assign("order_reference",$this->order_reference);
-       $this->context->smarty->assign("transaction_id",$this->transaction_id);
-       $this->context->smarty->assign("total",$summary->paypal->cart->total_cart_with_tax_and_fee);
-       $this->setTemplate("card_success.tpl");
-    }
-    
     private function sendMail()
     {
         /**

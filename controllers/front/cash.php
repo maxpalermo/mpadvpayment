@@ -32,25 +32,36 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
 class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;
-    private $_cart;
     private $mpPayment;
+    private $cash_summary;
     
     public function initContent()
     {
-        $this->_lang = Context::getContext()->language->id;
-        $this->mpPayment = new ClassMpPayment();
-        
         $id_cart = Context::getContext()->cart->id;
-        $this->_cart = new CartCore($id_cart);
-        //Cast into Cart to avoid exception
-        $this->_cart = $this->cast($this->_cart, "Cart");
+        $id_lang = Context::getContext()->language->id;
+        /**
+         * Get summary
+         */
+        $summary = classSession::getSessionSummary();
+        /**
+         * Class payment deprecated
+         */
+        $this->mpPayment = new ClassMpPayment();
+        $this->cash_summary = $summary->cash->cart;
+        /**
+         * Get cart
+         */
+        $cart = new Cart($id_cart);
         
-        if (!$this->checkCurrency()) {
+        if (!$this->checkCurrency($cart)) {
             Tools::redirect('index.php?controller=order');
         }
         
         $this->display_column_left = false;
         $this->display_column_right = false;
+        /**
+         * INITIALIZE CLASS
+         */
         parent::initContent();
         
         //Check product list
@@ -60,7 +71,7 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
             $id_product = $cart_product['id_product'];
             $product_attribute = isset($cart_product['id_product_attribute'])?'_'.$cart_product['id_product_attribute']:'';
             $product = new ProductCore($id_product);
-            $images = $product->getImages($this->_lang);
+            $images = $product->getImages($id_lang);
             if (is_array($images)) {
                 $image_id = $images[0]['id_image'];
                 $name = 'product_mini_'
@@ -78,33 +89,33 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
             $cart_product['image_tag'] = $thumb_src;
         }
         
-        //$this->_cart->getCarrierCost($this->_cart->id_carrier);
-        
         //Assign to Smarty
         $this->context->smarty->assign(array(
-            'nb_products'=> $this->_cart->nbProducts(),
-            'cart' => $this->_cart,
-            'cart_currency' => $this->_cart->id_currency,
-            'currencies' => $this->module->getCurrency($this->_cart->id_currency),
-            'total_amount' => $this->_cart->getOrderTotal(true),
+            'nb_products'=> $cart->nbProducts(),
+            'cart' => $cart,
+            'cart_currency' => $cart->id_currency,
+            'currencies' => $this->module->getCurrency($cart->id_currency),
+            'total_amount' => $cart->getOrderTotal(true),
             'path' => $this->module->getPathUri(),
-            'summary' => $this->_cart->getSummaryDetails(),
+            'summary' => $cart->getSummaryDetails(),
             'params' => array(
                 'payment_method' => 'cash', 
                 'payment_display' => $this->module->l('Cash payment','cash')
             ),
             'excluded_products' => ClassMpPaymentCalc::getListProductsExclusion('cash'),
             'cart_product_list' => $cart_product_list,
-            'fee' => $this->mpPayment->calculateFee(ClassMpPayment::CASH, $this->_cart),
+            'products' => $cart->getProducts(),
+            'cash_summary' => $this->cash_summary,
+            'categories' => CategoryCore::getHomeCategories($id_lang),
         ));
         
         $this->setTemplate('cash.tpl');
     }
     
-    public function checkCurrency()
+    public function checkCurrency($cart)
     {
-        $currency_order = new CurrencyCore($this->_cart->id_currency);
-        $currencies_module = $this->module->getCurrency($this->_cart->id_currency);
+        $currency_order = new CurrencyCore($cart->id_currency);
+        $currencies_module = $this->module->getCurrency($cart->id_currency);
         
         //Check if module accept currency
         if (is_array($currencies_module)) {

@@ -77,79 +77,35 @@
             <i class="icon-dollar"></i>
             {l s='Payment method:' mod='mpadvpayment'} {l s='cash' mod='mpadvpayment'}
         </div>  
-        <div class='form-wrapper'>
-            <table class='table-bordered' id='table_summary' style='width: 100%;'>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>{l s='Product' mod='mpadvpayment'}</th>
-                        <th>{l s='Price' mod='mpadvpayment'}</th>
-                        <th>{l s='Qty' mod='mpadvpayment'}</th>
-                        <th>{l s='Total' mod='mpadvpayment'}</th>
-                        <th>{l s='Tax' mod='mpadvpayment'}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {assign var=total_products value=0}
-                    {assign var=sign value=$currencies[0]['sign']}
-                    {assign var=fee_cost value=$fee['total_fee_without_taxes']}
-                    {assign var=discounts value=-$fee['total_discounts']}
-                    {assign var=carrier_cost value=$cart->getCarrierCost($cart->id_carrier, false)}
-                    
-                    {foreach $cart_product_list as $cart_product}
-                        {assign var=prod_total value=$cart_product['price']*$cart_product['cart_quantity']}
-                        {assign var=total_products value=$total_products+$prod_total}
-                        <tr>
-                            <td>{$cart_product['image_tag']}</td>
-                            <td>{$cart_product['name']}</td>
-                            <td>{displayPrice price=$cart_product['price']}</td>
-                            <td>{$cart_product['cart_quantity']}</td>
-                            <td>{displayPrice price=$prod_total}</td>
-                            <td>{$cart_product['rate']|string_format:"%.2f"} %</td>
-                        </tr>
-                    {/foreach}
-                    
-                    {assign var=taxable value=$fee_cost+$discounts+$carrier_cost+$total_products}
-                    {assign var=taxes value=$cart->getOrderTotal()+$fee['total_fee_with_taxes']-$taxable}
-                    
-                    {if $total_products}
-                    <tr>
-                        <td colspan='4' style='text-align: right; padding-right: 5px; font-weight: bold;'>{l s='Total products' mod='mpadvpayment'}: {$cart->nbProducts()}</td>
-                        <td style='text-align: right; padding-right: 5px;'>{displayPrice price=$total_products}</td>
-                    </tr>
-                    {/if}
-                    {if $carrier_cost}
-                    <tr>
-                        <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold;'>{l s='Shipping cost' mod='mpadvpayment'}</td>
-                        <td style='text-align: right; padding-right: 5px;'>{displayPrice price=$carrier_cost}</td>
-                    </tr>
-                    {/if}
-                    {if $fee_cost}
-                    <tr>
-                        <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold;'>{l s='Fee cost' mod='mpadvpayment'}</td>
-                        <td style='text-align: right; padding-right: 5px;'>{displayPrice price=$fee_cost}</td>
-                    </tr>
-                    {/if}
-                    {if $discounts}
-                    <tr>
-                        <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold;'>{l s='Discounts' mod='mpadvpayment'}</td>
-                        <td style='text-align: right; padding-right: 5px;'>{displayPrice price=$discounts}</td>
-                    </tr>
-                    {/if}
-                    <tr>
-                        <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold; font-size: 1.2em; background-color: #DFDCDC'>{l s='TOTAL TAXABLE' mod='mpadvpayment'}</td>
-                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{displayPrice price=$taxable}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold; font-size: 1.2em; background-color: #DFDCDC'>{l s='TOTAL TAXES' mod='mpadvpayment'}</td>
-                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{displayPrice price=$taxes}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4" style='text-align: right; padding-right: 5px; font-weight: bold; font-size: 1.2em; background-color: #DFDCDC'>{l s='TOTAL CART' mod='mpadvpayment'}</td>
-                        <td style='font-size: 1.2em; font-weight: bold; text-align: right; padding-right: 5px;'>{displayPrice price={$taxable+$taxes}}</td>
-                    </tr>
-                </tbody>
-            </table>
+        
+        <div class="panel-body panel-info">
+            {l s='You have chosen to pay with' mod='mpadvpayment'}
+            &nbsp;
+            <strong>{l s='CASH' mod='mpadvpayment'}</strong>
+        </div>
+        
+        <div class='panel'>
+            <div class='panel-body panel-info'>
+                {l s='TOTAL CART:' mod='mpadvpayment'}
+                &nbsp;
+                <strong>{displayPrice price=$cash_summary->getTotalCart()}</strong>
+            </div>
+            <div class='panel-body panel-info'>
+                {if $cash_summary->payment->fee_type == classCart::FEE_TYPE_DISCOUNT}
+                    {l s='TOTAL DISCOUNTS:' mod='mpadvpayment'}
+                    &nbsp;
+                    <strong>{displayPrice price=$cash_summary->getDiscount()}</strong>
+                {else}
+                    {l s='TOTAL FEES:' mod='mpadvpayment'}
+                    &nbsp;
+                    <strong>{displayPrice price=$cash_summary->getFee()}</strong>
+                {/if}
+            </div>
+            <div class='panel-body panel-info'>
+                {l s='TOTAL TO PAY:' mod='mpadvpayment'}
+                &nbsp;
+                <strong>{displayPrice price=$cash_summary->getTotalToPay()}</strong>
+            </div>
         </div>
     </div>
     <br>
@@ -166,3 +122,18 @@
         </button>
 	</p>
 </form>
+
+{assign var=test value=true}
+{if $test==true}
+    <div class="panel panel-body panel-info">
+        <pre>
+            {$cash_summary|print_r}
+        </pre>
+        <pre>
+            {$products|print_r}
+        </pre>
+        <pre>
+            {$categories|print_r}
+        </pre>
+    </div>
+{/if}

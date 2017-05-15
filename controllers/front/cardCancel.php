@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 mpSOFT
  *
@@ -23,32 +24,13 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of mpSOFT
  */
-
-class MpAdvPaymentDisplayPaymentReturnController
-{
-    public function __construct($module, $file, $path)
+class MpAdvPaymentCardCancelModuleFrontController extends ModuleFrontControllerCore{
+    public $ssl = true;
+    
+    public function initContent()
     {
-        $this->file = $file;
-        $this->module = $module;
-        $this->context = Context::getContext();
-        $this->_path = $path;
-    }
-
-    public function run($params)
-    {
-        return "<h1>PAYMENT RETURN</h1>";
-            
-        $reference = $params['objOrder']->id;
-        if (isset($params['objOrder']->reference) && !empty($params['objOrder']->reference)) {
-            $reference = $params['objOrder']->reference;
-        }
-        $total_to_pay = Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false);
-
-        $this->context->smarty->assign(array(
-                    'reference' => $reference,
-                    'total_to_pay' => $total_to_pay,
-            ));
-
-        return $this->module->display($this->file, 'displayPaymentReturn.tpl');
+       $link = new LinkCore();
+       $payment_page = $link->getPageLink('order', true, NULL, "step=3");
+       header("Location: $payment_page");
     }
 }

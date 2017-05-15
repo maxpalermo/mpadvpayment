@@ -160,7 +160,9 @@ class ClassMpPaymentCalc
         
         $sql    ->select("id_product")
                 ->from("product")
-                ->where("is_virtual = 1");
+                ->where("is_virtual = 1")
+                ->where("reference != '" . pSQL('fee') . "'" )
+                ->where("reference != '" . pSQL('discount') . "'");
         return self::purifyArray($db->ExecuteS($sql));
     }
     

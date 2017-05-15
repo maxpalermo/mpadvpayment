@@ -185,8 +185,8 @@ class MpAdvPaymentGetContentController
     public function getCashValues()
     {
         $cash = new stdClass();
-        $values = new ClassMpPayment();
-        $values->read(ClassMpPayment::CASH);
+        $values = new ClassMpPaymentConfiguration();
+        $values->read(classCart::CASH);
         
         $cash->input_switch_on      = $values->is_active;
         $cash->fee_type             = $values->fee_type;
@@ -212,8 +212,8 @@ class MpAdvPaymentGetContentController
     public function getBankwireValues()
     {
         $bankwire = new stdClass();
-        $values = new ClassMpPayment();
-        $values->read(ClassMpPayment::BANKWIRE);
+        $values = new ClassMpPaymentConfiguration();
+        $values->read(classCart::BANKWIRE);
         
         $bankwire->input_switch_on      = $values->is_active;
         $bankwire->discount             = $values->discount;
@@ -240,8 +240,8 @@ class MpAdvPaymentGetContentController
     public function getPaypalValues()
     {
         $paypal = new stdClass();
-        $values = new ClassMpPayment();
-        $values->read(ClassMpPayment::PAYPAL);
+        $values = new ClassMpPaymentConfiguration();
+        $values->read(classCart::PAYPAL);
         
         $paypal->input_switch_on      = $values->is_active;
         $paypal->discount             = $values->discount;

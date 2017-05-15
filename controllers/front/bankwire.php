@@ -36,13 +36,17 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
     
     public function initContent()
     {
+        /**
+         * Get summary
+         */
         $summary = classSession::getSessionSummary();
+        /**
+         * Class payment deprecated
+         */
         $this->mpPayment = new ClassMpPayment();
         
         $id_cart = Context::getContext()->cart->id;
         $cart = new Cart($id_cart);
-        //Cast into Cart to avoid exception
-        //$cart = $this->cast($cart, "Cart");
         
         if (!$this->checkCurrency($cart)) {
             Tools::redirect('index.php?controller=order');
@@ -74,11 +78,8 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
             } else {
                 $thumb_src = '';
             }
-            
             $cart_product['image_tag'] = $thumb_src;
         }
-        
-        //$this->_cart->getCarrierCost($this->_cart->id_carrier);
         
         //Assign to Smarty
         $this->context->smarty->assign(array(
@@ -89,13 +90,13 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
             'total_amount' => $cart->getOrderTotal(true),
             'path' => $this->module->getPathUri(),
             'summary' => $summary,
+            'bankwire_summary' => $summary->bankwire->cart,
             'params' => array(
                 'payment_method' => 'bankwire',
                 'payment_display' => $this->module->l('Bankwire payment','bankwire')
             ),
             'excluded_products' => ClassMpPaymentCalc::getListProductsExclusion('bankwire'),
             'cart_product_list' => $cart_product_list,
-            'fee' => $this->mpPayment->calculateFee(ClassMpPayment::BANKWIRE, $cart),
             'arr_details' => $this->getBankwireDetails(),
         ));
         

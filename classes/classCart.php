@@ -38,27 +38,15 @@ class classCart {
     const FEE_TYPE_MIXED    = '3';
     const FEE_TYPE_DISCOUNT = '4';
     
-    private $id;
-    
     public $payment;
-    public $total_fee_with_taxes;
-    public $total_fee_without_taxes;
-    public $total_fee_tax_rate;
-    public $total_discount_no_tax;
-    public $total_discount_with_taxes;
-    public $total_discount_without_taxes;
-    public $total_discount_tax_rate;
-    public $total_cart_with_tax_no_fee;
-    public $total_cart_with_tax_and_fee;
-    public $total_cart_without_tax;
-    public $total_products_without_tax;
-    public $total_discounts_without_tax;
-    public $total_shipping_without_tax;
-    public $total_wrapping_without_tax;
     
-    public $total_tax_excl;
-    public $total_tax;
-    public $total_tax_incl;
+    private $id;
+    private $fee;
+    private $discount;
+    private $payment_type;
+    private $tax_rate;
+    private $total_cart;
+    private $total_to_pay;
     
     public function __construct($id_cart, $payment_type) 
     {
@@ -74,6 +62,36 @@ class classCart {
     public function getId()
     {
         return $this->id;
+    }
+    
+    public function getFee()
+    {
+        return $this->fee;
+    }
+    
+    public function getDiscount()
+    {
+        return $this->discount;
+    }
+    
+    public function getPaymentType()
+    {
+        return $this->payment_type;
+    }
+    
+    public function getTaxRate()
+    {
+        return $this->tax_rate;
+    }
+    
+    public function getTotalCart()
+    {
+        return $this->total_cart;
+    }
+    
+    public function getTotalToPay()
+    {
+        return $this->total_to_pay;
     }
     
     /**
@@ -93,45 +111,37 @@ class classCart {
         $this->payment->currency_decimals = $currency->decimals;
         $this->payment->currency_suffix = $currency->iso_code;
         
-        $this->total_cart_with_tax_no_fee = $cart->getOrderTotal(true, Cart::BOTH);
-        $this->total_products_without_tax = $cart->getOrderTotal(false, Cart::ONLY_PRODUCTS_WITHOUT_SHIPPING);
-        $this->total_discounts_without_tax = $cart->getOrderTotal(false, Cart::ONLY_DISCOUNTS);
-        $this->total_shipping_without_tax = $cart->getOrderTotal(false, Cart::ONLY_SHIPPING);
-        $this->total_wrapping_without_tax = $cart->getOrderTotal(false, Cart::ONLY_WRAPPING);
+        $this->total_cart = $cart->getOrderTotal(true, Cart::BOTH);
         
         //Calulate fee
         switch ($this->payment->fee_type) {
             case self::FEE_TYPE_NONE:
                 $fee = 0;
                 $fee_excl_tax = 0;
-                $this->fee_type_processed = 'none';
                 break;
             case self::FEE_TYPE_FIXED:
                 $fixed = $this->payment->fee_amount;
                 $fee = $fixed;
-                $this->fee_type_processed = 'fixed';
                 break;
             case self::FEE_TYPE_PERCENT:
                 $percent = $this->payment->fee_percent;
-                $fee = number_format($this->total_cart_with_tax_no_fee * $percent / 100, 2);
-                $this->fee_type_processed = 'percent';
+                $fee = number_format($this->total_cart * $percent / 100, 2);
                 break;
             case self::FEE_TYPE_MIXED:
                 $fixed = $this->payment->fee_amount;
                 $percent = $this->payment->fee_percent;
-                $fee = number_format($fixed + ($this->total_cart_with_tax_no_fee * $percent / 100), 2);
-                $this->fee_type_processed = 'mixed';
+                $fee = number_format($fixed + ($this->total_cart * $percent / 100), 2);
                 break;
             case self::FEE_TYPE_DISCOUNT:
                 $percent = $this->payment->discount;
-                $fee = number_format($this->total_cart_with_tax_no_fee * $percent / 100, 2);
-                $this->fee_type_processed = 'discount';
+                $fee = number_format($this->total_cart * $percent / 100, 2);
                 break;
             default:
                 $fee = 0;
                 break;
         }
         $fee_excl_tax = number_format($fee / (1 + ($this->payment->tax_rate/100)), 2);
+        $this->tax_rate = $this->payment->tax_rate;
         
         //Check restrictions
         if ($this->payment->fee_type!=self::FEE_TYPE_DISCOUNT) {
@@ -142,52 +152,24 @@ class classCart {
                 $fee = $this->payment->fee_max;
             }
         }
-        if ($this->payment->order_min!=0 && $this->payment->order_min>$this->total_cart_with_tax_no_fee) {
+        if ($this->payment->order_min!=0 && $this->payment->order_min>$this->total_cart) {
             $fee=0;
         }
-        if ($this->payment->order_max!=0 && $this->payment->order_max<$this->total_cart_with_tax_no_fee) {
+        if ($this->payment->order_max!=0 && $this->payment->order_max<$this->total_cart) {
             $fee=0;
         }
-        if ($this->payment->order_free!=0 && $this->payment->order_free<$this->total_cart_with_tax_no_fee) {
+        if ($this->payment->order_free!=0 && $this->payment->order_free<$this->total_cart) {
             $fee=0;
         }
             
         if ($this->payment->fee_type==ClassCart::FEE_TYPE_DISCOUNT) {
-            $this->total_fee_tax_rate = null;
-            $this->total_fee_with_taxes = null;
-            $this->total_fee_without_taxes = null;
-            $this->total_discount_tax_rate = $this->payment->tax_rate;
-            $this->total_discount_with_taxes = $fee;
-            $this->total_discount_without_taxes = $fee_excl_tax;
-            $this->total_cart_with_tax_and_fee = $this->total_cart_with_tax_no_fee - $this->total_discount_with_taxes;
-            $this->total_cart_without_tax = $this->total_products_without_tax 
-                    + $this->total_shipping_without_tax 
-                    - $this->total_discount_without_taxes;
-            $this->total_tax_excl = 
-                    $this->total_products_without_tax 
-                    - $this->total_discounts_without_tax
-                    + $this->total_shipping_without_tax
-                    - $this->total_discount_without_taxes;
-            $this->total_tax_incl = $this->total_cart_with_tax_and_fee;
-            $this->total_tax = $this->total_tax_incl - $this->total_tax_excl;
+            $this->discount = -number_format($fee,6);
+            $this->fee = 0;
+            $this->total_to_pay = $this->total_cart - $fee;
         } else {
-            $this->total_fee_tax_rate = $this->payment->tax_rate;
-            $this->total_fee_with_taxes = $fee;
-            $this->total_fee_without_taxes = $fee_excl_tax;
-            $this->total_discount_tax_rate = null;
-            $this->total_discount_with_taxes = null;
-            $this->total_discount_without_taxes = null;
-            $this->total_cart_with_tax_and_fee = $this->total_cart_with_tax_no_fee + $this->total_fee_with_taxes;
-            $this->total_cart_without_tax = $this->total_products_without_tax 
-                    + $this->total_shipping_without_tax 
-                    + $this->total_fee_with_taxes;
-            $this->total_tax_excl = 
-                    $this->total_products_without_tax 
-                    - $this->total_discounts_without_tax
-                    + $this->total_shipping_without_tax
-                    + $this->total_fee_without_taxes;
-            $this->total_tax_incl = $this->total_cart_with_tax_and_fee;
-            $this->total_tax = $this->total_tax_incl - $this->total_tax_excl;
+            $this->discount = 0;
+            $this->fee = number_format($fee,6);
+            $this->total_to_pay = $this->total_cart + $fee;
         }
         
         return true;

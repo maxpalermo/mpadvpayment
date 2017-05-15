@@ -27,9 +27,6 @@
     {l s='Paypal Pro payment' mod='mpadvpayment'}
 {/capture}
 
-{assign var=transaction_id value=Tools::getValue('transaction_id','')}
-{assign var=id_order value=Tools::getValue('id_order','')}
-
 <div class="container">
     <div class='panel-advice'>
         <legend>{l s='Payment' mod='mpadvpayment'}</legend>
@@ -37,7 +34,7 @@
         <div class='panel-advice'>
             <span style='font-size: 1.2em;'>
                 <i class='icon-2x icon-info-sign'></i> 
-                {l s='Your transaction has benn successfully processed.' mod='modadvpayment'}
+                {l s='Your transaction has been successfully processed.' mod='modadvpayment'}
             </span>
             <br>
             <span style='font-size: 1.2em;'>

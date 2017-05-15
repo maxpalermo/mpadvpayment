@@ -39,9 +39,9 @@
                 <input type="hidden" name="paymentaction" value="sale">
                 <input type="hidden" name="business" value="{$classSummary->paypal->email}">
                 <input type="hidden" name="template" value="templateB" >
-                <input type="hidden" value="{$payment->total_cart_with_tax_and_fee|number_format:2}" name="subtotal">
-                <input type="hidden" value="0" name="shipping">
-                <input type="hidden" value="0" name="tax">
+                <input type="hidden" name="subtotal" value="{$payment->getTotalToPay()|number_format:2}">
+                <input type="hidden" name="shipping" value="0">
+                <input type="hidden" name="tax" value="0">
                 <input type="hidden" name="currency_code" value="{$payment->payment->currency_suffix}">
 
                 <input type="hidden" name="first_name" value="{$customer->shipping->first_name}">

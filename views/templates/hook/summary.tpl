@@ -53,21 +53,20 @@
         <br>
         <div>
             <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
-                {assign var=total_cart value=$cart->getOrderTotal(true,Cart::BOTH)}
-                {l s='TOTAL CART' mod='mpadvpayment'} : {displayPrice price=$total_cart}
+                {l s='TOTAL CART' mod='mpadvpayment'} : {displayPrice price=$payment->getTotalCart()}
             </div>
             <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
                 {if $payment->payment->fee_type==classCart::FEE_TYPE_DISCOUNT}
                     <span style='text-align: left;'>{l s='DISCOUNTS' mod='mpadvpayment'}</span>
-                    : {displayPrice price=$payment->total_discount_with_taxes}
+                    : {displayPrice price=$payment->getDiscount()}
                 {else}
                     <span style='text-align: left;'>{l s='FEES' mod='mpadvpayment'}</span>
-                    : {displayPrice price=$payment->total_fee_with_taxes}
+                    : {displayPrice price=$payment->getFee()}
                 {/if}
                 
             </div>
             <div style='display: inline-block; font-weight: normal;'>
-                {l s='TOTAL TO PAY' mod='mpadvpayment'} : <strong>{displayPrice price=$payment->total_tax_incl}</strong>
+                {l s='TOTAL TO PAY' mod='mpadvpayment'} : <strong>{displayPrice price=$payment->getTotalToPay()}</strong>
             </div>
         </div>
     </div>

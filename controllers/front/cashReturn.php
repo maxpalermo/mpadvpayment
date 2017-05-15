@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2017 mpSOFT
  *
@@ -25,22 +24,24 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-class classURL {
-    public $action;
-    public $cancel;
-    public $error;
-    public $success;
-    public $notify;
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
+        . DIRECTORY_SEPARATOR . '..'
+        . DIRECTORY_SEPARATOR . 'classes'
+        . DIRECTORY_SEPARATOR . 'autoload.php';
+
+class MpAdvPaymentCashReturnModuleFrontController extends ModuleFrontControllerCore
+{
+    public $ssl = true;
     
-    public function __construct() 
+    public function initContent()
     {
-        $link = new LinkCore();
+        $this->display_column_left = false;
+        $this->display_column_right = false;
+        parent::initContent();
         
-        $this->cancel = $link->getModuleLink('mpadvpayment', 'cardCancel', array());
-        $this->return = $link->getModuleLink('mpadvpayment', 'cardSuccess', array());
-        $this->notify = $link->getModuleLink('mpadvpayment', 'card', array('notify' => '1'));
-        $this->error = $link->getModuleLink('mpadvpayment', 'card', array('error' => '1'));
-        $this->success = $this->return;
-        $this->action = Tools::getValue('action', '');
+        $id_order = Tools::getValue('id_order', 0);
+        $order = new OrderCore($id_order);
+        context::getContext()->smarty->assign("order", $order);
+        $this->setTemplate('displayCashReturn.tpl');
     }
 }
