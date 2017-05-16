@@ -32,8 +32,6 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
 class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;
-    private $mpPayment;
-    private $cash_summary;
     
     public function initContent()
     {
@@ -43,11 +41,6 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
          * Get summary
          */
         $summary = classSession::getSessionSummary();
-        /**
-         * Class payment deprecated
-         */
-        $this->mpPayment = new ClassMpPayment();
-        $this->cash_summary = $summary->cash->cart;
         /**
          * Get cart
          */
@@ -64,49 +57,10 @@ class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
          */
         parent::initContent();
         
-        //Check product list
-        $cart_product_list = ClassMpPaymentCalc::getCartProductList($id_cart);
-        //add thumb image to product list
-        foreach ($cart_product_list as &$cart_product) {
-            $id_product = $cart_product['id_product'];
-            $product_attribute = isset($cart_product['id_product_attribute'])?'_'.$cart_product['id_product_attribute']:'';
-            $product = new ProductCore($id_product);
-            $images = $product->getImages($id_lang);
-            if (is_array($images)) {
-                $image_id = $images[0]['id_image'];
-                $name = 'product_mini_'
-                       .(int)$id_product
-                       .$product_attribute
-                       .'.jpg';
-                $thumb = new ImageCore($image_id);
-                $thumb_path = $thumb->getExistingImgPath();
-                $path = _PS_PROD_IMG_DIR_ . $thumb_path . '.jpg';
-                $thumb_src = ImageManager::thumbnail($path, $name, 45, 'jpg', false, true);
-            } else {
-                $thumb_src = '';
-            }
-            
-            $cart_product['image_tag'] = $thumb_src;
-        }
-        
         //Assign to Smarty
         $this->context->smarty->assign(array(
-            'nb_products'=> $cart->nbProducts(),
-            'cart' => $cart,
-            'cart_currency' => $cart->id_currency,
-            'currencies' => $this->module->getCurrency($cart->id_currency),
-            'total_amount' => $cart->getOrderTotal(true),
-            'path' => $this->module->getPathUri(),
-            'summary' => $cart->getSummaryDetails(),
-            'params' => array(
-                'payment_method' => 'cash', 
-                'payment_display' => $this->module->l('Cash payment','cash')
-            ),
-            'excluded_products' => ClassMpPaymentCalc::getListProductsExclusion('cash'),
-            'cart_product_list' => $cart_product_list,
-            'products' => $cart->getProducts(),
-            'cash_summary' => $this->cash_summary,
-            'categories' => CategoryCore::getHomeCategories($id_lang),
+            'cash_cart' => $summary->cash->cart,
+            'payment_method' => array('payment_method' => 'cash'),
         ));
         
         $this->setTemplate('cash.tpl');

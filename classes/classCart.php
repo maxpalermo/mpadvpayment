@@ -47,6 +47,8 @@ class classCart {
     private $tax_rate;
     private $total_cart;
     private $total_to_pay;
+    private $shipping;
+    private $voucher;
     
     public function __construct($id_cart, $payment_type) 
     {
@@ -56,6 +58,8 @@ class classCart {
         $this->payment = new ClassMpPaymentConfiguration();
         $this->id = $id_cart;
         $this->payment_type = $payment_type;
+        $this->voucher = false; //if true, module adds a voucher for current cart
+        $this->shipping = 0;
         $this->calc();
     }
     
@@ -66,12 +70,17 @@ class classCart {
     
     public function getFee()
     {
-        return $this->fee;
+        return number_format($this->fee, 6);
+    }
+    
+    public function getFeeNoTax()
+    {
+        return number_format($this->fee / ((100 + $this->tax_rate)/100), 6);
     }
     
     public function getDiscount()
     {
-        return $this->discount;
+        return number_format($this->discount, 6);
     }
     
     public function getPaymentType()
@@ -91,7 +100,17 @@ class classCart {
     
     public function getTotalToPay()
     {
-        return $this->total_to_pay;
+        return number_format($this->total_to_pay, 6);
+    }
+    
+    public function isVoucher()
+    {
+        return $this->voucher;
+    }
+    
+    public function getShipping()
+    {
+        return number_format($this->shipping, 6);
     }
     
     /**
@@ -111,7 +130,14 @@ class classCart {
         $this->payment->currency_decimals = $currency->decimals;
         $this->payment->currency_suffix = $currency->iso_code;
         
-        $this->total_cart = $cart->getOrderTotal(true, Cart::BOTH);
+        if ($this->payment_type==classCart::BANKWIRE) {
+            $this->total_cart = $cart->getOrderTotal(true, CartCore::ONLY_PRODUCTS_WITHOUT_SHIPPING);
+            $this->shipping = $cart->getOrderTotal(true, CartCore::ONLY_SHIPPING);
+        } else {
+            $this->total_cart = $cart->getOrderTotal(true, CartCore::BOTH);
+            $this->shipping = 0;
+        }
+        
         
         //Calulate fee
         switch ($this->payment->fee_type) {
@@ -163,9 +189,10 @@ class classCart {
         }
             
         if ($this->payment->fee_type==ClassCart::FEE_TYPE_DISCOUNT) {
-            $this->discount = -number_format($fee,6);
+            $this->discount = number_format($fee,6);
             $this->fee = 0;
             $this->total_to_pay = $this->total_cart - $fee;
+            $this->voucher = true;
         } else {
             $this->discount = 0;
             $this->fee = number_format($fee,6);

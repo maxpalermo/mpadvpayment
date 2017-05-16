@@ -32,7 +32,6 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
 class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;
-    private $mpPayment;
     
     public function initContent()
     {
@@ -40,64 +39,23 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
          * Get summary
          */
         $summary = classSession::getSessionSummary();
-        /**
-         * Class payment deprecated
-         */
-        $this->mpPayment = new ClassMpPayment();
-        
         $id_cart = Context::getContext()->cart->id;
         $cart = new Cart($id_cart);
-        
         if (!$this->checkCurrency($cart)) {
             Tools::redirect('index.php?controller=order');
         }
         
+        /**
+         * INITIALIZE PAGE
+         */
         $this->display_column_left = false;
         $this->display_column_right = false;
         parent::initContent();
         
-        //Check product list
-        $cart_product_list = ClassMpPaymentCalc::getCartProductList($id_cart);
-        //add thumb image to product list
-        foreach ($cart_product_list as &$cart_product) {
-            $id_product = $cart_product['id_product'];
-            $product_attribute = isset($cart_product['id_product_attribute'])?'_'
-                    . $cart_product['id_product_attribute']:'';
-            $product = new ProductCore($id_product);
-            $images = $product->getImages(Context::getContext()->language->id);
-            if (is_array($images)) {
-                $image_id = $images[0]['id_image'];
-                $name = 'product_mini_'
-                       .(int)$id_product
-                       .$product_attribute
-                       .'.jpg';
-                $thumb = new ImageCore($image_id);
-                $thumb_path = $thumb->getExistingImgPath();
-                $path = _PS_PROD_IMG_DIR_ . $thumb_path . '.jpg';
-                $thumb_src = ImageManager::thumbnail($path, $name, 45, 'jpg', false, true);
-            } else {
-                $thumb_src = '';
-            }
-            $cart_product['image_tag'] = $thumb_src;
-        }
-        
         //Assign to Smarty
         $this->context->smarty->assign(array(
-            'nb_products'=> $cart->nbProducts(),
-            'cart' => $cart,
-            'cart_currency' => $cart->id_currency,
-            'currencies' => $this->module->getCurrency($cart->id_currency),
-            'total_amount' => $cart->getOrderTotal(true),
-            'path' => $this->module->getPathUri(),
-            'summary' => $summary,
-            'bankwire_summary' => $summary->bankwire->cart,
-            'params' => array(
-                'payment_method' => 'bankwire',
-                'payment_display' => $this->module->l('Bankwire payment','bankwire')
-            ),
-            'excluded_products' => ClassMpPaymentCalc::getListProductsExclusion('bankwire'),
-            'cart_product_list' => $cart_product_list,
-            'arr_details' => $this->getBankwireDetails(),
+            'bankwire_cart' => $summary->bankwire->cart,
+            'payment_method' => array('payment_method' => 'bankwire'),
         ));
         
         $this->setTemplate('bankwire.tpl');
@@ -132,7 +90,7 @@ class MpAdvPaymentBankwireModuleFrontController extends ModuleFrontControllerCor
         }
     }
     
-    public function getBankwireDetails()
+    public static function getBankwireDetails()
     {
         $det = new stdClass();
         $det->owner = ConfigurationCore::get("MP_ADVPAYMENT_OWNER");

@@ -32,14 +32,12 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
 class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerCore
 {
     private $payment_method;
-    private $payment_display;
     private $transaction_id;
     
     public function postProcess()
     {
         //Set params
         $this->payment_method   = Tools::getValue('payment_method','');
-        $this->payment_display  = Tools::getValue('payment_display','');
         $this->transaction_id   = Tools::getValue('transaction_id','');
         
         classValidation::FinalizeOrder($this->payment_method, $this->transaction_id, $this->module);

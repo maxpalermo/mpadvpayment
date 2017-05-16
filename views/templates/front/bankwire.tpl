@@ -71,8 +71,7 @@
     {l s='Bankwire payment' mod='mpadvpayment'}
 {/capture}
 
-{assign var=summary value=$summary->bankwire->cart}
-<form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $params, true)|escape:'html'}' method='POST'>
+<form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $payment_method, true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
             <i class="icon-dollar"></i>
@@ -89,23 +88,31 @@
             <div class='panel-body panel-info'>
                 {l s='TOTAL CART:' mod='mpadvpayment'}
                 &nbsp;
-                <strong>{displayPrice price=$bankwire_summary->getTotalCart()}</strong>
+                {if $bankwire_cart->isVoucher()}
+                    <strong>{displayPrice price=$bankwire_cart->getTotalCart() + $bankwire_cart->getShipping()}</strong>
+                {else}
+                    <strong>{displayPrice price=$bankwire_cart->getTotalCart()}</strong>
+                {/if}
             </div>
             <div class='panel-body panel-info'>
-                {if $bankwire_summary->payment->fee_type == classCart::FEE_TYPE_DISCOUNT}
+                {if $bankwire_cart->payment->fee_type == classCart::FEE_TYPE_DISCOUNT}
                     {l s='TOTAL DISCOUNTS:' mod='mpadvpayment'}
                     &nbsp;
-                    <strong>{displayPrice price=$bankwire_summary->getDiscount()}</strong>
+                    <strong>{displayPrice price=$bankwire_cart->getDiscount()}</strong>
                 {else}
                     {l s='TOTAL FEES:' mod='mpadvpayment'}
                     &nbsp;
-                    <strong>{displayPrice price=$bankwire_summary->getFee()}</strong>
+                    <strong>{displayPrice price=$bankwire_cart->getFee()}</strong>
                 {/if}
             </div>
             <div class='panel-body panel-info'>
                 {l s='TOTAL TO PAY:' mod='mpadvpayment'}
                 &nbsp;
-                <strong>{displayPrice price=$bankwire_summary->getTotalToPay()}</strong>
+                {if $bankwire_cart->isVoucher()}
+                    <strong>{displayPrice price=$bankwire_cart->getTotalCart() + $bankwire_cart->getShipping() - $bankwire_cart->getDiscount()}</strong>
+                {else}
+                    <strong>{displayPrice price=$bankwire_cart->getTotalToPay()}</strong>
+                {/if}
             </div>
         </div>
     </div>
@@ -126,7 +133,7 @@
 {assign var=test value=true}
 {if $test}
     <pre>
-        {$summary|print_r}
+        {$bankwire_cart|print_r}
     </pre>
 {/if}
         

@@ -53,7 +53,7 @@ class classValidation {
         $sql->select('reference')
                 ->from('orders')
                 ->where('id_cart = ' . (int)$id_cart);
-        return (int)$db->getValue($sql);
+        return $db->getValue($sql);
     }
     
     /**
@@ -83,41 +83,28 @@ class classValidation {
          */
         $currency = Context::getContext()->currency;
         /**
-         * @var classCart $fee_summary
+         * @var classCart $fee_cart
          */
         $summary = classSession::getSessionSummary();
         if($payment_type == classCart::CASH) {
-            $fee_summary = $summary->cash->cart;
+            $fee_cart = $summary->cash->cart;
+            $payment_type_display = $module->l('Cash', 'classValidation');
         } elseif ($payment_type == classCart::BANKWIRE) {
-            $fee_summary = $summary->bankwire->cart;
+            $fee_cart = $summary->bankwire->cart;
+            $payment_type_display = $module->l('Bankwire', 'classValidation');
         } elseif ($payment_type == classCart::PAYPAL) {
-            $fee_summary = $summary->paypal->cart;
+            $fee_cart = $summary->paypal->cart;
+            $payment_type_display = $module->l('Paypal', 'classValidation');
         }
         /**
          * Get fee and discount virtual products
          */
         $product_fee = new ProductCore(self::getProductIdByReference('fee'));
-        $product_discount = new ProductCore(self::getProductIdByReference('discount'));
         /**
          * Get Cart
          * @var CartCore $cart
          */
         $cart = new Cart($summary->id_cart);
-        /**
-         * Set display payment
-         */
-        if ($payment_type == classCart::CASH) {
-            $pay_cart = $summary->cash->cart;
-            $payment_type_display = $module->l('Cash', 'classValidation');
-        } elseif ($payment_type == classCart::BANKWIRE) {
-            $pay_cart = $summary->bankwire->cart;
-            $payment_type_display = $module->l('Bankwire', 'classValidation');
-        } elseif ($payment_type == classCart::PAYPAL) {
-            $pay_cart = $summary->paypal->cart;
-            $payment_type_display = $module->l('Paypal', 'classValidation');
-        } else {
-            Tools::d($summary);
-        }
         /**
          * Validate cart
          */
@@ -125,7 +112,11 @@ class classValidation {
                 || $cart->id_address_delivery == 0
                 || $cart->id_address_invoice == 0
                 || !$module->active) {
-            var_dump($cart);
+            print "<div class='panel panel-warning'>"
+                    . "<pre>" 
+                    . print_r($cart, 1) 
+                    . "</pre>"
+                    . "</div>";
             //Tools::redirect('index.php?controller=order&step=1');
         }
         /**
@@ -150,6 +141,14 @@ class classValidation {
         if (!ValidateCore::isLoadedObject($customer)) {
             Tools::redirect('index.php?controller=order&step=1');
         }
+        
+        /**
+         * Cart validated, check if exists a discount
+         */
+        if ($fee_cart->isVoucher()) {
+            return self::addVoucher($fee_cart, $module, $payment_type_display);
+        }
+        
         /**
          * Sets extra_vars
          */
@@ -158,14 +157,14 @@ class classValidation {
          * Set fee to cart
          */
         self::removeFeeFromCart();
-        self::addFeeToCart($cart, $fee_summary, $product_fee, $product_discount);
+        self::addFeeToCart($cart, $fee_cart, $product_fee);
         
         /**
          * Validate order
          */
         if ($module->validateOrder(
                 $cart->id,
-                $pay_cart->payment->id_order_state,
+                $fee_cart->payment->id_order_state,
                 $cart->getOrderTotal(true, Cart::BOTH),
                 $payment_type_display,
                 null,
@@ -173,14 +172,77 @@ class classValidation {
                 (int)$currency->id,
                 false,
                 $customer->secure_key)) {
-            
-            $order_reference = self::getOrderReferenceByIdCart($cart->id);
-            //self::deleteOrderPayment($order_reference);
-            //self::UpdateOrderPayment($order_reference, $transaction_id);
             self::redirect($payment_type,$summary,$module, $transaction_id);
             return true;
         } else {
-            print "ERROR during cart convalidation.";
+            print $module->l('Error during Cart validation', 'classValidation');
+        }
+        return false;
+    }
+    
+    /**
+     * Create a Voucher to add a cart discount
+     * @author Massimiliano Palermo <maxx.palermo@gmail.com>
+     * @param classCart $bank
+     * @param ModuleCore $module
+     * @return boolean True if success, false otherwise
+     */
+    public static function addVoucher($bank, $module, $payment_type_display)
+    {
+        /**
+         * @var ClassMpPaymentConfiguration $payment
+         */
+        $payment = $bank->payment;
+        $id_cart = ContextCore::getContext()->cart->id;
+        $cart = new CartCore($id_cart);
+        $date = date('Y-m-d h:i:s');
+        $voucher = new CartRuleCore();
+        $voucher->id_customer = $cart->id_customer;
+        $voucher->date_from = $date;
+        $voucher->date_to = date('Y-m-d h:i:s', strtotime($date. ' + 1 days'));
+        $voucher->description = 'Cart reference: ' . $id_cart;
+        $voucher->quantity = 1;
+        $voucher->reduction_percent = $payment->discount;
+        $voucher->reduction_currency = 1;
+        $voucher->reduction_tax = 1;
+        $voucher->partial_use = 0;
+        $voucher->priority = 1;
+        $voucher->minimum_amount_shipping = 0;
+        $voucher->minimum_amount_currency = 1;
+        $voucher->minimum_amount_tax = 1;
+        $voucher->name[$cart->id_lang] = $module->l('Bankwire payment method discount', 'classValidation');
+        if ($voucher->save()) {
+            $voucher->autoAddToCart();
+            /**
+             * Create order
+             */
+            $customer = new CustomerCore($cart->id_customer);
+            $extra_vars = array();
+            $orderTotal = $bank->getTotalCart() + $bank->getShipping() - $bank->getDiscount();
+            
+            self::removeFeeFromCart();
+            if ($module->validateOrder(
+                $cart->id,
+                $payment->id_order_state,
+                $orderTotal,
+                $payment_type_display,
+                null,
+                $extra_vars,
+                (int)$cart->id_currency,
+                false,
+                $customer->secure_key)) {
+            
+                //$order_reference = self::getOrderReferenceByIdCart($cart->id);
+                //self::deleteOrderPayment($order_reference);
+                //self::UpdateOrderPayment($order_reference, $transaction_id);
+                self::redirect(classCart::BANKWIRE, classSession::getSessionSummary(), $module, '');
+                return true;
+            } else {
+                print $module->l('Error during Cart validation', 'classValidation');
+            }
+            return false;
+        } else {
+            return $module->l('Error during Voucher creation', 'classValidation');
         }
     }
     
@@ -221,6 +283,7 @@ class classValidation {
         } elseif ($payment_type == ClassMpPayment::PAYPAL) {
             //Redirect on order confirmation page
             $url = '';
+            return true;
         }
         /**
          * Remove summary variable from Session
@@ -256,34 +319,35 @@ class classValidation {
             if ($product['id_product'] == $product_fee->id) {
                 Context::getContext()->cart->deleteProduct($product_fee->id);
             }
-            if ($product['id_product'] == $product_discount->id) {
-                Context::getContext()->cart->deleteProduct($product_discount->id);
-            }
         }
     }
     
-    public static function addFeeToCart($cart, $fee_summary, $product_fee, $product_discount)
+    /**
+     * Add a fee as a virtual product into cart
+     * @param CartCore $cart current cart
+     * @param classCart $fee_cart fee cart class
+     * @param ProductCore $product_fee virtual product associated to fee
+     * @return boolean True if success, false otherwise
+     */
+    public static function addFeeToCart($cart, $fee_cart, $product_fee)
     {
         /**
          * Add new fee or discount to cart
-         * @var classCart $fee_summary
+         * @var classCart $fee_cart
+         * @return boolean True if success, false otherwise
          */
-        if ($fee_summary->getDiscount() == 0) {
-            //$Cart->updateQty($quantity, $id_product, $id_product_attribute = null, $id_customization = false, $operator = 'up', $id_address_delivery = 0, $shop = null, $auto_add_cart_rule = true);
-            $result = $cart->updateQty(1, $product_fee->id);
-            if ($result===true) {
-                $product_fee->price = $fee_summary->getFee();
-                $product_fee->update();
-            }
-        } else {
-            //$Cart->updateQty($quantity, $id_product, $id_product_attribute = null, $id_customization = false, $operator = 'up', $id_address_delivery = 0, $shop = null, $auto_add_cart_rule = true);
-            $result = $cart->updateQty(1, $product_discount->id);
-            if ($result===true) {
-                Db::getInstance()->update(
-                        'product',
-                        array('price'=>$fee_summary->getDiscount()),
-                        'id_product = ' . (int)$product_discount->id);
-            }
+        if ($fee_cart->getFee() == 0) {
+            return false;
         }
+           
+        $result = $cart->updateQty(1, $product_fee->id); // add fee to cart
+        if ($result===true) {
+            $product_fee->price = $fee_cart->getFeeNoTax();
+            $product_fee->update();
+        } else {
+            return false;
+        }
+        
+        return true;
     }
 }

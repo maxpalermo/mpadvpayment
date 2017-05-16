@@ -71,7 +71,7 @@
     {l s='Cash payment' mod='mpadvpayment'}
 {/capture}
 
-<form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $params, true)|escape:'html'}' method='POST'>
+<form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $payment_method, true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
             <i class="icon-dollar"></i>
@@ -88,23 +88,23 @@
             <div class='panel-body panel-info'>
                 {l s='TOTAL CART:' mod='mpadvpayment'}
                 &nbsp;
-                <strong>{displayPrice price=$cash_summary->getTotalCart()}</strong>
+                <strong>{displayPrice price=$cash_cart->getTotalCart()}</strong>
             </div>
             <div class='panel-body panel-info'>
-                {if $cash_summary->payment->fee_type == classCart::FEE_TYPE_DISCOUNT}
+                {if $cash_cart->payment->fee_type == classCart::FEE_TYPE_DISCOUNT}
                     {l s='TOTAL DISCOUNTS:' mod='mpadvpayment'}
                     &nbsp;
-                    <strong>{displayPrice price=$cash_summary->getDiscount()}</strong>
+                    <strong>{displayPrice price=$cash_cart->getDiscount()}</strong>
                 {else}
                     {l s='TOTAL FEES:' mod='mpadvpayment'}
                     &nbsp;
-                    <strong>{displayPrice price=$cash_summary->getFee()}</strong>
+                    <strong>{displayPrice price=$cash_cart->getFee()}</strong>
                 {/if}
             </div>
             <div class='panel-body panel-info'>
                 {l s='TOTAL TO PAY:' mod='mpadvpayment'}
                 &nbsp;
-                <strong>{displayPrice price=$cash_summary->getTotalToPay()}</strong>
+                <strong>{displayPrice price=$cash_cart->getTotalToPay()}</strong>
             </div>
         </div>
     </div>
@@ -127,13 +127,7 @@
 {if $test==true}
     <div class="panel panel-body panel-info">
         <pre>
-            {$cash_summary|print_r}
-        </pre>
-        <pre>
-            {$products|print_r}
-        </pre>
-        <pre>
-            {$categories|print_r}
+            {$cash_cart|print_r}
         </pre>
     </div>
 {/if}

@@ -74,7 +74,7 @@
 {if $test}            
 <div class="panel panel-advice panel-info">
     <div class="panel-heading">
-        <i class="icon-2x icon-date"></i>
+        <i class="icon-2x icon-archive"></i>
         <span style="color: #0066CC; text-shadow: 1px 1px 1px #aaaaaa;">
             CLASS SUMMARY
         </span>

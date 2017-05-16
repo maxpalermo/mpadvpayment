@@ -23,6 +23,10 @@
 *  International Registered Trademark & Property of mpSOFT
 *}
 
+{capture name=path}
+    {l s='Cash payment' mod='mpadvpayment'}
+{/capture}
+
 <div class="box">
 	<p class="cheque-indent">
 		<strong class="dark">{l s='Your order on %s is complete.' sprintf=$shop_name mod='mpadvpayment'}</strong>

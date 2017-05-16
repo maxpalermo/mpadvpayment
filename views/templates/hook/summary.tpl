@@ -53,7 +53,12 @@
         <br>
         <div>
             <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
-                {l s='TOTAL CART' mod='mpadvpayment'} : {displayPrice price=$payment->getTotalCart()}
+                {l s='TOTAL CART' mod='mpadvpayment'} : 
+                {if $payment->isVoucher()}
+                    {displayPrice price={$payment->getTotalCart() + $payment->getShipping()}}
+                {else}
+                    {displayPrice price=$payment->getTotalCart()}
+                {/if}
             </div>
             <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
                 {if $payment->payment->fee_type==classCart::FEE_TYPE_DISCOUNT}
@@ -66,7 +71,12 @@
                 
             </div>
             <div style='display: inline-block; font-weight: normal;'>
-                {l s='TOTAL TO PAY' mod='mpadvpayment'} : <strong>{displayPrice price=$payment->getTotalToPay()}</strong>
+                {l s='TOTAL TO PAY' mod='mpadvpayment'} : 
+                {if $payment->isVoucher()}
+                    <strong>{displayPrice price=$payment->getTotalCart() + $payment->getShipping() - $payment->getDiscount()}</strong>
+                {else}
+                    <strong>{displayPrice price=$payment->getTotalToPay()}</strong>
+                {/if}
             </div>
         </div>
     </div>
