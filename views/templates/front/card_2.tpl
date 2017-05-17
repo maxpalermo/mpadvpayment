@@ -31,7 +31,7 @@
 {assign var=url value=$classSummary->paypal->URL}
 
 <div class="container">
-    <form class="form-horizontal" method="POST" role="form" action='{$PAYPAL_URL}' style="display:none;" id="form_redirect">
+    <form class="form-horizontal" method="POST" role="form" action='{$link->getModuleLink('mpadvpayment', 'validatePaypal', [], true)|escape:'html'}' style="display:none;" id="form_redirect">
         <fieldset>
             <legend>{l s='Payment' mod='mpadvpayment'}</legend>
             <div class="form-group">

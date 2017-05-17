@@ -37,7 +37,7 @@ class classURL {
         $link = new LinkCore();
         
         $this->cancel = $link->getModuleLink('mpadvpayment', 'cardCancel', array());
-        $this->return = $link->getModuleLink('mpadvpayment', 'cardSuccess', array());
+        $this->return = $link->getModuleLink('mpadvpayment', 'validatePaypal', array());
         $this->notify = $link->getModuleLink('mpadvpayment', 'cardNotify', array());
         $this->error = $link->getModuleLink('mpadvpayment', 'cardError', array());
         $this->success = $this->return;

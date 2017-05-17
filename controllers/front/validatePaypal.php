@@ -34,7 +34,8 @@ class MpAdvPaymentValidatePaypalModuleFrontController extends ModuleFrontControl
     public function postProcess()
     {   
         classMpLogger::add('*** VALIDATING PAYPAL');
+        $transaction_id = Tools::getValue('tx','');
         
-        classValidation::FinalizeOrder(classCart::PAYPAL, 'ABC-002-DFR-X2', $this->module);
+        classValidation::FinalizeOrder(classCart::PAYPAL, $transaction_id, $this->module);
     }
 }
