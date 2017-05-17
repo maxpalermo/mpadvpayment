@@ -71,7 +71,7 @@
     {l s='Cash payment' mod='mpadvpayment'}
 {/capture}
 
-<form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validation', $payment_method, true)|escape:'html'}' method='POST'>
+<form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validateCash', [], true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
             <i class="icon-dollar"></i>

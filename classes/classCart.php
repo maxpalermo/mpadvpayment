@@ -42,6 +42,7 @@ class classCart {
     
     private $id;
     private $fee;
+    private $fee_no_tax;
     private $discount;
     private $payment_type;
     private $tax_rate;
@@ -75,7 +76,7 @@ class classCart {
     
     public function getFeeNoTax()
     {
-        return number_format($this->fee / ((100 + $this->tax_rate)/100), 6);
+        return number_format($this->fee_no_tax, 6);
     }
     
     public function getDiscount()
@@ -131,10 +132,10 @@ class classCart {
         $this->payment->currency_suffix = $currency->iso_code;
         
         if ($this->payment_type==classCart::BANKWIRE) {
-            $this->total_cart = $cart->getOrderTotal(true, CartCore::ONLY_PRODUCTS_WITHOUT_SHIPPING);
-            $this->shipping = $cart->getOrderTotal(true, CartCore::ONLY_SHIPPING);
+            $this->total_cart = $cart->getOrderTotal(true, Cart::ONLY_PRODUCTS_WITHOUT_SHIPPING);
+            $this->shipping = $cart->getOrderTotal(true, Cart::ONLY_SHIPPING);
         } else {
-            $this->total_cart = $cart->getOrderTotal(true, CartCore::BOTH);
+            $this->total_cart = $cart->getOrderTotal(true, Cart::BOTH);
             $this->shipping = 0;
         }
         
@@ -143,7 +144,6 @@ class classCart {
         switch ($this->payment->fee_type) {
             case self::FEE_TYPE_NONE:
                 $fee = 0;
-                $fee_excl_tax = 0;
                 break;
             case self::FEE_TYPE_FIXED:
                 $fixed = $this->payment->fee_amount;
@@ -166,8 +166,6 @@ class classCart {
                 $fee = 0;
                 break;
         }
-        $fee_excl_tax = number_format($fee / (1 + ($this->payment->tax_rate/100)), 2);
-        $this->tax_rate = $this->payment->tax_rate;
         
         //Check restrictions
         if ($this->payment->fee_type!=self::FEE_TYPE_DISCOUNT) {
@@ -198,6 +196,9 @@ class classCart {
             $this->fee = number_format($fee,6);
             $this->total_to_pay = $this->total_cart + $fee;
         }
+        
+        $this->tax_rate = $this->payment->tax_rate;
+        $this->fee_no_tax = number_format($fee / ((100 + $this->tax_rate)/100), 2);
         
         return true;
     }

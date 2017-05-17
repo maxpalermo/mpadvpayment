@@ -42,7 +42,7 @@ class classCustomerMain {
      * @param int $id_cart cart id
      */
     public function __construct($id_cart) {
-        $cart = new CartCore($id_cart);
+        $cart = new Cart($id_cart);
         
         $this->shipping = new classCustomer(new AddressCore($cart->id_address_delivery));
         $this->billing = new classCustomer(new AddressCore($cart->id_address_invoice));

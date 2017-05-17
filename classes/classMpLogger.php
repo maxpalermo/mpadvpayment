@@ -24,23 +24,15 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of mpSOFT
  */
-class MpAdvPaymentCardSuccessModuleFrontController extends ModuleFrontControllerCore{
-    public $ssl = true;
-    
-    public function initContent()
+class classMpLogger {
+    public static function add($message)
     {
-        $this->display_column_left = false;
-        $this->display_column_right = false;
-        /**
-         * INITIALIZE CLASS
-         */
-        parent::initContent();
-
-        $transaction_id = Tools::getValue('tx','');
-
-        /**
-         * FINALIZE ORDER
-         */
-        classValidation::FinalizeOrder(classCart::PAYPAL, $transaction_id, $this->module);
+        $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . 'log.txt';
+        $function = debug_backtrace()[1]['function'];
+        $log = date('Y-m-d h:i:s') . " [" . $function . '] => ' . $message;
+        $handle = fopen($filename, 'a');
+        fwrite($handle,$log);
+        fwrite($handle,PHP_EOL);
+        fclose($handle);
     }
 }

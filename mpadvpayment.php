@@ -117,13 +117,11 @@ class MpAdvPayment extends PaymentModule
     
     public function hookDisplayPayment($params)
     {
-        /** @var CartCore $cart */
-        //$cart = new CartCore();
         $cart = Context::getContext()->cart;
         /**
          * Remove fee from cart
          */
-        classValidation::removeFeeFromCart();
+        classValidation::removeFeeFromCart($cart->id);
         
         $this->smarty = Context::getContext()->smarty;
         $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css');

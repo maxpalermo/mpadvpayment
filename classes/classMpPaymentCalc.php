@@ -216,7 +216,7 @@ class ClassMpPaymentCalc
      */
     public static function getCartProductList($id_cart)
     {
-        $cart = new CartCore($id_cart);
+        $cart = new Cart($id_cart);
         $products = $cart->getProducts();
         
         return $products;

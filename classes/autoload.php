@@ -42,6 +42,7 @@ $classes = array(
     'classSummary',
     'classSession',
     'classValidation',
+    'classMpLogger',
 );
 
 foreach ($classes as $class)

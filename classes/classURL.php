@@ -38,8 +38,8 @@ class classURL {
         
         $this->cancel = $link->getModuleLink('mpadvpayment', 'cardCancel', array());
         $this->return = $link->getModuleLink('mpadvpayment', 'cardSuccess', array());
-        $this->notify = $link->getModuleLink('mpadvpayment', 'card', array('notify' => '1'));
-        $this->error = $link->getModuleLink('mpadvpayment', 'card', array('error' => '1'));
+        $this->notify = $link->getModuleLink('mpadvpayment', 'cardNotify', array());
+        $this->error = $link->getModuleLink('mpadvpayment', 'cardError', array());
         $this->success = $this->return;
         $this->action = Tools::getValue('action', '');
     }

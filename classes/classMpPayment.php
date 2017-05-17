@@ -60,7 +60,7 @@ class ClassMpPayment
     /**
      * Get cart fee values
      * @param string $payment_type
-     * @param CartCore $cart
+     * @param Cart $cart
      * @return bool 
      */
     public function calculateFee($payment_type)
@@ -76,7 +76,7 @@ class ClassMpPayment
         $payment->read($payment_type);
         
         //Get total cart
-        $total_cart = $cart->getOrderTotal(true, CartCore::BOTH);
+        $total_cart = $cart->getOrderTotal(true, Cart::BOTH);
         
         //Calulate fee
         switch ($payment->fee_type) {

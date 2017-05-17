@@ -29,17 +29,12 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
         . DIRECTORY_SEPARATOR . "classes"
         . DIRECTORY_SEPARATOR . "autoload.php";
 
-class MpAdvPaymentValidationModuleFrontController extends ModuleFrontControllerCore
+class MpAdvPaymentValidateCashModuleFrontController extends ModuleFrontControllerCore
 {
-    private $payment_method;
-    private $transaction_id;
-    
     public function postProcess()
-    {
-        //Set params
-        $this->payment_method   = Tools::getValue('payment_method','');
-        $this->transaction_id   = Tools::getValue('transaction_id','');
+    {   
+        classMpLogger::add('*** VALIDATING CASH');
         
-        classValidation::FinalizeOrder($this->payment_method, $this->transaction_id, $this->module);
+        classValidation::FinalizeOrder(classCart::CASH, '', $this->module);
     }
 }
