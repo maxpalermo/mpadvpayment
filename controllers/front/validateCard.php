@@ -24,30 +24,18 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-$classes = array(
-    'CRUD',
-    'classMpPaymentConfiguration',
-    'classMpPaymentCalc',
-    'classMpPayment',
-    'classMpPaypal',
-    'classPaymentOrders',
-    'classCustomer',
-    'classCustomerMain',
-    'classCart',
-    'classURL',
-    'classPaypalSummary',
-    'classCashSummary',
-    'classBankwireDetails',
-    'classBankwireSummary',
-    'classSummary',
-    'classSession',
-    'classValidation',
-    'classMpLogger',
-);
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
+        . DIRECTORY_SEPARATOR . ".."
+        . DIRECTORY_SEPARATOR . "classes"
+        . DIRECTORY_SEPARATOR . "autoload.php";
 
-foreach ($classes as $class)
+class MpAdvPaymentValidateCardModuleFrontController extends ModuleFrontControllerCore
 {
-    if(!class_exists($class)) {
-        require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . $class . ".php");
+    public function postProcess()
+    {   
+        classMpLogger::add('*** VALIDATING PAYPAL');
+        $transaction_id = Tools::getValue('tx','');
+        
+        classValidation::FinalizeOrder(classCart::PAYPAL, $transaction_id, $this->module);
     }
 }

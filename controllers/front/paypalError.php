@@ -78,6 +78,6 @@ class MpAdvPaymentPaypalErrorModuleFrontController extends ModuleFrontController
                         $this->module->l('Unknown error during redirecting', 'paypalerror'));
             }
         }
-        $this->setTemplate('paypal_error.tpl');
+        $this->setTemplate('paypalError.tpl');
     }
 }

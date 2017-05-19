@@ -27,6 +27,12 @@
 class classMpLogger {
     public static function add($message)
     {
+        $debug = true;
+        
+        if ($debug==false) {
+           return; 
+        }
+        
         $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . 'log.txt';
         $function = debug_backtrace()[1]['function'];
         $log = date('Y-m-d h:i:s') . " [" . $function . '] => ' . $message;
@@ -34,5 +40,10 @@ class classMpLogger {
         fwrite($handle,$log);
         fwrite($handle,PHP_EOL);
         fclose($handle);
+    }
+    
+    public static function exists()
+    {
+        return true;
     }
 }

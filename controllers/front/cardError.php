@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 mpSOFT
  *
@@ -23,19 +24,11 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of mpSOFT
  */
-
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
-        . DIRECTORY_SEPARATOR . ".."
-        . DIRECTORY_SEPARATOR . "classes"
-        . DIRECTORY_SEPARATOR . "autoload.php";
-
-class MpAdvPaymentValidatePaypalModuleFrontController extends ModuleFrontControllerCore
-{
-    public function postProcess()
-    {   
-        classMpLogger::add('*** VALIDATING PAYPAL');
-        $transaction_id = Tools::getValue('tx','');
-        
-        classValidation::FinalizeOrder(classCart::PAYPAL, $transaction_id, $this->module);
+class MpAdvPaymentCardCancelModuleFrontController extends ModuleFrontControllerCore{
+    public $ssl = true;
+    
+    public function initContent()
+    {
+       $this->setTemplate('cardError.tpl');
     }
 }

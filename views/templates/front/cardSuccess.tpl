@@ -34,7 +34,7 @@
         <div class='panel-advice'>
             <span style='font-size: 1.2em;'>
                 <i class='icon-2x icon-info-sign'></i> 
-                {l s='Your transaction has been successfully processed.' mod='modadvpayment'}
+                {l s='Your transaction has been successfully processed.' mod='mpadvpayment'}
             </span>
             <br>
             <span style='font-size: 1.2em;'>

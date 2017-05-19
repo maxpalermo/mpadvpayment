@@ -56,7 +56,7 @@
                 data:   { 'type' : this.payment_type },
                 success: function(response)
                         {
-                            console.log("Class loaded")
+                            console.log("Class loaded");
                             var result = JSON.parse(response);
                             console.log(result);
                         }
@@ -83,32 +83,35 @@
 <div id='cover-wait-operations'></div>
 
 <form class='defaultForm form-horizontal' method='post' id="form_manage_products">
-    <div class='panel' id='panel-config'>
+    <div class='panel' id="panel-config">
         <div class='panel-heading'>
             <i class="icon-cogs"></i>
             {l s='Configuration section' mod='mpadvpayment'}
         </div>
         
-        <div class='idTab'>
-            <ul class="idTabs nav nav-tabs clearfix" id="idTabMenu"> 
-                <li><a class="selected" href="#tab1">jQuery</a></li> 
-                <li><a href="#tab2">Tabs 3</a></li> 
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a href="#tab-cash" data-toggle="tab">
+                        <i class="icon-dollar"></i>
+                        {l s='Cash configuration' mod='mpadvpayment'}
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab-bankwire" data-toggle="tab">
+                        <i class="icon-shopping-cart"></i>
+                        {l s='Bankwire configuration' mod='mpadvpayment'}
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab-paypal" data-toggle="tab">
+                        <i class="icon-credit-card"></i>
+                        {l s='Paypal configuration' mod='mpadvpayment'}
+                    </a>
+                </li>
             </ul>
-            <div class='tab-content panel'>
-                <div class="panel" id="tab1">If you haven't checked out ...</div> 
-                <div class="panel" id="tab2">idTabs is only a simple ...</div>
-            </div>
-        </div>
-            
-        
-        <div class="form-wrapper">
-            <div id="tabs">
-                <ul>
-                    <li><a href="#tabs-1"><i class="icon-dollar"></i> {l s='Cash configuration' mod='mpadvpayment'}</a></li>
-                    <li><a href="#tabs-2"><i class="icon-building"></i> {l s='Bankwire configuration' mod='mpadvpayment'}</a></li>
-                    <li><a href="#tabs-3"><i class="icon-credit-card"></i> {l s='Paypal configuration' mod='mpadvpayment'}</a></li>
-                </ul>
-                <div id="tabs-1">
+            <div class="tab-content panel collapse in">
+                <div id="tab-cash" class="tab-pane active">
                     <!-- ******************************
                          ** CASH CONFIGURATION **
                          ****************************** -->
@@ -123,7 +126,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="tabs-2">
+                <div id="tab-bankwire" class="tab-pane">
                     <!-- ****************************
                          ** BANKWIRE CONFIGURATION **
                          **************************** -->
@@ -137,8 +140,9 @@
                             <br style="clear: both;">       
                         </div>
                     </div>
+                    
                 </div>
-                <div id="tabs-3">
+                <div id="tab-paypal" class="tab-pane">
                     <!-- **************************
                          ** PAYPAL CONFIGURATION **
                          ************************** -->
@@ -155,11 +159,10 @@
                 </div>
             </div>
         </div>
-                    
+                            
         <div class='panel-footer'>
             
         </div>
-                                
     </div>
 </form>
                             

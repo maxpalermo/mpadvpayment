@@ -47,7 +47,7 @@ class MpAdvPaymentBankwireReturnModuleFrontController extends ModuleFrontControl
         context::getContext()->smarty->assign("arr_details", $this->getBankwireDetails());
         context::getContext()->smarty->assign("order", $order);
         context::getContext()->smarty->assign("classSummary", $summary);
-        $this->setTemplate('displayPaymentReturn.tpl');
+        $this->setTemplate('displayBankwireReturn.tpl');
     }
     
     public function getBankwireDetails()

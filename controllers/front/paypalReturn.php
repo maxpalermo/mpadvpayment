@@ -48,6 +48,6 @@ class MpAdvPaymentPaypalReturnModuleFrontController extends ModuleFrontControlle
         $this->context->smarty->assign("order_reference",$order_reference);
         $this->context->smarty->assign("transaction_id",$transaction_id);
         $this->context->smarty->assign("total",$total_paid);
-        $this->setTemplate("card_success.tpl");
+        $this->setTemplate("cardSuccess.tpl");
     }
 }
