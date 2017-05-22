@@ -24,7 +24,7 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-class ClassMpPaymentCalc
+class classMpPaymentCalc
 {
     /**
      *

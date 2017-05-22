@@ -22,14 +22,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of mpSOFT
 *}
-<ps-switch 
-    name="input_bankwire_switch" 
-    label="{l s='Activate Bankwire payments' mod='mpadvpayment'}" 
-    yes="{l s='YES' mod='mpadvpayment'}" 
-    no="{l s='NO' mod='mpadvpayment'}" 
-    active="true"
-    onSwitch="hideBankwirePanel">
-</ps-switch>
+{$switch_bankwire}
 <input type="hidden" id="input_bankwire_switch_hidden" value="1">
 <div id='div_bankwire_panel'>
         <label class="control-label col-lg-3 ">{l s='Fee type' mod='mpadvpayment'}</label>
@@ -102,14 +95,7 @@
             <span class="input-group-addon">€</span>
         </div>
         <br>
-        <ps-switch 
-            name="input_bankwire_switch_included_tax" 
-            label="{l s='Tax included' mod='mpadvpayment'}" 
-            yes="{l s='YES' mod='mpadvpayment'}" 
-            no="{l s='NO' mod='mpadvpayment'}" 
-            active="false"
-            onswitch="setBankwireIncludedTax">
-        </ps-switch>
+        {$switch_bankwire_included_tax}
         <input type="hidden" id="input_bankwire_switch_included_tax_hidden">
         
         <label class="control-label col-lg-3 ">{l s='Fee tax' mod='mpadvpayment'}</label>

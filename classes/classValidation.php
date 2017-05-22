@@ -248,15 +248,15 @@ class classValidation {
         $link = new LinkCore();
         $url = '';
         
-        if ($payment_type == ClassMpPayment::CASH) {
+        if ($payment_type == classMpPayment::CASH) {
             //Redirect on order confirmation page
             $url = $link->getModuleLink('mpadvpayment', 'cashReturn', array('id_order' => $order->id));
             classMpLogger::add('Created URL redirect for CASH: ' . $url);
-        } elseif ($payment_type == ClassMpPayment::BANKWIRE) {
+        } elseif ($payment_type == classMpPayment::BANKWIRE) {
             //Redirect on order confirmation page
             $url = $link->getModuleLink('mpadvpayment', 'bankwireReturn', array('id_order' => $order->id));
             classMpLogger::add('Created URL redirect for BANKWIRE: ' . $url);
-        } elseif ($payment_type == ClassMpPayment::PAYPAL) {
+        } elseif ($payment_type == classMpPayment::PAYPAL) {
             //Redirect on order confirmation page
             $params = array(
                 'id_order' => $order->id,

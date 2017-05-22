@@ -56,7 +56,7 @@ class classCart {
         if($id_cart == 0) {
             return;
         }
-        $this->payment = new ClassMpPaymentConfiguration();
+        $this->payment = new classMpPaymentConfiguration();
         $this->id = $id_cart;
         $this->payment_type = $payment_type;
         $this->voucher = false; //if true, module adds a voucher for current cart

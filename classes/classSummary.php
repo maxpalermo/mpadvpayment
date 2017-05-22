@@ -25,8 +25,6 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-require_once 'autoload.php';
-
 class classSummary {
     public $cash;
     public $bankwire;

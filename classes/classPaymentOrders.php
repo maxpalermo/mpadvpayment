@@ -24,8 +24,6 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . "CRUD.php");
-
 class ClassMpPaymentOrders extends CRUD
 {
     public $id_cart;

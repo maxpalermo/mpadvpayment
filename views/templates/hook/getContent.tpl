@@ -169,6 +169,10 @@
 <div class="mp-dialog mp-dialog-success" style="margin: 0 auto;" id="mp-dialog-box">
   This is an alert box.
 </div>
+               
+                            <pre>
+                            {$POSTVALUES|print_r}
+                            </pre>                            
                             
 <script type="text/javascript">
     $(window).bind("load",function()
@@ -247,13 +251,49 @@
             }
         }); // end each function
         
-        setCashValues();
+        //setCashValues();
         setBankwireValues();
         setPaypalValues();
         
         $("#cover-wait-operations").fadeOut();
         
     }); // ed onload function
+    
+    function setSwitchBtn(item, value)
+    {
+        var name = "#";
+        
+        if (value==1) {
+            name = "#" + item.name + "_on";
+        } else {
+            name = "#" + item.name + "_off";
+        }
+        $(name).click();
+    }
+    
+    function switch_btn(item, value)
+    {
+        console.log("SWITCH: " + item.name + " = " + value);
+        var name = item.name;
+        $("#" + name + "_val").attr("switch", value);
+        getSwitchValue(item);
+        
+        if(item.name === 'input_cash_switch') {
+            hidePanel(value, 'cash');
+        } else if(item.name === 'input_bankwire_switch') {
+            hidePanel(value, 'bankwire');
+        } else if(item.name === 'input_paypal_switch') {
+            hidePanel(value, 'paypal');
+        }
+    }
+    
+    function getSwitchValue(item)
+    {
+        var id = "#" + item.name + "_val";
+        var value = $(id).attr('switch');
+        console.log("switch value of " + id + ": " + value);
+        return value;
+    }
     
     function setCashValues()
     {

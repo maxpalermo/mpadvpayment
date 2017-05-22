@@ -24,11 +24,6 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . ".."
-        . DIRECTORY_SEPARATOR . ".."
-        . DIRECTORY_SEPARATOR . "classes"
-        . DIRECTORY_SEPARATOR . "autoload.php";
-
 class MpAdvPaymentDisplayPaymentController
 {
     public $context;
@@ -90,10 +85,10 @@ class MpAdvPaymentDisplayPaymentController
         }
         
         //Check module restrictions
-        $Payment = new ClassMpPaymentCalc;
-        $cashExclusions = $Payment->getListProductsExclusion(ClassMpPayment::CASH);
-        $bankExclusions = $Payment->getListProductsExclusion(ClassMpPayment::BANKWIRE);
-        $paypalExclusions = $Payment->getListProductsExclusion(ClassMpPayment::PAYPAL);
+        $Payment = new classMpPaymentCalc;
+        $cashExclusions = $Payment->getListProductsExclusion(classMpPayment::CASH);
+        $bankExclusions = $Payment->getListProductsExclusion(classMpPayment::BANKWIRE);
+        $paypalExclusions = $Payment->getListProductsExclusion(classMpPayment::PAYPAL);
         $cartProducts = Context::getContext()->cart->getProducts();
         
         //print_r($cartProducts);

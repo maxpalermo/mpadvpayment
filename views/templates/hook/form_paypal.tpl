@@ -22,15 +22,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of mpSOFT
 *}
-<ps-switch 
-    name="input_paypal_switch" 
-    label="{l s='Activate Paypal payments' mod='mpadvpayment'}" 
-    yes="{l s='YES' mod='mpadvpayment'}" 
-    no="{l s='NO' mod='mpadvpayment'}" 
-    active="true"
-    onSwitch="hidePaypalPanel">
-</ps-switch>
-<input type="hidden" id="input_paypal_switch_hidden" value="1">
+{$switch_paypal}
 <div id='div_paypal_panel'>
     <label class="control-label col-lg-3 ">{l s='Logo for paypal page' mod='mpadvpayment'}</label>
     <input type="file" id="files" accept="*.jpg"/>
@@ -97,15 +89,7 @@
             <span class="input-group-addon">€</span>
         </div>
         <br>
-        <ps-switch 
-            name="input_paypal_switch_included_tax" 
-            label="{l s='Tax included' mod='mpadvpayment'}" 
-            yes="{l s='YES' mod='mpadvpayment'}" 
-            no="{l s='NO' mod='mpadvpayment'}" 
-            active="false"
-            onswitch="setPaypalIncludedTax">
-        </ps-switch>
-        <input type="hidden" id="input_paypal_switch_included_tax_hidden">
+        {$switch_paypal_included_tax}
         
         <label class="control-label col-lg-3 ">{l s='Fee tax' mod='mpadvpayment'}</label>
         <select id="input_paypal_select_tax" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
@@ -163,15 +147,7 @@
         <i class="icon-file-o"></i>
         {l s='Paypal credentials' mod='mpadvpayment'}
     </div>
-    <ps-switch 
-        name="input_paypal_switch_test" 
-        label="{l s='Test sandbox?' mod='mpadvpayment'}" 
-        yes="{l s='YES' mod='mpadvpayment'}" 
-        no="{l s='NO' mod='mpadvpayment'}" 
-        active="false"
-        onswitch="setPaypalSwitchTest">
-    </ps-switch>
-    <input type="hidden" id="input_paypal_switch_test_hidden">
+    {$switch_paypal_sandbox}
     <label class="control-label">{l s='TEST APP ID' mod='mpadvpayment'}</label>
     <div class="input-group input" style="width: 80%;">
         <input type="text" id="input_paypal_test_api" class="input" onfocus='selectAll(this);'>
@@ -196,15 +172,7 @@
         <span class="input-group-addon"><i class="icon-pencil"></i></span>
     </div>
     <br>
-    <ps-switch 
-        name="input_paypal_switch_pro" 
-        label="{l s='Activate Paypal Pro payments' mod='mpadvpayment'}" 
-        yes="{l s='YES' mod='mpadvpayment'}" 
-        no="{l s='NO' mod='mpadvpayment'}" 
-        active="true"
-        onSwitch="setSwitchPaypalPro">
-    </ps-switch>
-    <input type="hidden" id="input_paypal_switch_pro_hidden" value="1">
+    {$switch_paypal_pro}
     <label class="control-label">{l s='Email business' mod='mpadvpayment'}</label>
     <div class="input-group input" style="width: 80%;">
         <input type="text" id="input_paypal_pro_email_api" class="input" onfocus='selectAll(this);'>

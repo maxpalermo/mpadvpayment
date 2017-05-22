@@ -24,11 +24,6 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . 'classes'
-        . DIRECTORY_SEPARATOR . 'autoload.php';
-
 
 class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
 {
@@ -287,7 +282,7 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
     {
         $params = array(
             'transaction_id' => $transactionID,
-            'payment_method' => ClassMpPayment::PAYPAL,
+            'payment_method' => classMpPayment::PAYPAL,
             'payment_display' => 'PAYPAL',
         );
         $this->context->smarty->assign('transaction_id', $transactionID);

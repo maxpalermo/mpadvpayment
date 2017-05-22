@@ -28,7 +28,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once(dirname(__FILE__) . '/classes/autoload.php');
+require_once(dirname(__FILE__) . '/classes/classMpAdvPaymentAutoload.php');
     
 class MpAdvPayment extends PaymentModule
 {
@@ -117,6 +117,7 @@ class MpAdvPayment extends PaymentModule
     
     public function hookDisplayPayment($params)
     {
+        classMpAdvPaymentAutoload::register();
         $cart = Context::getContext()->cart;
         /**
          * Remove fee from cart
@@ -170,6 +171,8 @@ class MpAdvPayment extends PaymentModule
     
     public function getContent()
     {
+        classMpAdvPaymentAutoload::register();
+        
         $this->smarty = Context::getContext()->smarty;
         $controller = $this->getHookController('getContent');
         $controller->setClass($this);

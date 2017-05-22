@@ -23,9 +23,8 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of mpSOFT
  */
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'autoload.php';
 
-class ClassMpPayment
+class classMpPayment
 {
     const CASH      = 'cash';
     const BANKWIRE  = 'bankwire';
@@ -72,7 +71,7 @@ class ClassMpPayment
         /**
          * Get Payment configuration
          */
-        $payment = new ClassMpPaymentConfiguration();
+        $payment = new classMpPaymentConfiguration();
         $payment->read($payment_type);
         
         //Get total cart

@@ -24,11 +24,6 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . '..'
-        . DIRECTORY_SEPARATOR . 'classes'
-        . DIRECTORY_SEPARATOR . 'classMpPaymentCalc.php';
-
 class MpAdvPaymentCashModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;
