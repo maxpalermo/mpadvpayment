@@ -38,7 +38,7 @@
                 <input type="hidden" name="cmd" value="_hosted-payment">
                 <input type="hidden" name="paymentaction" value="sale">
                 <input type="hidden" name="business" value="{$classSummary->paypal->email}">
-                <input type="hidden" name="template" value="templateB" >
+                <input type="hidden" name="template" value="templateC" >
                 <input type="hidden" name="subtotal" value="{$payment->getTotalToPay()|number_format:2}">
                 <input type="hidden" name="shipping" value="0">
                 <input type="hidden" name="tax" value="0">
@@ -54,8 +54,8 @@
                 <input type="hidden" name="country" value="{$customer->shipping->country}">
                 <input type="hidden" name="email" value="{$customer->shipping->email}">
 
-                <input type="hidden" name="showBillingAddress" value="true">
-                <input type="hidden" name="address_override" value="true">
+                <input type="hidden" name="showBillingAddress" value="false">
+                <input type="hidden" name="address_override" value="false">
                 <input type="hidden" name="billing_first_name" value="{$customer->billing->first_name}">
                 <input type="hidden" name="billing_last_name" value="{$customer->billing->last_name}">
                 <input type="hidden" name="billing_address1" value="{$customer->billing->address1}">
@@ -79,7 +79,7 @@
         <div class='panel' id='panel-config'>
             <div class='panel-heading'>
                 <i class="icon-2x icon-credit-card"></i>
-                {l s='Payment summary' mod='mpadvpayment'}
+                {l s='Paypal' mod='mpadvpayment'}
             </div>
                     
             <br>
@@ -91,8 +91,11 @@
                       font-size: 1.3em;
                       text-shadow: 1px 1px 2px #bbbbcc;
                       '>
-                    {l s='Please wait while redirecting to payment page...' mod='mpavpayment'}
+                    {l s='Please wait while redirecting to payment page...' mod='mpadvpayment'}
                 </span>
+                <div>
+                    <img src="{$base_dir}modules/mpadvpayment/views/img/waiting.gif" style="width: 128px; margin: 0 auto; display: block;">
+                </div>
             </div>
         </div>
     </form>

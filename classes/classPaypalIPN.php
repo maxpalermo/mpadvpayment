@@ -25,7 +25,7 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-class PaypalIPN
+class classPaypalIPN
 {
     /**
      * @var bool $use_sandbox     Indicates if the sandbox endpoint is used.

@@ -25,15 +25,30 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-class classMpAdvPaymentAutoload {
-    public static function register()
-    {
-        spl_autoload_register(
-                function($classname) {
-                    if($classname!='autoload' || !class_exists($classname)) {
-                        require (_MPADVPAYMENT_CLASSES_ . $classname . ".php");
-                    }
-                }
-        );
+$classes = array(
+    'CRUD',
+    'classMpTools',
+    'classMpPaymentConfiguration',
+    'classMpPaymentCalc',
+    'classMpPayment',
+    'classMpPaypal',
+    'classPaymentOrders',
+    'classCustomer',
+    'classCustomerMain',
+    'classCart',
+    'classURL',
+    'classPaypalSummary',
+    'classCashSummary',
+    'classBankwireDetails',
+    'classBankwireSummary',
+    'classSummary',
+    'classSession',
+    'classValidation',
+    'classMpLogger',
+);
+foreach ($classes as $class)
+{
+    if(!class_exists($class)) {
+        require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . $class . ".php");
     }
 }

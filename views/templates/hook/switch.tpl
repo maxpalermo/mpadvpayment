@@ -41,7 +41,7 @@
 				id="{$switch->name}_on" 
 				checked="checked"
 				onclick='switch_btn(this,1);'>
-			<label for="{$switch->name}_on">{l s='YES'}</label>
+			<label for="{$switch->name}_on">{l s='YES' mod='mpadvpayment'}</label>
 			<input 
 				type="radio" 
 				value="0" 
@@ -49,7 +49,7 @@
 				id="{$switch->name}_off"
 				onclick='switch_btn(this,0);'
 				>
-			<label for="{$switch->name}_off">{l s='NO'}</label>
+			<label for="{$switch->name}_off">{l s='NO' mod='mpadvpayment'}</label>
 			<a class="slide-button btn"></a>
 			</span>
 	</div>

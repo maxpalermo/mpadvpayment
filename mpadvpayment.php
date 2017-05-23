@@ -115,44 +115,40 @@ class MpAdvPayment extends PaymentModule
         return true;
     }
     
+    /**
+     * Called to display payment during finalize cart on frontend
+     * @param type $params
+     * @return type
+     */
     public function hookDisplayPayment($params)
     {
-        classMpAdvPaymentAutoload::register();
+        $smarty = Context::getContext()->smarty;
         $cart = Context::getContext()->cart;
-        /**
-         * Remove fee from cart
-         */
         classValidation::removeFeeFromCart($cart->id);
-        
-        $this->smarty = Context::getContext()->smarty;
-        $this->context->controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css');
-        $this->summary = new classSummary($cart->id, classCart::NONE);
-        $this->smarty->assign('cart', new Cart($cart->id));
-        /*
-         *  SUMMARY CLASS TO SMARTY
-         */
-        $this->smarty->assign('classSummary', $this->summary);
-        if (!session_id()) {
-            session_start();
+        $summary = new classSummary($cart->id, classCart::NONE);
+        $result = classSession::setSessionSummary($summary);
+        if (!$result) {
+           Tools::d('Error during session save');
         }
-        //SAVE TO SESSION
-        $result = classSession::setSessionSummary($this->summary);
+        
+        $controller = Context::getContext()->controller;
+        $controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css', 'all');
+        $controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'displayPayment.css');
+        $smarty->assign('activeModules', classMpTools::getActiveModules());
+        $smarty->assign('cart', new Cart($cart->id));
+        $smarty->assign('classSummary', $summary);
         
         /*
          * CASH PAYMENT
          */
-        $this->smarty->assign('payment', 'cash');
-        $this->smarty->assign(
-                'cash_summary',
-                $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
+        $smarty->assign('payment', 'cash');
+        $smarty->assign('cash_summary', $smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
         /*
          * BANKWIRE PAYMENT
          */
-        $this->smarty->assign('payment', 'bankwire');
-        $this->smarty->assign(
-                'bankwire_summary',
-                $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
+        $smarty->assign('payment', 'bankwire');
+        $smarty->assign('bankwire_summary', $smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
         /*
          * PAYPAL PAYMENT
@@ -161,33 +157,43 @@ class MpAdvPayment extends PaymentModule
         $returnUrl = $link->getModuleLink('mpadvpayment', 'paypal', array('action' => 'GetExpressCheckoutDetails'));
         $cancelUrl = $link->getModuleLink('mpadvpayment', 'paypalerror');
         $controllerUrl = $link->getModuleLink('mpadvpayment', 'paypal', array('action'=>'SetExpressCheckout'));
-        $this->smarty->assign('payment', 'paypal');
-        $this->smarty->assign('paypal_summary', $this->smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
+        $smarty->assign('payment', 'paypal');
+        $smarty->assign('paypal_summary', $smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'summary.tpl'));
         
-        $controller = $this->getHookController('displayPayment');
-        $controller->setSmarty($this->smarty);
-        return $controller->run($params);
+        return $this->display(_MPADVPAYMENT_, 'displayPayment.tpl');
     }
     
     public function getContent()
     {
-        classMpAdvPaymentAutoload::register();
+        $message = $this->postProcess();
+        $this->setMedia();
+        $form = $this->renderBackOfficeForm();
         
-        $this->smarty = Context::getContext()->smarty;
-        $controller = $this->getHookController('getContent');
-        $controller->setClass($this);
-        $controller->setSmarty($this->smarty);
-        $controller->setLocalPath($this->local_path);
-        $controller->setFilePath(__FILE__);
-        return $controller->run();
+        return $message . $form;
     }
     
     public function setMedia()
     {
-        $this->context->controller->addJS("https://cdnjs.cloudflare.com/ajax/libs/riot/3.4.0/riot+compiler.min.js");
-        $this->context->controller->addJqueryPlugin(array('idTabs','chosen'));
-        $this->context->controller->addJqueryUI('ui.tabs');
-        $this->context->controller->addJS(_PS_JS_DIR_ . "jquery/plugins/jquery.idTabs.js");
+        $controller = Context::getContext()->controller;
+        $controller->addJqueryPlugin(array('idTabs','chosen'));
+        $controller->addJqueryUI('ui.tabs');
+        $controller->addJS(_PS_JS_DIR_ . "jquery/plugins/jquery.idTabs.js");
+        $controller->addCSS(_MPADVPAYMENT_CSS_URL_ . 'getContent.css');
+    }
+    
+    /**
+     * Call after page submit
+     * @return string HTML confirmation message
+     */
+    public function postProcess()
+    {
+        if (Tools::isSubmit('input_cash_submit')) {
+            return $this->saveCashValues();
+        } elseif (Tools::isSubmit('input_bankwire_submit')) {
+            return $this->saveBankwireValues();
+        } elseif (Tools::isSubmit('input_paypal_submit')) {
+            return $this->savePaypalValues();
+        }
     }
     
     private function installSQL()
@@ -245,5 +251,189 @@ class MpAdvPayment extends PaymentModule
 
         // Return the controller
         return $controller;
+    }
+    
+    public function renderBackOfficeForm()
+    {
+        $smarty = Context::getContext()->smarty;
+        $this->setMedia();
+        
+        $image_file = glob(_MPADVPAYMENT_ . "paypal_logo.*");
+        if ($image_file) {
+            //$filename = _PS_BASE_URL_ . __PS_BASE_URI__ . "/modules/mpadvpayment/" . basename($image_file[0]);
+            $filename = _MPADVPAYMENT_URL_ . basename($image_file[0]);
+            $smarty->assign('paypal_logo', $filename);
+        } else {
+            $smarty->assign('paypal_logo', '');
+        }
+        
+        classMpTools::addSwitch('input_cash_switch', $this->l('Activate cash payment?', 'mpadvpayment'), $smarty);
+        classMpTools::addSwitch('input_cash_switch_included_tax', $this->l('Tax included?', 'mpadvpayment'), $smarty);
+        classMpTools::addSwitch('input_bankwire_switch', $this->l('Activate Bankwire payments?', 'mpadvpayment'), $smarty);
+        classMpTools::addSwitch('input_bankwire_switch_included_tax', $this->l('Tax included?', 'mpadvpayment'), $smarty);
+        classMpTools::addSwitch('input_paypal_switch', $this->l('Activate Paypal payment?', 'mpadvpayment'), $smarty);
+        classMpTools::addSwitch('input_paypal_switch_included_tax', $this->l('Tax included?', 'mpadvpayment'), $smarty);
+        classMpTools::addSwitch('input_paypal_switch_test', $this->l('Test sandbox?', 'mpadvpayment'), $smarty);
+        classMpTools::addSwitch('input_paypal_switch_pro', $this->l('Activate Paypal Pro payments?', 'mpadvpayment'), $smarty);
+        
+        
+        $smarty->assign('path', _MPADVPAYMENT_URL_);
+        $smarty->assign('base_uri', __PS_BASE_URI__);
+        $smarty->assign('tax_list', classMpTools::getTaxList());
+        $smarty->assign('carrier_list', classMpTools::getCarrierList());
+        $smarty->assign('categories_list', classMpTools::getCategoriesList());
+        $smarty->assign('manufacturers_list', classMpTools::getManufacturersList());
+        $smarty->assign('suppliers_list', classMpTools::getSuppliersList());
+        $smarty->assign('products_list', classMpTools::getProductsList());
+        $smarty->assign('order_state_list', classMpTools::getOrderStateList());
+        $smarty->assign('cash_values', classMpTools::getCashValues());
+        $smarty->assign('bankwire_values', classMpTools::getBankwireValues());
+        $smarty->assign('paypal_values', classMpTools::getPaypalValues());
+        $smarty->assign('ps_version', Tools::substr(_PS_VERSION_, 0, 3));
+        $smarty->assign('form_cash', $smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'form_cash.tpl'));
+        $smarty->assign('form_bankwire', $smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'form_bankwire.tpl'));
+        $smarty->assign('form_paypal', $smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'form_paypal.tpl'));
+        $smarty->assign('form_card', $smarty->fetch(_MPADVPAYMENT_TEMPLATES_HOOK_ . 'form_card.tpl'));
+            
+        $template  = $this->display(_MPADVPAYMENT_, 'getContent.tpl');
+        //$psui_tags = $this->class->display(_MPADVPAYMENT_, 'views/templates/admin/prestui/ps-tags.tpl');
+        return $template;
+    }
+    
+    public function saveCashValues()
+    {
+        $conf = new classMpPaymentConfiguration();
+        
+        $conf->is_active = Tools::getValue('input_cash_switch', 0);
+        $conf->fee_type = Tools::getValue('input_cash_select_type', 0);
+        $conf->fee_amount = Tools::getValue('input_cash_fee_amount', 0);
+        $conf->fee_percent = Tools::getvalue('input_cash_fee_percent', 0);
+        $conf->fee_min = Tools::getValue('input_cash_fee_min', 0);
+        $conf->fee_max = Tools::getValue('input_cash_fee_max', 0);
+        $conf->order_min = Tools::getValue('input_cash_order_min', 0);
+        $conf->order_max = Tools::getValue('input_cash_order_max', 0);
+        $conf->order_free = Tools::getValue('input_cash_order_free', 0);
+        $conf->tax_included = Tools::getValue('input_cash_switch_included_tax', 0);
+        $conf->tax_rate = Tools::getValue('input_cash_select_tax', 0);
+        $conf->carriers = implode(",",Tools::getValue('input_cash_select_carriers', array(0)));
+        $conf->categories = implode(",",Tools::getValue('input_cash_select_categories', array(0)));
+        $conf->manufacturers = implode(",",Tools::getValue('input_cash_select_manufacturers', array(0)));
+        $conf->suppliers = implode(",",Tools::getValue('input_cash_select_suppliers', array(0)));
+        $conf->carriers = implode(",",Tools::getValue('input_cash_select_carriers', array(0)));
+        $conf->products = implode(",",Tools::getValue('input_cash_select_products', array(0)));
+        $conf->id_order_state = Tools::getValue('input_cash_select_order_state', 0);
+        $conf->payment_type = classCart::CASH;
+        $conf->save();
+        
+        $values = Tools::getAllValues();
+        $smarty = Context::getContext()->smarty;
+        $smarty->assign('POSTVALUES', $values);
+        
+        return $this->displayConfirmation($this->l('Cash configuration saved successfully.', 'mpadvpayment'));
+    }
+    
+    public function saveBankwireValues()
+    {
+        $conf = new classMpPaymentConfiguration();
+        
+        $conf->is_active = Tools::getValue('input_bankwire_switch', 0);
+        $conf->fee_type = Tools::getValue('input_bankwire_select_type', 0);
+        $conf->discount = Tools::getValue('input_bankwire_discount', 0);
+        $conf->fee_amount = Tools::getValue('input_bankwire_fee_amount', 0);
+        $conf->fee_percent = Tools::getvalue('input_bankwire_fee_percent', 0);
+        $conf->fee_min = Tools::getValue('input_bankwire_fee_min', 0);
+        $conf->fee_max = Tools::getValue('input_bankwire_fee_max', 0);
+        $conf->order_min = Tools::getValue('input_bankwire_order_min', 0);
+        $conf->order_max = Tools::getValue('input_bankwire_order_max', 0);
+        $conf->order_free = Tools::getValue('input_bankwire_order_free', 0);
+        $conf->tax_included = Tools::getValue('input_bankwire_switch_included_tax', 0);
+        $conf->tax_rate = Tools::getValue('input_bankwire_select_tax', 0);
+        $conf->carriers = implode(",",Tools::getValue('input_bankwire_select_carriers', array(0)));
+        $conf->categories = implode(",",Tools::getValue('input_bankwire_select_categories', array(0)));
+        $conf->manufacturers = implode(",",Tools::getValue('input_bankwire_select_manufacturers', array(0)));
+        $conf->suppliers = implode(",",Tools::getValue('input_bankwire_select_suppliers', array(0)));
+        $conf->carriers = implode(",",Tools::getValue('input_bankwire_select_carriers', array(0)));
+        $conf->products = implode(",",Tools::getValue('input_bankwire_select_products', array(0)));
+        $conf->id_order_state = Tools::getValue('input_bankwire_select_order_state', 0);
+        $conf->payment_type = classCart::BANKWIRE;
+        $conf->save();
+        
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_BANKWIRE_OWNER', 
+                Tools::getValue('input_bankwire_owner', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_BANKWIRE_IBAN',
+                Tools::getValue('input_bankwire_iban', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_BANKWIRE_BANK', 
+                Tools::getValue('input_bankwire_bank', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_BANKWIRE_ADDR', 
+                Tools::getValue('input_bankwire_address', ''));
+        
+        $values = Tools::getAllValues();
+        $smarty = Context::getContext()->smarty;
+        $smarty->assign('POSTVALUES', $values);
+        
+        return $this->displayConfirmation($this->l('Bankwire configuration saved successfully.', 'mpadvpayment'));
+    }
+    
+    public function savePaypalValues()
+    {
+        $conf = new classMpPaymentConfiguration();
+        
+        $conf->is_active = Tools::getValue('input_paypal_switch', 0);
+        $conf->fee_type = Tools::getValue('input_paypal_select_type', 0);
+        $conf->fee_amount = Tools::getValue('input_paypal_fee_amount', 0);
+        $conf->fee_percent = Tools::getvalue('input_paypal_fee_percent', 0);
+        $conf->fee_min = Tools::getValue('input_paypal_fee_min', 0);
+        $conf->fee_max = Tools::getValue('input_paypal_fee_max', 0);
+        $conf->order_min = Tools::getValue('input_paypal_order_min', 0);
+        $conf->order_max = Tools::getValue('input_paypal_order_max', 0);
+        $conf->order_free = Tools::getValue('input_paypal_order_free', 0);
+        $conf->tax_included = Tools::getValue('input_paypal_switch_included_tax', 0);
+        $conf->tax_rate = Tools::getValue('input_paypal_select_tax', 0);
+        $conf->carriers = implode(",",Tools::getValue('input_paypal_select_carriers', array(0)));
+        $conf->categories = implode(",",Tools::getValue('input_paypal_select_categories', array(0)));
+        $conf->manufacturers = implode(",",Tools::getValue('input_paypal_select_manufacturers', array(0)));
+        $conf->suppliers = implode(",",Tools::getValue('input_paypal_select_suppliers', array(0)));
+        $conf->carriers = implode(",",Tools::getValue('input_paypal_select_carriers', array(0)));
+        $conf->products = implode(",",Tools::getValue('input_paypal_select_products', array(0)));
+        $conf->id_order_state = Tools::getValue('input_paypal_select_order_state', 0);
+        $conf->payment_type = classCart::PAYPAL;
+        $conf->save();
+        
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_TEST_API',
+                Tools::getValue('input_paypal_switch_test', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_USER_API',
+                Tools::getValue('input_paypal_user_api', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_PWD_API',
+                Tools::getValue('input_paypal_password_api', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_SIGN_API',
+                Tools::getValue('input_paypal_signature_api', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_APP_TEST_API',
+                Tools::getValue('input_paypal_test_api', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_PRO_API',
+                Tools::getValue('input_paypal_switch_pro', ''));
+        ConfigurationCore::updateValue('MP_ADVPAYMENT_PAYPAL_EMAIL_API',
+                Tools::getValue('input_paypal_pro_email_api', ''));
+        
+        $logo = Tools::getValue('files','');
+        $image = Tools::getValue('input_paypal_logo','');
+
+        if (!empty($image)) {
+            $data = base64_decode($image);
+            $filename = $logo;
+            $ext = pathinfo($filename, PATHINFO_EXTENSION);
+
+            $serverFile = _MPADVPAYMENT_ .  "paypal_logo.";
+
+            array_map('unlink', glob($serverFile . "*"));
+
+            $fp = file_put_contents($serverFile . $ext, $data);
+            chmod($serverFile . $ext, 0777);
+        }
+        
+        $values = Tools::getAllValues();
+        $smarty = Context::getContext()->smarty;
+        $smarty->assign('POSTVALUES', $values);
+        
+        return $this->displayConfirmation($this->l('Paypal configuration saved successfully.', 'mpadvpayment'));
     }
 }

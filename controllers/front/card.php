@@ -24,7 +24,6 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-
 class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
 {
     public $ssl = true;

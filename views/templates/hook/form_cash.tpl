@@ -23,7 +23,7 @@
 *  International Registered Trademark & Property of mpSOFT
 *}
 
-{$switch_cash}
+{$input_cash_switch}
 
 <div id='div_cash_panel'>
         <label class="control-label col-lg-3 ">{l s='Fee type' mod='mpadvpayment'}</label>
@@ -86,7 +86,7 @@
             <span class="input-group-addon">€</span>
         </div>
         <br>
-        {$switch_cash_included_tax}
+        {$input_cash_switch_included_tax}
         
         <label class="control-label col-lg-3 ">{l s='Fee tax' mod='mpadvpayment'}</label>
         <select id="input_cash_select_tax" name="input_cash_select_tax" data-placeholder="{l s='Choose a tax rate' mod='mpadvpayment'}" style="width:350px;" class="chosen-select">
@@ -141,7 +141,7 @@
 
 <script type="text/javascript">
     $(document).ready(function(){        
-        setSwitchBtn($("#input_cash_switch_val"), {$cash_values->input_switch_on});
+        
     });
 </script>
 
