@@ -25,39 +25,23 @@
  *  International Registered Trademark & Property of mpSOFT
  */
 
-class classMpLogger {
-    public static function add($message)
-    {
-        $debug = true;
-        
-        if ($debug==false) {
-           return; 
-        }
-        
-        $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . 'log.txt';
-        if(!empty(debug_backtrace()[1]['function'])) {
-            $function = debug_backtrace()[1]['function'];
-        } else {
-            $function = 'no function';
-        }
-        
-        $log = date('Y-m-d h:i:s') . " [" . $function . '] => ' . $message;
-        $handle = fopen($filename, 'a');
-        fwrite($handle,$log);
-        fwrite($handle,PHP_EOL);
-        fclose($handle);
-    }
-    
-    public static function clear()
-    {
-        $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . 'log.txt';
-        if (file_exists($filename)) {
-            unlink($filename);
-        }
-    }
-    
-    public static function exists()
-    {
-        return true;
-    }
+require_once(dirname(__FILE__).'/../../../config/config.inc.php');
+require_once(dirname(__FILE__).'/../../../init.php');
+require_once(dirname(__FILE__).'/../classes/classPaypalIPN.php');
+
+use PaypalIPN;
+
+classMpLogger::add('IPN CALL');
+classMpLogger::add(print_r(Tools::getAllValues(), 1));
+
+$ipn = new PaypalIPN();
+$ipn->useSandbox();
+$verified = $ipn->verifyIPN();
+if($verified) {
+    print_r ($ipn);
+} else {
+    print "ERROR: " . print_r($ipn);
 }
+header('HTTP/1.1 200 OK');
+
+

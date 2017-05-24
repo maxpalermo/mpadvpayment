@@ -342,7 +342,7 @@ class classValidation {
         ));
         
         classMpLogger::add('Add product ' . $product_fee->id . ' to CART ' . $id_cart . ': result ' . (int)$result);
-        classMpLogger::add('Cart details: ' . print_r($cart->getProducts(), 1));
+        //classMpLogger::add('Cart details: ' . print_r($cart->getProducts(), 1));
         
         //$result = $cart->updateQty(1, $product_fee->id); // add fee to cart
         if ($result==true) {

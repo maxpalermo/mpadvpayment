@@ -27,14 +27,8 @@
 
 require_once(dirname(__FILE__).'/../../../config/config.inc.php');
 require_once(dirname(__FILE__).'/../../../init.php');
-require_once(dirname(__FILE__).'/../classes/PaypalIPN.php');
+require_once(dirname(__FILE__).'/../classes/classMpLogger.php');
 
-use PaypalIPN;
+classMpLogger::clear();
 
-$ipn = new PaypalIPN();
-$ipn->useSandbox();
-$verified = $ipn->verifyIPN();
-if($verified) {
-    
-}
-header('HTTP/1.1 200 OK');
+print "OK";

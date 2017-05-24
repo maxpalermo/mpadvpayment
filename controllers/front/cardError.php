@@ -24,11 +24,14 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of mpSOFT
  */
-class MpAdvPaymentCardCancelModuleFrontController extends ModuleFrontControllerCore{
+class MpAdvPaymentCardErrorModuleFrontController extends ModuleFrontControllerCore{
     public $ssl = true;
     
     public function initContent()
     {
-       $this->setTemplate('cardError.tpl');
+        $this->display_column_left = false;
+        $this->display_column_right = false;
+        parent::initContent();
+        $this->setTemplate('cardError.tpl');
     }
 }
