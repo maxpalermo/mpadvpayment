@@ -70,7 +70,7 @@
     </div>
     {/if}
 </div>
-{assign var=test value=true}
+{assign var=test value=false}
 {if $test}            
 <div class="panel panel-advice panel-info">
     <div class="panel-heading">

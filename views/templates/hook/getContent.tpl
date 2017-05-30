@@ -170,9 +170,12 @@
   This is an alert box.
 </div>
 
+{assign var=debug value=false}
+{if $debug}
 <pre>
-{$POSTVALUES|print_r}
-</pre>                            
+    {$POSTVALUES|print_r}
+</pre> 
+{/if}
                             
 <script type="text/javascript">
     $(window).bind("load",function()

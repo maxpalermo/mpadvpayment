@@ -40,6 +40,10 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
         
         parent::initContent();
         
+        /**
+         * @var CartCore $cart
+         */
+        $cart = ContextCore::getContext()->cart;
         //Get session cart summary
         $summary = classSession::getSessionSummary();
         

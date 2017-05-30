@@ -71,6 +71,9 @@
     {l s='Bankwire payment' mod='mpadvpayment'}
 {/capture}
 
+{assign var=total_cart value=$bankwire_cart->getTotalCart()}
+{assign var=fee value=$bankwire_cart->getFee()}
+
 <form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validateBankwire', [], true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
@@ -88,31 +91,21 @@
             <div class='panel-body panel-info'>
                 {l s='TOTAL CART:' mod='mpadvpayment'}
                 &nbsp;
-                {if $bankwire_cart->isVoucher()}
-                    <strong>{displayPrice price=$bankwire_cart->getTotalCart() + $bankwire_cart->getShipping()}</strong>
-                {else}
-                    <strong>{displayPrice price=$bankwire_cart->getTotalCart()}</strong>
-                {/if}
+                <strong>{displayPrice price=$total_cart}</strong>
             </div>
             <div class='panel-body panel-info'>
-                {if $bankwire_cart->payment->fee_type == classCart::FEE_TYPE_DISCOUNT}
+                {if $fee<0}
                     {l s='TOTAL DISCOUNTS:' mod='mpadvpayment'}
-                    &nbsp;
-                    <strong>{displayPrice price=$bankwire_cart->getDiscount()}</strong>
                 {else}
                     {l s='TOTAL FEES:' mod='mpadvpayment'}
-                    &nbsp;
-                    <strong>{displayPrice price=$bankwire_cart->getFee()}</strong>
                 {/if}
+                &nbsp;
+                <strong>{displayPrice price=$fee}</strong>
             </div>
             <div class='panel-body panel-info'>
                 {l s='TOTAL TO PAY:' mod='mpadvpayment'}
                 &nbsp;
-                {if $bankwire_cart->isVoucher()}
-                    <strong>{displayPrice price=$bankwire_cart->getTotalCart() + $bankwire_cart->getShipping() - $bankwire_cart->getDiscount()}</strong>
-                {else}
-                    <strong>{displayPrice price=$bankwire_cart->getTotalToPay()}</strong>
-                {/if}
+                <strong>{displayPrice price=$total_cart + $fee}</strong>
             </div>
         </div>
     </div>
@@ -130,7 +123,7 @@
     </p>
 </form>
         
-{assign var=test value=true}
+{assign var=test value=false}
 {if $test}
     <pre>
         {$bankwire_cart|print_r}

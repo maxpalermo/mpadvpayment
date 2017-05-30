@@ -124,7 +124,6 @@ class MpAdvPayment extends PaymentModule
     {
         $smarty = Context::getContext()->smarty;
         $cart = Context::getContext()->cart;
-        classValidation::removeFeeFromCart($cart->id);
         $summary = new classSummary($cart->id, classCart::NONE);
         $result = classSession::setSessionSummary($summary);
         if (!$result) {

@@ -74,6 +74,11 @@ class classCart {
         return number_format($this->fee, 6);
     }
     
+    public function getFeeTaxRate()
+    {
+        return $this->tax_rate;
+    }
+    
     public function getFeeNoTax()
     {
         return number_format($this->fee_no_tax, 6);
@@ -131,14 +136,7 @@ class classCart {
         $this->payment->currency_decimals = $currency->decimals;
         $this->payment->currency_suffix = $currency->iso_code;
         
-        if ($this->payment_type==classCart::BANKWIRE) {
-            $this->total_cart = $cart->getOrderTotal(true, Cart::ONLY_PRODUCTS_WITHOUT_SHIPPING);
-            $this->shipping = $cart->getOrderTotal(true, Cart::ONLY_SHIPPING);
-        } else {
-            $this->total_cart = $cart->getOrderTotal(true, Cart::BOTH);
-            $this->shipping = 0;
-        }
-        
+        $this->total_cart = $cart->getOrderTotal(true, Cart::BOTH);
         
         //Calulate fee
         switch ($this->payment->fee_type) {
@@ -185,20 +183,14 @@ class classCart {
         if ($this->payment->order_free!=0 && $this->payment->order_free<$this->total_cart) {
             $fee=0;
         }
-            
+        
+        $this->fee = number_format($fee,6);
+        
         if ($this->payment->fee_type==ClassCart::FEE_TYPE_DISCOUNT) {
-            $this->discount = number_format($fee,6);
-            $this->fee = 0;
-            $this->total_to_pay = $this->total_cart - $fee;
-            $this->voucher = true;
-        } else {
-            $this->discount = 0;
-            $this->fee = number_format($fee,6);
-            $this->total_to_pay = $this->total_cart + $fee;
+            $this->fee = -$this->fee;
         }
         
         $this->tax_rate = $this->payment->tax_rate;
-        $this->fee_no_tax = number_format($fee / ((100 + $this->tax_rate)/100), 2);
         
         return true;
     }

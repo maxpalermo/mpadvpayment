@@ -27,6 +27,21 @@
 
 class classValidation {
     /**
+     * Retrieve order payment id from order reference
+     * @param string $reference product reference
+     * @return int product id
+     */
+    public static function getOrderPaymentIdByReference($reference)
+    {
+        $db = Db::getInstance();
+        $sql = new DbQueryCore();
+        $sql->select('id_order_payment')
+                ->from('order_payment')
+                ->where('order_reference = \'' . pSQL($reference) . '\'');
+        return (int)$db->getValue($sql);
+    }
+    
+    /**
      * Retrieve product id from product reference
      * @param string $reference product reference
      * @return int product id
@@ -85,15 +100,15 @@ class classValidation {
         $summary = classSession::getSessionSummary();
         
         if($payment_type == classCart::CASH) {
-            $fee_cart = $summary->cash->cart;
+            $summary_cart = $summary->cash->cart;
             $payment_type_display = $module->l('Cash', 'classValidation');
             classMpLogger::add('payment selected: CASH');
         } elseif ($payment_type == classCart::BANKWIRE) {
-            $fee_cart = $summary->bankwire->cart;
+            $summary_cart = $summary->bankwire->cart;
             $payment_type_display = $module->l('Bankwire', 'classValidation');
             classMpLogger::add('payment selected: BANKWIRE');
         } elseif ($payment_type == classCart::PAYPAL) {
-            $fee_cart = $summary->paypal->cart;
+            $summary_cart = $summary->paypal->cart;
             $payment_type_display = $module->l('Paypal', 'classValidation');
             classMpLogger::add('payment selected: PAYPAL');
         }
@@ -101,20 +116,86 @@ class classValidation {
          * Get Cart
          */
         $cart = Context::getContext()->cart;
-        /**
-         * Validate cart
-         */
-        if ($cart->id_customer == 0
-                || $cart->id_address_delivery == 0
-                || $cart->id_address_invoice == 0
-                || !$module->active) {
-            print "<div class='panel panel-warning'>"
-                    . "<pre>" 
-                    . print_r($cart, 1) 
-                    . "</pre>"
-                    . "</div>";
-            //Tools::redirect('index.php?controller=order&step=1');
+        
+        /**************
+         * VALIDATION *
+         **************/
+        if (!self::validateCart($cart, $module)) {
+            classMpLogger::add('ERROR DURING VALIDATION');
+            classMpLogger::add('CART DUMP:');
+            classMpLogger::add(var_dump($cart));
+            Tools::redirect('index.php?controller=order&step=1');
         }
+        
+        if (!self::checkValidPaymentMethod($module)) {
+            classMpLogger::add('ERROR DURING VALIDATION');
+            classMpLogger::add('Payment not available:');
+            Tools::d($module->l('This payment method is not available.', 'classValidation'));
+        }
+        
+        if (!self::checkCustomer($cart)) {
+            classMpLogger::add('ERROR DURING CUSTOMER VALIDATION');
+            classMpLogger::add('CUSTOMER DUMP:');
+            classMpLogger::add(var_dump(new CustomerCore($cart->id_customer)));
+            Tools::redirect('index.php?controller=order&step=1');
+        }
+        
+        $id_order_state = $summary_cart->payment->id_order_state;
+        $customer = new CustomerCore($cart->id_customer);
+        classMpLogger::add('Get id order state: ' . $id_order_state);
+        
+        $id_order = self::createOrder($module, $cart->id, $id_order_state, $payment_type_display, $customer->secure_key);
+        if($id_order) {
+            classMpLogger::add('Order created.');
+            
+            $payment = new ClassPaymentFee();
+            $payment->create($id_order, $payment_type, $summary_cart->getFee(), $summary_cart->getFeeTaxRate());
+            $result = $payment->insert();
+            
+            if ($result) {
+                //update Payment
+                $order_reference = self::getOrderReferenceByIdCart($cart->id);
+                $id_payment = self::getOrderPaymentIdByReference($order_reference);
+                if ($id_payment) {
+                    $orderPay = new OrderPaymentCore($id_payment);
+                    $orderPay->amount = $payment->getTotal_document();
+                    $orderPay->save();
+                }
+                self::redirect($payment_type,$module, $transaction_id, $payment);
+            } else {
+                classMpLogger::add('ERROR DURING FEE INSERT');
+                Tools::d(
+                        $module->l(
+                                'ERROR DURING FEE INSERT, please contact our customer care. Order id: ',
+                                'classValidation'
+                                ) . $id_order
+                        );
+            }
+        } else {
+            classMpLogger::add('Error during Order creation.');
+            Tools::d(
+                    $module->l(
+                            'Error during Order creation. Please contact our customer care. Cart id: '
+                            , 'classValidation'
+                            ) . $cart->id
+                    );
+        }
+    }
+    
+    private static function checkCustomer($cart)
+    {
+        /**
+         * Validate customer
+         */
+        $customer = new CustomerCore($cart->id_customer);
+        if (!ValidateCore::isLoadedObject($customer)) {
+            return false;
+        }
+        return true;
+    }
+    
+    private static function checkValidPaymentMethod($module)
+    {
         /**
          * Check if module is enabled
          * @var bool $authorized 
@@ -127,86 +208,23 @@ class classValidation {
             }
         }
         
-        if (!$authorized) {
-            Tools::d($module->l('This payment method is not available.', 'classValidation'));
-        }
-        /**
-         * Validate customer
-         */
-        $customer = new CustomerCore($cart->id_customer);
-        if (!ValidateCore::isLoadedObject($customer)) {
-            Tools::redirect('index.php?controller=order&step=1');
-        }
-        /**
-         * Cart validated, check if exists a discount
-         */
-        $id_voucher=0;
-        if ($fee_cart->isVoucher()) {
-            $id_voucher = self::addVoucher($fee_cart, $module);
-            if((int)$id_voucher==0) {
-                print $id_voucher;
-            }
-        } else {
-            /**
-             * Set fee to cart
-             */
-            classMpLogger::add('*** REMOVE product from CART ' . $cart->id);
-            self::removeFeeFromCart($cart->id);
-            classMpLogger::add('*** ADD new fee product to CART ' . $cart->id);
-            self::addFeeToCart($cart->id, $fee_cart);
-        }
-        
-        $id_order_state = $fee_cart->payment->id_order_state;
-        classMpLogger::add('Get id order state: ' . $id_order_state);
-        if(self::createOrder($module, $cart->id, $id_order_state, $payment_type_display, $customer->secure_key)) {
-            classMpLogger::add('Order created.');
-            self::redirect($payment_type,$summary,$module, $transaction_id);
-        } else {
-            classMpLogger::add('Error during Order creation.');
-            print $module->l('Error during Order creation.', 'classValidation');
-        }
+        return $authorized;
     }
     
-    /**
-     * Create a Voucher to add a cart discount
-     * @author Massimiliano Palermo <maxx.palermo@gmail.com>
-     * @param classCart $bank
-     * @param ModuleCore $module
-     * @return mixed Voucher id or an error message
-     */
-    public static function addVoucher($bank, $module)
+    private static function validateCart($cart, $module)
     {
-        /**
-         * @var ClassMpPaymentConfiguration $payment
+         /**
+         * Validate cart
          */
-        $payment = $bank->payment;
-        $id_cart = ContextCore::getContext()->cart->id;
-        $cart = new Cart($id_cart);
-        $date = date('Y-m-d h:i:s');
-        $voucher = new CartRuleCore();
-        $voucher->id_customer = $cart->id_customer;
-        $voucher->date_from = $date;
-        $voucher->date_to = date('Y-m-d h:i:s', strtotime($date. ' + 1 days'));
-        $voucher->description = 'Cart reference: ' . $id_cart;
-        $voucher->quantity = 1;
-        $voucher->reduction_percent = $payment->discount;
-        $voucher->reduction_currency = 1;
-        $voucher->reduction_tax = 1;
-        $voucher->partial_use = 0;
-        $voucher->priority = 1;
-        $voucher->minimum_amount_shipping = 0;
-        $voucher->minimum_amount_currency = 1;
-        $voucher->minimum_amount_tax = 1;
-        $voucher->name[$cart->id_lang] = $module->l('Bankwire payment method discount', 'classValidation');
-        if ($voucher->save()) {
-            classMpLogger::add('Voucher ' . $voucher->id . ' created for CART ' . $id_cart);
-            $cart->addCartRule($voucher->id);
-            return $voucher->id;
-        } else {
-            classMpLogger::add('Error during Voucher creation.');
-            return $module->l('Error during Voucher creation', 'classValidation');
+        if (
+                $cart->id_customer == 0
+                || $cart->id_address_delivery == 0
+                || $cart->id_address_invoice == 0
+                || !$module->active) {
+            return false;
+                } else {
+            return true;
         }
-        Context::getContext()->cart = $cart;
     }
     
     public static function createOrder($module, $id_cart, $id_order_state, $payment_method, $secure_key)
@@ -234,14 +252,21 @@ class classValidation {
         classMpLogger::add('Validate order returns ' . $result);
         
         if($result) {
-            self::removeFeeFromCart($cart->id);
-            return true;
+            return self::getOrderIdByIdCart($cart->id);
         } else {
             print $module->l('Error during Cart validation', 'classValidation');
+            return false;
         }
     }
     
-    public static function redirect($payment_type, $summary, $module, $transaction_id)
+    /**
+     * Redirect to success page
+     * @param string $payment_type
+     * @param ModuleCore $module
+     * @param string $transaction_id
+     * @param ClassPaymentFee $payment
+     */
+    public static function redirect($payment_type, $module, $transaction_id, $payment)
     {
         $order = new OrderCore($module->currentOrder);
         classMpLogger::add('Get order ' . $module->currentOrder);
@@ -250,19 +275,34 @@ class classValidation {
         
         if ($payment_type == classMpPayment::CASH) {
             //Redirect on order confirmation page
-            $url = $link->getModuleLink('mpadvpayment', 'cashReturn', array('id_order' => $order->id));
+            $url = $link->getModuleLink(
+                    'mpadvpayment',
+                    'cashReturn',
+                    array(
+                        'id_order' => $order->id,
+                        'payment' => $payment
+                    )
+                );
             classMpLogger::add('Created URL redirect for CASH: ' . $url);
         } elseif ($payment_type == classMpPayment::BANKWIRE) {
             //Redirect on order confirmation page
-            $url = $link->getModuleLink('mpadvpayment', 'bankwireReturn', array('id_order' => $order->id));
+            $url = $link->getModuleLink(
+                    'mpadvpayment',
+                    'bankwireReturn',
+                    array(
+                        'id_order' => $order->id,
+                        'payment' => $payment
+                    )
+                );
             classMpLogger::add('Created URL redirect for BANKWIRE: ' . $url);
         } elseif ($payment_type == classMpPayment::PAYPAL) {
             //Redirect on order confirmation page
             $params = array(
                 'id_order' => $order->id,
+                'payment' => $payment,
                 'transaction_id' => $transaction_id,
                 'id_cart' => ContextCore::getContext()->cart->id,
-                'total_paid' => $summary->paypal->cart->getTotalToPay()
+                'total_paid' => $payment->getTotal_document(),
             );
             $url = $link->getModuleLink('mpadvpayment', 'paypalReturn', $params);
             classMpLogger::add('Created URL redirect for PAYPAL: ' . $url);
@@ -274,90 +314,5 @@ class classValidation {
             classMpLogger::add('Redirecting to: ' . $url);
             Tools::redirect($url);
         }
-    }
-    
-    public static function removeFeeFromCart($id_cart)
-    {
-        /**
-         * Get cart
-         */
-        $cart = new Cart($id_cart);
-        $fees = array();
-        /**
-         * Get fee virtual product
-         */
-        $fees[] = (int)self::getProductIdByReference('fee_cash');
-        $fees[] = (int)self::getProductIdByReference('fee_paypal');
-        /**
-         * Remove old fee from cart
-         */
-        foreach ($cart->getProducts() as $product) {
-            if (in_array($product['id_product'], $fees)) {
-                $cart->deleteProduct($product['id_product']);
-                classMpLogger::add('Removed product id code: ' . $product['id_product'] . " from CART " . $id_cart);
-            }
-        }
-        
-        Context::getContext()->cart = $cart;
-    }
-    
-    /**
-     * Add a fee as a virtual product into cart
-     * @param Cart $cart current cart
-     * @param classCart $fee_cart fee cart class
-     * @param ProductCore $product_fee virtual product associated to fee
-     * @return boolean True if success, false otherwise
-     */
-    public static function addFeeToCart($id_cart, $fee_cart)
-    {
-        $cart = new Cart($id_cart);
-        
-        if ($fee_cart->getFee() == 0) {
-            classMpLogger::add('Error on fee amount.' . $cart->id);
-            return false;
-        }
-        classMpLogger::add('Fee amount: ' . $fee_cart->getFee());
-        /**
-         * Get fee virtual product
-         */
-        if($fee_cart->getPaymentType()==classCart::CASH) {
-            $product_fee = new ProductCore(self::getProductIdByReference('fee_cash'));
-            classMpLogger::add('Trying to add fee product with CASH payment method');
-            classMpLogger::add('Get product ' . $product_fee->reference);
-        } else {
-            $product_fee = new ProductCore(self::getProductIdByReference('fee_paypal'));
-            classMpLogger::add('Trying to add fee product with PAYPAL payment method');
-            classMpLogger::add('Get product ' . $product_fee->reference);
-        }
-        
-        $db = Db::getInstance();
-        $result = $db->insert('cart_product', array(
-            'id_cart' => $cart->id,
-            'id_product' => $product_fee->id,
-            'id_address_delivery' => $cart->id_address_delivery,
-            'id_shop' => ContextCore::getContext()->shop->id,
-            'id_product_attribute' => 0,
-            'quantity' => 1,
-            'date_add' => date('Y-m-d h:i:s')
-        ));
-        
-        classMpLogger::add('Add product ' . $product_fee->id . ' to CART ' . $id_cart . ': result ' . (int)$result);
-        //classMpLogger::add('Cart details: ' . print_r($cart->getProducts(), 1));
-        
-        //$result = $cart->updateQty(1, $product_fee->id); // add fee to cart
-        if ($result==true) {
-            $product_fee->price = $fee_cart->getFeeNoTax();
-            $product_fee->update();
-            classMpLogger::add('Update product ' . $product_fee->reference . ' price to ' . $product_fee->price);
-        } else {
-            classMpLogger::add('Error during product insertion into CART ' . $id_cart);
-            classMpLogger::add('***RETURN FALSE');
-            return false;
-        }
-        
-        classMpLogger::add('Function SUCCESS.');
-        classMpLogger::add('***RETURN TRUE');
-        Context::getContext()->cart = $cart;
-        return true;
     }
 }

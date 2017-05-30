@@ -168,7 +168,8 @@
         </button>
     </p>
 </form>
-        
+{assign var= debug value=false}
+{if $debug}
 <pre>
     <h3>Products excluded: {$excluded_products|count}</h3>
     {$excluded_products|@print_r}
@@ -181,3 +182,4 @@
     <h3>Cart</h3>
     {$cart|@print_r}
 </pre>
+{/if}

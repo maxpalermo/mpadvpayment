@@ -71,6 +71,9 @@
     {l s='Cash payment' mod='mpadvpayment'}
 {/capture}
 
+{assign var=total_cart value=$cash_cart->getTotalCart()}
+{assign var=fee value=$cash_cart->getFee()}
+
 <form class='defaultForm form-horizontal' action='{$link->getModuleLink('mpadvpayment', 'validateCash', [], true)|escape:'html'}' method='POST'>
     <div class="panel panel-default">
         <div class='panel-heading'>
@@ -91,20 +94,18 @@
                 <strong>{displayPrice price=$cash_cart->getTotalCart()}</strong>
             </div>
             <div class='panel-body panel-info'>
-                {if $cash_cart->payment->fee_type == classCart::FEE_TYPE_DISCOUNT}
+                {if $fee<0}
                     {l s='TOTAL DISCOUNTS:' mod='mpadvpayment'}
-                    &nbsp;
-                    <strong>{displayPrice price=$cash_cart->getDiscount()}</strong>
                 {else}
                     {l s='TOTAL FEES:' mod='mpadvpayment'}
-                    &nbsp;
-                    <strong>{displayPrice price=$cash_cart->getFee()}</strong>
                 {/if}
+                &nbsp;
+                <strong>{displayPrice price=$fee}</strong>
             </div>
             <div class='panel-body panel-info'>
                 {l s='TOTAL TO PAY:' mod='mpadvpayment'}
                 &nbsp;
-                <strong>{displayPrice price=$cash_cart->getTotalToPay()}</strong>
+                <strong>{displayPrice price=$total_cart + $fee}</strong>
             </div>
         </div>
     </div>
@@ -123,7 +124,7 @@
 	</p>
 </form>
 
-{assign var=test value=true}
+{assign var=test value=false}
 {if $test==true}
     <div class="panel panel-body panel-info">
         <pre>

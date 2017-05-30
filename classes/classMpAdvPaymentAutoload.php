@@ -44,6 +44,7 @@ $classes = array(
     'classSummary',
     'classSession',
     'classValidation',
+    'ClassPaymentFee',
     'classMpLogger',
 );
 foreach ($classes as $class)

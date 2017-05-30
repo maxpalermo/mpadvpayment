@@ -29,7 +29,6 @@ class MpAdvPaymentValidateBankwireModuleFrontController extends ModuleFrontContr
     public function postProcess()
     {   
         classMpLogger::add('*** VALIDATING BANKWIRE');
-        
         classValidation::FinalizeOrder(classCart::BANKWIRE, '', $this->module);
     }
 }

@@ -42,6 +42,11 @@
         <h3>{l s='ERROR: No payment method selected' l='mpadvpayment'}</h3>
     </div>
 {/if}
+    
+{if isset($payment)}
+    {assign var=total_cart value=$payment->getTotalCart()}
+    {assign var=fee value=$payment->getFee()}
+{/if}
 
 {if !empty($payment)}
     <div class="panel-body">
@@ -54,29 +59,21 @@
         <div>
             <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
                 {l s='TOTAL CART' mod='mpadvpayment'} : 
-                {if $payment->isVoucher()}
-                    {displayPrice price={$payment->getTotalCart() + $payment->getShipping()}}
-                {else}
-                    {displayPrice price=$payment->getTotalCart()}
-                {/if}
+                {displayPrice price=$total_cart}
             </div>
             <div style='display: inline-block; margin-right: 10px; padding-right: 10px; border-right: 1px solid #aaaaaa; font-weight: normal;'>
-                {if $payment->payment->fee_type==classCart::FEE_TYPE_DISCOUNT}
+                {if $fee<0}
                     <span style='text-align: left;'>{l s='DISCOUNTS' mod='mpadvpayment'}</span>
-                    : {displayPrice price=$payment->getDiscount()}
+                    : {displayPrice price=($fee*-1)}
                 {else}
                     <span style='text-align: left;'>{l s='FEES' mod='mpadvpayment'}</span>
-                    : {displayPrice price=$payment->getFee()}
+                    : {displayPrice price=$fee}
                 {/if}
                 
             </div>
             <div style='display: inline-block; font-weight: normal;'>
                 {l s='TOTAL TO PAY' mod='mpadvpayment'} : 
-                {if $payment->isVoucher()}
-                    <strong>{displayPrice price=$payment->getTotalCart() + $payment->getShipping() - $payment->getDiscount()}</strong>
-                {else}
-                    <strong>{displayPrice price=$payment->getTotalToPay()}</strong>
-                {/if}
+                <strong>{displayPrice price=$total_cart + $fee}</strong>
             </div>
         </div>
     </div>
