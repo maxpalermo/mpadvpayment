@@ -30,5 +30,22 @@ class MpAdvPaymentValidateBankwireModuleFrontController extends ModuleFrontContr
     {   
         classMpLogger::add('*** VALIDATING BANKWIRE');
         classValidation::FinalizeOrder(classCart::BANKWIRE, '', $this->module);
+        
+        $id_order = classValidation::getOrderIdByIdCart(Context::getContext()->cart->id);
+        $fee = new ClassPaymentFee();
+        $fee->load($id_order);
+        
+        classMpLogger::add('UPDATE ORDER ' . $id_order . " WITH NEW PAIMENT VALUES");
+        
+        
+        $sql = 'update ' . _DB_PREFIX_ . 'orders set '
+                        . 'total_paid = ' . (float)$fee->getTotal_document()
+                        . ', total_paid_tax_incl = ' . (float)$fee->getTotal_document_tax_incl()
+                        . ', total_paid_tax_excl = ' . (float)$fee->getTotal_document_tax_excl()
+                        . ', total_paid_real = ' . (float)$fee->getTotal_document()
+                        . ' where id_order = ' . (int)$id_order;
+        
+        $result = Db::getInstance()->execute($sql);
+        classMpLogger::add('UPDATE QUERY: ' . $sql . " => " . (int)$result);
     }
 }

@@ -27,6 +27,7 @@
 class ClassPaymentFee {    
     private $id_fee;
     private $id_order;
+    private $id_order_payment;
     private $total_paid;
     private $total_paid_tax_incl;
     private $total_paid_tax_excl;
@@ -181,11 +182,23 @@ class ClassPaymentFee {
         $this->tax_included = $tax_included;
     }
     
+    public function getIdOrderPayment()
+    {
+        $order = new OrderCore($this->id_order);
+        $db = Db::getInstance();
+        $sql = new DbQueryCore();
+        $sql->select('id_order_payment')
+                ->from('order_payment')
+                ->where('order_reference = \'' . pSQL($order->reference) . '\'');
+        return $db->getValue($sql);
+    }
+    
     public function __construct() 
     {
         $this->tablename = 'mp_advpayment_fee';
         $this->id_fee = 0;
         $this->date_upd = '';
+        $this->id_order_payment = 0;
     }
     
     public function create($id_order, $payment_type, $fee, $fee_tax_rate, $tax_included=true)
@@ -201,6 +214,12 @@ class ClassPaymentFee {
         $this->total_paid_tax_incl = $order->total_paid_tax_incl;
         $this->total_paid_tax_excl = $order->total_paid_tax_excl;
         $this->total_paid_real = $order->total_paid_real;
+        
+        classMpLogger::add('Order: ');
+        classMpLogger::add('total paid: ' . $this->total_paid);
+        classMpLogger::add('total paid_tax_incl: ' . $this->total_paid_tax_incl);
+        classMpLogger::add('total paid_tax_excl: ' . $this->total_paid_tax_excl);
+        classMpLogger::add('total paid_real: ' . $this->total_paid_real);
         
         $this->calc();
     }
@@ -219,11 +238,17 @@ class ClassPaymentFee {
         $this->total_document = $this->total_paid + $this->fee;
         $this->total_document_tax_incl = $this->total_document;
         $this->total_document_tax_excl = $this->total_paid_tax_excl + $this->fee_tax_excl;
+        
+        classMpLogger::add('Document: ');
+        classMpLogger::add('total document: ' . $this->total_document);
+        classMpLogger::add('total document_tax_incl: ' . $this->total_document_tax_incl);
+        classMpLogger::add('total document_tax_excl: ' . $this->total_document_tax_excl);
     }
     
     public function insert()
     {
         if((int)$this->id_order==0) {
+            classMpLogger::add('NO ORDER ID!');
             return false;
         }
         
@@ -255,16 +280,10 @@ class ClassPaymentFee {
                     Db::REPLACE
                     );
             if ($result) {
-                $order = new OrderCore($this->id_order);
-                $order->total_paid = $this->total_document;
-                $order->total_paid_real = $this->total_document;
-                $order->total_paid_tax_incl = $this->total_document_tax_incl;
-                $order->total_paid_tax_excl = $this->total_document_tax_excl;
-                $result = $order->save();
-            }
-            if (!$result) {
-               $this->delete();
-               return false;
+                classMpLogger::add('Order payment fee inserted with id ' . $db->Insert_ID());
+            } else {
+                classMpLogger::add('ERROR: ' . $db->getMsgError());
+                return false;
             }
         } catch (Exception $exc) {
             classMpLogger::add('ERROR DURING INSERTION:' . $exc->getMessage());
@@ -292,6 +311,8 @@ class ClassPaymentFee {
         if((int)$id_order==0) {
             return false;
         }
+        
+        $this->id_order = $id_order;
         
         $db = Db::getInstance();
         $sql = new DbQueryCore();

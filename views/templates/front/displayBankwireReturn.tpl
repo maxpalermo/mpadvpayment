@@ -41,7 +41,7 @@
             <div class='form-wrapper' style='padding: 20px;'>
                 <h3>{l s='Please, making a wire transfer with these details:' mod='mpadvpayment'}</h3>
                 <span><i class='icon-dollar'></i> {l s='Total amount: ' mod='mpadvpayment'} 
-                    <strong>{displayPrice price=$order->total_paid}</strong></span>
+                    <strong>{displayPrice price=$amount}</strong></span>
                 <br>
                 <span><i class='icon-user'></i> {l s='Owner: ' mod='mpadvpayment'} 
                     <strong>{$arr_details->owner|escape:'htmlall':'UTF-8'}</strong></span>

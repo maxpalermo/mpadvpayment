@@ -34,7 +34,11 @@ class MpAdvPaymentCashReturnModuleFrontController extends ModuleFrontControllerC
         $this->display_column_right = false;
         parent::initContent();
         
+        //update order
         $id_order = Tools::getValue('id_order', 0);
+        classMpLogger::add('Updating order total: ' . (int)classValidation::updateOrder($id_order));
+        classMpLogger::add('Updating status: ' . (int)classValidation::setOrderState($id_order, classCart::CASH));
+        
         $order = new OrderCore($id_order);
         context::getContext()->smarty->assign("order", $order);
         $this->setTemplate('displayCashReturn.tpl');

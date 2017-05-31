@@ -31,9 +31,7 @@ if (!defined('_PS_VERSION_')) {
 require_once(dirname(__FILE__) . '/classes/classMpAdvPaymentAutoload.php');
     
 class MpAdvPayment extends PaymentModule
-{
-    private $summary;
-    
+{   
     public function __construct()
     {
         $this->name = 'mpadvpayment';
@@ -99,7 +97,9 @@ class MpAdvPayment extends PaymentModule
         }
 
         if (!parent::install() ||
+          !$this->createState() ||
           !$this->registerHook('displayPayment') ||
+          !$this->registerHook('displayAdminOrder') ||
           !$this->installSql()) {
             return false;
         }
@@ -109,10 +109,54 @@ class MpAdvPayment extends PaymentModule
     public function uninstall()
     {
         if (!parent::uninstall() || 
+                !$this->deleteState() ||
                 !$this->uninstallSql()) {
             return false;
         }
         return true;
+    }
+    
+    public function createState()
+    {
+        $state = new OrderStateCore();
+        $state->invoice=false;
+        $state->send_email=false;
+        $state->module_name='';
+        $state->color='#6060DD';
+        $state->unremovable=true;
+        $state->hidden=true;
+        $state->logable=false;
+        $state->delivery=false;
+        $state->shipped=false;
+        $state->paid=false;
+        $state->pdf_invoice=false;
+        $state->pdf_delivery=false;
+        $state->deleted=false;
+        $state->name[Context::getContext()->language->id] = $this->l('Document preparation');
+        $state->template='';
+        $result = $state->save();
+        if ($result) {
+            ConfigurationCore::updateValue('MP_ADVPAYMENT_STATE_ID', $state->id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public function deleteState()
+    {
+        $id_state = (int)ConfigurationCore::get('MP_ADVPAYMENT_STATE_ID');
+        if ($id_state) {
+            $state = new OrderStateCore($id_state);
+            $result = $state->delete();
+            if ($result) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
     
     /**
@@ -162,6 +206,24 @@ class MpAdvPayment extends PaymentModule
         return $this->display(_MPADVPAYMENT_, 'displayPayment.tpl');
     }
     
+    public function hookDisplayAdminOrder($params)
+    {
+        $id_order = classValidation::getOrderIdByIdCart(ContextCore::getContext()->cart->id);
+        $fee = new ClassPaymentFee();
+        $fee->load($id_order);
+        $smarty = Context::getContext()->smarty;
+        if ($fee->getFee()<0) {
+            $smarty->assign('fee_display', $this->l('Discount'));
+        } else {
+            $smarty->assign('fee_display', $this->l('Fee'));
+        }
+        
+        $smarty->assign('fee_price', $fee->getFee());
+        $smarty->assign('fee_total', $fee->getTotal_document());
+        
+        return $this->display(__FILE__, 'displayOrderFee.tpl');
+    }
+    
     public function getContent()
     {
         $message = $this->postProcess();
@@ -206,10 +268,17 @@ class MpAdvPayment extends PaymentModule
             if (!empty($query)) {
                 $query = str_replace("{_DB_PREFIX_}", _DB_PREFIX_, $query);
                 $db = Db::getInstance();
-                $result = $db->execute($query);
-                if (!$result) {
-                    return false;
+                try {
+                   $result = $db->execute($query);
+                    if (!$result) {
+                        return false;
+                    } 
+                } catch (Exception $exc) {
+                    classMpLogger::add($exc->getMessage());
+                    return true;
                 }
+
+                    
             }
         }
         return true;

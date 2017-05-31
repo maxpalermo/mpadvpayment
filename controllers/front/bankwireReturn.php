@@ -38,9 +38,13 @@ class MpAdvPaymentBankwireReturnModuleFrontController extends ModuleFrontControl
         $summary = classSession::getSessionSummary();
         
         $id_order = Tools::getValue('id_order', 0);
-        $order = new OrderCore($id_order);
+        classMpLogger::add('Updating order total: ' . (int)classValidation::updateOrder($id_order));
+        classMpLogger::add('Updating status: ' . (int)classValidation::setOrderState($id_order, classCart::BANKWIRE));
+        $payment = new ClassPaymentFee();
+        $payment->load($id_order);
+
         context::getContext()->smarty->assign("arr_details", $this->getBankwireDetails());
-        context::getContext()->smarty->assign("order", $order);
+        context::getContext()->smarty->assign("amount", $payment->getTotal_document());
         context::getContext()->smarty->assign("classSummary", $summary);
         $this->setTemplate('displayBankwireReturn.tpl');
     }

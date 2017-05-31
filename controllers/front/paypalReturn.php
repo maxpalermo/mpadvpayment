@@ -35,13 +35,20 @@ class MpAdvPaymentPaypalReturnModuleFrontController extends ModuleFrontControlle
          */
         parent::initContent();
         
+        $transaction_id = Tools::getValue('transaction_id', '');
+        
         /**
         * Get order reference from cart
         */
         $id_cart = Tools::getValue('id_cart', 0);
         $id_order = Tools::getValue('id_order', 0);
+        classMpLogger::add('Updating order total: ' . (int)classValidation::updateOrder($id_order));
+        classMpLogger::add('Updating payment: ' . (int)classValidation::updateOrderPayment($id_order, $transaction_id));
+        classMpLogger::add('Updating invoice: ' . (int)classValidation::updateInvoice($id_order));
+        classMpLogger::add('Updating status: ' . (int)classValidation::setOrderState($id_order, classCart::PAYPAL));
+
         $order_reference = classValidation::getOrderReferenceByIdCart($id_cart);
-        $transaction_id = Tools::getValue('transaction_id', '');
+        
         $total_paid = Tools::getValue('total_paid', 0);
         //Show success page
         $this->context->smarty->assign("order_id",$id_order);

@@ -29,6 +29,8 @@
 {assign var=payment value=$classSummary->paypal->cart}
 {assign var=customer value=$classSummary->paypal->customer}
 {assign var=url value=$classSummary->paypal->URL}
+{assign var=total_cart value=$payment->getTotalCart()}
+{assign var=fee value=$payment->getFee()}
 
 <div class="container">
     <form class="form-horizontal" method="POST" role="form" action='{$PAYPAL_URL}' style="display:none;" id="form_redirect">
@@ -39,7 +41,7 @@
                 <input type="hidden" name="paymentaction" value="sale">
                 <input type="hidden" name="business" value="{$classSummary->paypal->email}">
                 <input type="hidden" name="template" value="templateC" >
-                <input type="hidden" name="subtotal" value="{$payment->getTotalToPay()|number_format:2}">
+                <input type="hidden" name="subtotal" value="{$total_cart + $fee|number_format:2}">
                 <input type="hidden" name="shipping" value="0">
                 <input type="hidden" name="tax" value="0">
                 <input type="hidden" name="currency_code" value="{$payment->payment->currency_suffix}">
