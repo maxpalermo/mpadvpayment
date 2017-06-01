@@ -39,6 +39,8 @@
             <div class="form-group">
                 <input type="hidden" name="cmd" value="_hosted-payment">
                 <input type="hidden" name="paymentaction" value="sale">
+                <input type="hidden" name="custom" value="cart_id:{$cart_id}">
+                <input type="hidden" name="localecode" value="it_IT">
                 <input type="hidden" name="business" value="{$classSummary->paypal->email}">
                 <input type="hidden" name="template" value="templateC" >
                 <input type="hidden" name="subtotal" value="{$total_cart + $fee|number_format:2}">

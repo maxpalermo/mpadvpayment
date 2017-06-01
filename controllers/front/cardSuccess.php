@@ -41,6 +41,7 @@ class MpAdvPaymentCardSuccessModuleFrontController extends ModuleFrontController
         /**
          * FINALIZE ORDER
          */
-        classValidation::FinalizeOrder(classCart::PAYPAL, $transaction_id, $this->module);
+        classMpLogger::add('finalize order from cardSuccess controller');
+        classValidation::FinalizeOrder(classCart::PAYPAL, $transaction_id, $this->module, false);
     }
 }

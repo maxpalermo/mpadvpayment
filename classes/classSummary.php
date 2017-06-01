@@ -44,5 +44,7 @@ class classSummary {
         $this->paypal = new classPaypalSummary($id_cart);
         $this->payment_type = $payment_type;
         $this->id_cart = $id_cart;
+        
+        classMpLogger::add('classSummary, cart id: ' . (int)$id_cart);
     }
 }

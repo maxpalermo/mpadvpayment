@@ -48,18 +48,18 @@ class classPaypalIPN
      * should not be enabled in production).
      * @return void
      */
-    public function useSandbox()
+    public function useSandbox($bool=true)
     {
-        $this->use_sandbox = true;
+        $this->use_sandbox = (int)$bool;
     }
     /**
      * Sets curl to use php curl's built in certs (may be required in some
      * environments).
      * @return void
      */
-    public function usePHPCerts()
+    public function usePHPCerts($bool=true)
     {
-        $this->use_local_certs = false;
+        $this->use_local_certs = (int)$bool;
     }
     /**
      * Determine endpoint to post the verification data to.
@@ -82,14 +82,18 @@ class classPaypalIPN
      */
     public function verifyIPN()
     {
-        if ( ! count($_POST)) {
+        $raw_post_array = Tools::getAllValues();
+        
+        if(count($raw_post_array)==0) {
+            classMpLogger::add('Missing POST Data');
             throw new Exception("Missing POST Data");
         }
-        $raw_post_data = file_get_contents('php://input');
-        $raw_post_array = explode('&', $raw_post_data);
+        
+        //classMpLogger::add('raw_post_array: ' . print_r($raw_post_array, 1));
+        
         $myPost = array();
-        foreach ($raw_post_array as $keyval) {
-            $keyval = explode('=', $keyval);
+        foreach ($raw_post_array as $key=>$val) {
+            $keyval = array($key, $val);
             if (count($keyval) == 2) {
                 // Since we do not want the plus in the datetime string to be encoded to a space, we manually encode it.
                 if ($keyval[0] === 'payment_date') {
@@ -100,6 +104,9 @@ class classPaypalIPN
                 $myPost[$keyval[0]] = urldecode($keyval[1]);
             }
         }
+        
+        //classMpLogger::add('myPost array: ' . print_r($myPost, 1));
+        
         // Build the body of the verification post request, adding the _notify-validate command.
         $req = 'cmd=_notify-validate';
         $get_magic_quotes_exists = false;
@@ -114,6 +121,9 @@ class classPaypalIPN
             }
             $req .= "&$key=$value";
         }
+        
+        classMpLogger::add('request: ' . $req);
+        
         // Post the data back to PayPal, using curl. Throw exceptions if errors occur.
         $ch = curl_init($this->getPaypalUri());
         curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
@@ -135,18 +145,22 @@ class classPaypalIPN
             $errno = curl_errno($ch);
             $errstr = curl_error($ch);
             curl_close($ch);
+            classMpLogger::add("cURL error: [$errno] $errstr");
             throw new Exception("cURL error: [$errno] $errstr");
         }
         $info = curl_getinfo($ch);
         $http_code = $info['http_code'];
         if ($http_code != 200) {
+            classMpLogger::add("PayPal responded with http code $http_code");
             throw new Exception("PayPal responded with http code $http_code");
         }
         curl_close($ch);
         // Check if PayPal verifies the IPN data, and if so, return true.
         if ($res == self::VALID) {
+            classMpLogger::add("IPN VALID");
             return true;
         } else {
+            classMpLogger::add("IPN NOT VALID");
             return false;
         }
     }

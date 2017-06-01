@@ -59,6 +59,7 @@ class MpAdvPaymentCardModuleFrontController extends ModuleFrontControllerCore
         }
         
         $this->context->smarty->assign("classSummary", $summary);
+        $this->context->smarty->assign("cart_id", Context::getContext()->cart->id);
         $this->setTemplate('card.tpl');
     }
     

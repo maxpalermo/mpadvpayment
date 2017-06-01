@@ -24,28 +24,77 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of mpSOFT
  */
+try {
+    classMpLogger::exists();
+    return;
+} catch (Exception $exc) {
+    //nothing
+}
 
 class classMpLogger {
-    public static function add($message)
+    
+    private static function getFileName()
+    {
+        $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . 'log.txt';
+        return $filename;
+    }
+    
+    private static function openFile()
     {
         $debug = true;
         
         if ($debug==false) {
-           return; 
+           return false; 
         }
         
-        $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . 'log.txt';
-        if(!empty(debug_backtrace()[1]['function'])) {
-            $function = debug_backtrace()[1]['function'];
-        } else {
-            $function = 'no function';
-        }
-        
-        $log = date('Y-m-d h:i:s') . " [" . $function . '] => ' . $message;
+        $filename = self::getFileName();
         $handle = fopen($filename, 'a');
+        
+        return $handle;
+    }
+    
+    private static function closeFile($handle)
+    {
+        fclose($handle);
+        chmod(self::getFileName(), 0777);
+    }
+    
+    public static function addEvidencedMsg($message)
+    {
+        $message = '*** ' . $message . ' ***';
+        $count = Tools::strlen($message);
+        $stars = str_repeat("*", $count);
+        self::add($stars);
+        self::add($message);
+        self::add($stars);
+    }
+    
+    public static function add($message)
+    {
+        $handle = self::openFile();
+        if($handle===false) {
+            return false;
+        }
+        
+        $function = debug_backtrace()[1]['function'];
+        $log = date('Y-m-d h:i:s') . " [" . $function . '] => ' . $message;
         fwrite($handle,$log);
         fwrite($handle,PHP_EOL);
-        fclose($handle);
+        
+        self::closeFile($handle);
+        
+    }
+    
+    public static function blank()
+    {
+        $handle = self::openFile();
+        if($handle===false) {
+            return false;
+        }
+        
+        fwrite($handle,PHP_EOL);
+        
+        self::closeFile($handle);
     }
     
     public static function clear()

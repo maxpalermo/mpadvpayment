@@ -90,14 +90,16 @@ class classValidation {
      * Finalize cart and convert it to an order,
      * save extra info bill
      */
-    public static function FinalizeOrder($payment_type,$transaction_id,$module)
+    public static function FinalizeOrder($payment_type,$transaction_id,$module, $create_order=true, $cart_id = 0)
     {
-        classMpLogger::add('');
-        classMpLogger::add('');
-        classMpLogger::add('********************** ');
-        classMpLogger::add('*** START FUNCTION *** ');
-        classMpLogger::add('********************** ');
+        classMpLogger::blank();
+        classMpLogger::blank();
+        classMpLogger::blank();
+        classMpLogger::blank();
+        classMpLogger::blank();
+        classMpLogger::addEvidencedMsg('START FUNCTION');
         $summary = classSession::getSessionSummary();
+        
         $summary->payment_type = $payment_type;
         classSession::setSessionSummary($summary);
         
@@ -117,7 +119,16 @@ class classValidation {
         /**
          * Get Cart
          */
-        $cart = Context::getContext()->cart;
+        if((int)$summary->id_cart != 0) {
+            $cart = new Cart((int)$summary->id_cart);
+        } elseif ((int)$cart_id != 0) {
+            $cart = new Cart((int)$cart_id);
+        } else {
+            classMpLogger::add('NO CART FOUND!!');
+            return false;
+        }
+        
+        classMpLogger::add('Get cart id: ' . $cart->id);
         
         /**************
          * VALIDATION *
@@ -129,6 +140,7 @@ class classValidation {
             Tools::redirect('index.php?controller=order&step=1');
         }
         
+        classMpLogger::add('Module name: ' . $module->name);
         if (!self::checkValidPaymentMethod($module)) {
             classMpLogger::add('ERROR DURING VALIDATION');
             classMpLogger::add('Payment not available:');
@@ -146,40 +158,71 @@ class classValidation {
         $customer = new CustomerCore($cart->id_customer);
         classMpLogger::add('Get id order state: ' . $id_order_state);
         
-        $id_order = self::createOrder($module, $cart->id, $payment_type_display, $customer->secure_key);
-        if($id_order) {
-            classMpLogger::add('Order created: ' . $id_order);
-            
-            $payment = new ClassPaymentFee();
-            $payment->create($id_order, $payment_type, $summary_cart->getFee(), $summary_cart->getFeeTaxRate());
-            $result = $payment->insert();
-            
-            if ($result) {
-                self::redirect($payment_type,$module, $transaction_id, $payment);
+        if($create_order) {
+            classMpLogger::add('create order');
+            $id_order = self::createOrder($module, $cart->id, $payment_type_display, $customer->secure_key);
+            $redirect = false;
+        } else {
+            classMpLogger::add('check if order exists');
+            $id_order = self::getOrderIdByIdCart($cart->id);
+            if ((int)$id_order==0) {
+                classMpLogger::add('order not exists for cart ' . $cart->id);
+                classMpLogger::add('trying to create order');
+                $id_order = self::createOrder($module, $cart->id, $payment_type_display, $customer->secure_key);
+                $redirect = false;
             } else {
-                classMpLogger::add('ERROR DURING FEE INSERT');
+                classMpLogger::addEvidencedMsg('order exists for cart ' . $cart->id . '. JUST REDIRECT');
+                $redirect=true;
+            }
+        }
+        
+        if($redirect) {
+            classMpLogger::addEvidencedMsg('Only redirect. ORDER ALREADY CREATED');
+            $payment = new ClassPaymentFee();
+            $payment->load($id_order);
+            classMpLogger::blank();
+            classMpLogger::addEvidencedMsg('END OF FUNCTION. no order created.');
+            classMpLogger::blank();
+            self::redirect($payment_type,$module, $transaction_id, $payment);
+        } else {
+            if($id_order) {
+                classMpLogger::add('Order created: ' . $id_order);
+
+                $payment = new ClassPaymentFee();
+                $payment->create($id_order, $payment_type, $summary_cart->getFee(), $summary_cart->getFeeTaxRate());
+                $result = $payment->insert();
+
+                if ($result) {
+                    classMpLogger::blank();
+                    classMpLogger::addEvidencedMsg('END OF FUNCTION. order ' . $id_order . ' created.');
+                    classMpLogger::blank();
+                    self::redirect($payment_type,$module, $transaction_id, $payment);
+                } else {
+                    classMpLogger::add('ERROR DURING FEE INSERT');
+                    Tools::d(
+                            $module->l(
+                                    'ERROR DURING FEE INSERT, please contact our customer care. Order id: ',
+                                    'classValidation'
+                                    ) . $id_order
+                            );
+                }
+            } else {
+                classMpLogger::add('Error during Order creation.');
                 Tools::d(
                         $module->l(
-                                'ERROR DURING FEE INSERT, please contact our customer care. Order id: ',
-                                'classValidation'
-                                ) . $id_order
+                                'Error during Order creation. Please contact our customer care. Cart id: '
+                                , 'classValidation'
+                                ) . $cart->id
                         );
             }
-        } else {
-            classMpLogger::add('Error during Order creation.');
-            Tools::d(
-                    $module->l(
-                            'Error during Order creation. Please contact our customer care. Cart id: '
-                            , 'classValidation'
-                            ) . $cart->id
-                    );
         }
     }
     
     public static function updateOrder($id_order)
     {
         if ((int)$id_order == 0) {
-           return false; 
+            classMpLogger::add('ERROR. NO ID ORDER SET');
+            return false; 
         }
         
         $payment = new ClassPaymentFee();
@@ -203,15 +246,18 @@ class classValidation {
                     'total_paid_tax_excl' => number_format((float)$payment->getTotal_document_tax_excl(),6),
                 ),
                 'id_order = ' . (int)$id_order);
+        classMpLogger::addEvidencedMsg('FUNCTION ' . __FUNCTION__);
         classMpLogger::add('UPDATING ORDER ' . $id_order . ': ' . (int)$result);
         classMpLogger::add('AFFECTED ROWS ' . $db->Affected_Rows());
+        classMpLogger::blank();
         return $result;
     }
     
     public static function updateInvoice($id_order)
     {
         if ((int)$id_order == 0) {
-           return false; 
+            classMpLogger::add('ERROR: NO ID ORDER SET');
+            return false; 
         }
         
         $payment = new ClassPaymentFee();
@@ -225,16 +271,18 @@ class classValidation {
                     'total_paid_tax_excl' => number_format((float)$payment->getTotal_document_tax_excl(),6),
                 ),
                 'id_order = ' . (int)$id_order);
+        classMpLogger::addEvidencedMsg('FUNCTION ' . __FUNCTION__);
         classMpLogger::add('UPDATING ORDER ' . $id_order . ': ' . (int)$result);
-        classMpLogger::add('AFFECTED ROWS ' . $db->Affected_Rows());
+        classMpLogger::add('AFFECTED ROWS ' . Db::getInstance()->Affected_Rows());
+        classMpLogger::blank();
         return $result;
     }
     
     public static function updateOrderPayment($id_order, $transaction_id = '')
     {
         if ((int)$id_order == 0) {
-            classMpLogger::add('ERROR');
-            classMpLogger::add('$id_order=' . $id_order);
+            classMpLogger::add('ERROR: NO ORDER SET');
+            classMpLogger::add('$id_order=' . (int)$id_order);
             return false; 
         }
         
@@ -254,7 +302,14 @@ class classValidation {
         if (!empty($transaction_id)) {
             $orderPayment->transaction_id = $transaction_id;
         }
-        return $orderPayment->update();
+        $result = $orderPayment->update();
+        
+        classMpLogger::addEvidencedMsg('FUNCTION ' . __FUNCTION__);
+        classMpLogger::add('UPDATING ORDER ' . $id_order . ': ' . (int)$result);
+        classMpLogger::add('AFFECTED ROWS ' . Db::getInstance()->Affected_Rows());
+        classMpLogger::blank();
+        
+        return $result;
     }
     
     public static function setOrderState($id_order, $payment_method)
@@ -277,7 +332,34 @@ class classValidation {
         }
         
         $order = new OrderCore($id_order);
-        return $order->setCurrentState($id_order_state);
+        $result =  $order->setCurrentState($id_order_state);
+        classMpLogger::addEvidencedMsg('FUNCTION ' . __FUNCTION__);
+        classMpLogger::add('UPDATING ORDER ' . $id_order . ': ' . (int)$result);
+        classMpLogger::add('AFFECTED ROWS ' . Db::getInstance()->Affected_Rows());
+        classMpLogger::blank();
+        return $result;
+    }
+    
+    public static function updateOrderPaymentModule($id_order, $payment_method)
+    {
+        if ((int)$id_order == 0) {
+            classMpLogger::add('ERROR NO ID ORDER FOUND');
+            return false; 
+        }
+        
+        if (empty($payment_method)) {
+            classMpLogger::add('ERROR NO PAYMENT METHOD FOUND');
+            return false; 
+        }
+        
+        $order = new OrderCore($id_order);
+        $order->module = $payment_method;
+        $result =  $order->update();
+        classMpLogger::addEvidencedMsg('FUNCTION ' . __FUNCTION__);
+        classMpLogger::add('UPDATING ORDER ' . $id_order . ': ' . (int)$result);
+        classMpLogger::add('AFFECTED ROWS ' . Db::getInstance()->Affected_Rows());
+        classMpLogger::blank();
+        return $result;
     }
     
     private static function checkCustomer($cart)
@@ -299,11 +381,18 @@ class classValidation {
          * @var bool $authorized 
          */
         $authorized = false;
+        $count = count(ModuleCore::getPaymentModules());
+        classMpLogger::add('Found ' . $count . ' payment modules');
         foreach (ModuleCore::getPaymentModules() as $pay_module) {
+            classMpLogger::add('PayModule: ' . $pay_module['name'] . '==' . $module->name);
             if ($pay_module['name'] == $module->name) {
                 $authorized = true;
                 break;
             }
+        }
+        
+        if($count==0) {
+            $authorized = true;
         }
         
         return $authorized;
@@ -319,6 +408,11 @@ class classValidation {
                 || $cart->id_address_delivery == 0
                 || $cart->id_address_invoice == 0
                 || !$module->active) {
+            classMpLogger::add('validatecart error');
+            classMpLogger::add('id_customer: ' . (int)$cart->id_customer);
+            classMpLogger::add('id_address_delivery: ' . (int)$cart->id_address_delivery);
+            classMpLogger::add('id_address_invoice: ' . (int)$cart->id_address_invoice);
+            classMpLogger::add('module->active: ' . (int)$module->active);
             return false;
                 } else {
             return true;
@@ -327,7 +421,7 @@ class classValidation {
     
     public static function createOrder($module, $id_cart, $payment_method, $secure_key)
     {
-        classMpLogger::add('*** START FUNCTION');
+        classMpLogger::addEvidencedMsg('START FUNCTION CREATEORDER');
         
         $extra_vars = array();
         $currency = Context::getContext()->currency;
@@ -352,7 +446,7 @@ class classValidation {
                 (int)$currency->id,
                 false,
                 $secure_key);
-        classMpLogger::add('Validate order returns ' . $result);
+        classMpLogger::add('Validate order returns ' . (int)$result);
         
         if($result) {
             return self::getOrderIdByIdCart($cart->id);

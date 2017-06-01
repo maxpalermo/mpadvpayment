@@ -42,10 +42,15 @@ class MpAdvPaymentPaypalReturnModuleFrontController extends ModuleFrontControlle
         */
         $id_cart = Tools::getValue('id_cart', 0);
         $id_order = Tools::getValue('id_order', 0);
-        classMpLogger::add('Updating order total: ' . (int)classValidation::updateOrder($id_order));
-        classMpLogger::add('Updating payment: ' . (int)classValidation::updateOrderPayment($id_order, $transaction_id));
-        classMpLogger::add('Updating invoice: ' . (int)classValidation::updateInvoice($id_order));
-        classMpLogger::add('Updating status: ' . (int)classValidation::setOrderState($id_order, classCart::PAYPAL));
+        classMpLogger::blank();
+        classMpLogger::addEvidencedMsg('PAYPAL RETURN id_order: ' . (int)$id_order);
+        classMpLogger::blank();
+        classMpLogger::add('Updating order total: ' . (int)classValidation::updateOrder((int)$id_order));
+        classMpLogger::add('Updating payment: ' . (int)classValidation::updateOrderPayment((int)$id_order, $transaction_id));
+        classMpLogger::add('Updating invoice: ' . (int)classValidation::updateInvoice((int)$id_order));
+        classMpLogger::add('Updating status: ' . (int)classValidation::setOrderState((int)$id_order, classCart::PAYPAL));
+        classMpLogger::add('Updating module payment: ' 
+                . (int)classValidation::updateOrderPaymentModule($id_order, $this->module->l('paypal')));
 
         $order_reference = classValidation::getOrderReferenceByIdCart($id_cart);
         

@@ -28,9 +28,10 @@ class MpAdvPaymentValidateCardModuleFrontController extends ModuleFrontControlle
 {
     public function postProcess()
     {   
-        classMpLogger::add('*** VALIDATING PAYPAL');
+        classMpLogger::addEvidencedMsg('VALIDATING PAYPAL');
         $transaction_id = Tools::getValue('tx','');
         
-        classValidation::FinalizeOrder(classCart::PAYPAL, $transaction_id, $this->module);
+        classMpLogger::add('finalize order from validateCard controller');
+        classValidation::FinalizeOrder(classCart::PAYPAL, $transaction_id, $this->module, false);
     }
 }

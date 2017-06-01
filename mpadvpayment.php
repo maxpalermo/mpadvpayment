@@ -100,6 +100,7 @@ class MpAdvPayment extends PaymentModule
           !$this->createState() ||
           !$this->registerHook('displayPayment') ||
           !$this->registerHook('displayAdminOrder') ||
+          !$this->InstallOverrides() ||
           !$this->installSql()) {
             return false;
         }
@@ -110,10 +111,90 @@ class MpAdvPayment extends PaymentModule
     {
         if (!parent::uninstall() || 
                 !$this->deleteState() ||
+                !$this->RemoveOverrides() ||
                 !$this->uninstallSql()) {
             return false;
         }
         return true;
+    }
+    
+    public function InstallOverrides()
+    {
+        $ds = DIRECTORY_SEPARATOR;
+        $sourcedir = dirname(__FILE__) . $ds . 'overrides' . $ds . 'modified' . $ds;
+        $pdfdir = _PS_ROOT_DIR_ . $ds . 'pdf' . $ds;
+        $classdir = _PS_ROOT_DIR_ . $ds . 'classes' . $ds;
+        $classpdfdir = $classdir . 'pdf' . $ds;
+        $maildir = _PS_THEME_DIR_ . $ds . 'mails' . $ds . 'it' . $ds;
+        
+        //copy template invoice
+        $result = copy($sourcedir . 'HTMLTemplateInvoice.php', $classpdfdir . 'HTMLTemplateInvoice.php');
+        if (!$result) {
+            return false;
+        }
+        
+        //copy payment module
+        $result = copy($sourcedir . 'PaymentModule.php', $classdir . 'PaymentModule.php');
+        if (!$result) {
+            return false;
+        }
+        
+        //copy mails
+        $result = copy($sourcedir . 'order_conf.html', $maildir . 'order_conf.html');
+        if (!$result) {
+            return false;
+        }
+        $result = copy($sourcedir . 'order_conf.txt', $maildir . 'order_conf.txt');
+        if (!$result) {
+            return false;
+        }
+        
+        //copy invoice tpl total tab
+        $result = copy($sourcedir . 'invoice.total-tab.tpl', $pdfdir . 'invoice.total-tab.tpl');
+        if (!$result) {
+            return false;
+        }
+        
+        return true;
+                
+    }
+    
+    public function RemoveOverrides()
+    {
+        $ds = DIRECTORY_SEPARATOR;
+        $sourcedir = dirname(__FILE__) . $ds . 'overrides' . $ds . 'original' . $ds;
+        $pdfdir = _PS_ROOT_DIR_ . $ds . 'pdf' . $ds;
+        $classdir = _PS_ROOT_DIR_ . $ds . 'classes' . $ds;
+        $classpdfdir = $classdir . 'pdf' . $ds;
+        $maildir = _PS_THEME_DIR_ . $ds . 'mails' . $ds . 'it' . $ds;
+        
+        //copy template invoice
+        $result = copy($sourcedir . 'HTMLTemplateInvoice.php', $classpdfdir . 'HTMLTemplateInvoice.php');
+        if (!$result) {
+            return false;
+        }
+        
+        //copy payment module
+        $result = copy($sourcedir . 'PaymentModule.php', $classdir . 'PaymentModule.php');
+        if (!$result) {
+            return false;
+        }
+        
+        //copy mails
+        $result = copy($sourcedir . 'order_conf.html', $maildir . 'order_conf.html');
+        if (!$result) {
+            return false;
+        }
+        $result = copy($sourcedir . 'order_conf.txt', $maildir . 'order_conf.txt');
+        if (!$result) {
+            return false;
+        }
+        
+        //copy invoice tpl total tab
+        $result = copy($sourcedir . 'invoice.total-tab.tpl', $pdfdir . 'invoice.total-tab.tpl');
+        if (!$result) {
+            return false;
+        }
     }
     
     public function createState()
@@ -169,6 +250,8 @@ class MpAdvPayment extends PaymentModule
         $smarty = Context::getContext()->smarty;
         $cart = Context::getContext()->cart;
         $summary = new classSummary($cart->id, classCart::NONE);
+        $context = ContextCore::getContext();
+        $context->summary = $summary;
         $result = classSession::setSessionSummary($summary);
         if (!$result) {
            Tools::d('Error during session save');

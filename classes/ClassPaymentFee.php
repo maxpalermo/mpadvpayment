@@ -114,72 +114,8 @@ class ClassPaymentFee {
         return $this->tax_included;
     }
 
-    public function setId_fee($id_fee) {
-        $this->id_fee = $id_fee;
-    }
-
-    public function setId_order($id_order) {
-        $this->id_order = $id_order;
-    }
-
-    public function setTotal_paid($total_paid) {
-        $this->total_paid = $total_paid;
-    }
-
-    public function setTotal_paid_tax_incl($total_paid_tax_incl) {
-        $this->total_paid_tax_incl = $total_paid_tax_incl;
-    }
-
-    public function setTotal_paid_tax_excl($total_paid_tax_excl) {
-        $this->total_paid_tax_excl = $total_paid_tax_excl;
-    }
-
-    public function setTotal_paid_real($total_paid_real) {
-        $this->total_paid_real = $total_paid_real;
-    }
-
-    public function setFee($fee) {
-        $this->fee = $fee;
-    }
-
-    public function setFee_tax_incl($fee_tax_incl) {
-        $this->fee_tax_incl = $fee_tax_incl;
-    }
-
-    public function setFee_tax_excl($fee_tax_excl) {
-        $this->fee_tax_excl = $fee_tax_excl;
-    }
-
-    public function setFee_tax_rate($fee_tax_rate) {
-        $this->fee_tax_rate = $fee_tax_rate;
-    }
-
-    public function setTotal_document($total_document) {
-        $this->total_document = $total_document;
-    }
-
-    public function setTotal_document_tax_incl($total_document_tax_incl) {
-        $this->total_document_tax_incl = $total_document_tax_incl;
-    }
-
-    public function setTotal_document_tax_excl($total_document_tax_excl) {
-        $this->total_document_tax_excl = $total_document_tax_excl;
-    }
-
     public function setTransaction_id($transaction_id) {
         $this->transaction_id = $transaction_id;
-    }
-
-    public function setPayment_type($payment_type) {
-        $this->payment_type = $payment_type;
-    }
-
-    public function setDate_add($date_add) {
-        $this->date_add = $date_add;
-    }
-
-    public function setTax_included($tax_included) {
-        $this->tax_included = $tax_included;
     }
     
     public function getIdOrderPayment()
@@ -215,7 +151,7 @@ class ClassPaymentFee {
         $this->total_paid_tax_excl = $order->total_paid_tax_excl;
         $this->total_paid_real = $order->total_paid_real;
         
-        classMpLogger::add('Order: ');
+        classMpLogger::add('Order: ' . (int)$id_order);
         classMpLogger::add('total paid: ' . $this->total_paid);
         classMpLogger::add('total paid_tax_incl: ' . $this->total_paid_tax_incl);
         classMpLogger::add('total paid_tax_excl: ' . $this->total_paid_tax_excl);

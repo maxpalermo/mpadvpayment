@@ -28,7 +28,7 @@ class MpAdvPaymentValidateCashModuleFrontController extends ModuleFrontControlle
 {
     public function postProcess()
     {   
-        classMpLogger::add('*** VALIDATING CASH');
+        classMpLogger::addEvidencedMsg('VALIDATING CASH');
         
         classValidation::FinalizeOrder(classCart::CASH, '', $this->module);
     }
